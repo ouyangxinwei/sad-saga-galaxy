@@ -35,4 +35,4 @@ The `standalone-migration` branch is deployed to GitHub Pages by the workflow in
 
 ## Project documentation
 
-See the `docs/` directory for migration, dependency audit, and deployment history.
+See the `docs/` directory for migration, dependency audit, deployment history, and the Idle System V1.1 specification, player guide, and developer guide.
