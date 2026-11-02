@@ -6,6 +6,7 @@ import GameIcon from '@/components/common/GameIcon';
 import { GhostButton, GoldButton } from '@/components/common/Bits';
 import { useGame } from '@/lib/GameContext';
 import { LANGS } from '@/lib/i18n';
+import { APP_VERSION } from '@/lib/version';
 
 export default function Settings() {
   const { t, lang, setLang, actions, level, rebirth, cleared } = useGame();
@@ -14,7 +15,7 @@ export default function Settings() {
   return (
     <AppShell>
       <div className="mx-auto max-w-[720px] px-3 pb-28 pt-3 sm:px-6 sm:pt-6">
-        <PageHeader title={t('settings.title')} subtitle={t('settings.version')} />
+        <PageHeader title={t('settings.title')} subtitle={t('settings.version', { version: APP_VERSION })} />
 
         <section className="saga-panel mt-3 p-3.5">
           <p className="flex items-center gap-1.5 text-[10px] tracking-wider text-muted-foreground">
