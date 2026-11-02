@@ -123,7 +123,7 @@ export default function GalleryDialog({ open, onClose }) {
                   lang={lang}
                   size="sm"
                   locked={!owned}
-                  badge={owned ? (copies > 1 ? `~${copies}` : null) : cardShards[h.id] ? `${cardShards[h.id]}/5` : null}
+                  badge={owned ? (copies > 1 ? `Ã—${copies}` : null) : cardShards[h.id] ? `${cardShards[h.id]}/5` : null}
                 />
               );
             })
