@@ -78,6 +78,37 @@ export function GameProvider({ children }) {
     persist(state);
   }, [state]);
 
+  // One-time local test grant for both upgraded saves and newly created local saves.
+  useEffect(() => {
+    if (testSupport) return;
+    let marker = null;
+    try {
+      marker = localStorage.getItem(TEST_SUPPORT_KEY);
+    } catch {
+      return;
+    }
+    if (marker) {
+      const restored = readTestSupport();
+      if (restored) setTestSupport(restored);
+      return;
+    }
+    const claimedAt = Date.now();
+    const grantMarker = { claimedAt, expiresAt: claimedAt + TEST_DURATION_MS, ticketsGranted: TEST_TICKETS, gemsGranted: TEST_GEMS };
+    const next = { ...ref.current, tickets: (ref.current.tickets || 0) + TEST_TICKETS, gems: (ref.current.gems || 0) + TEST_GEMS };
+    try {
+      localStorage.setItem(TEST_SUPPORT_KEY, JSON.stringify(grantMarker));
+      if (!persist(next)) {
+        localStorage.removeItem(TEST_SUPPORT_KEY);
+        return;
+      }
+      ref.current = next;
+      setState(next);
+      setTestSupport(grantMarker);
+    } catch {
+      try { localStorage.removeItem(TEST_SUPPORT_KEY); } catch { /* storage unavailable */ }
+    }
+  }, [testSupport]);
+
   const t = useCallback((key, vars) => translate(key, ref.current.lang, vars), []);
 
   const notify = useCallback((msg) => {
@@ -706,6 +737,7 @@ export function GameProvider({ children }) {
 
   const value = useMemo(() => {
     const info = currentStamina(state);
+    const testSupportActive = Boolean(testSupport && Date.now() < testSupport.expiresAt);
     const ownedHeroes = Object.keys(state.cards).filter((id) => getCardDef(state, id));
     return {
       ...state,
@@ -752,6 +784,7 @@ export function GameProvider({ children }) {
         equipRelic,
         meltShards,
         buyShop,
+        refillTestStamina,
         exchangeMedals,
         claimMilestone,
         resetSave,
@@ -759,6 +792,7 @@ export function GameProvider({ children }) {
     };
   }, [
     state,
+    testSupport,
     t,
     notify,
     setLang,
@@ -788,6 +822,7 @@ export function GameProvider({ children }) {
     equipRelic,
     meltShards,
     buyShop,
+    refillTestStamina,
     exchangeMedals,
     claimMilestone,
     resetSave,
