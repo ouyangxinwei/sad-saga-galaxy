@@ -9,7 +9,7 @@ import { LANGS } from '@/lib/i18n';
 import { APP_VERSION } from '@/lib/version';
 
 export default function Settings() {
-  const { t, lang, setLang, actions, level, rebirth, cleared } = useGame();
+  const { t, lang, setLang, actions, level, rebirth, cleared, testSupport, gems, tickets, stamina, staminaMax } = useGame();
   const [confirming, setConfirming] = useState(false);
 
   return (
@@ -36,6 +36,37 @@ export default function Settings() {
               </button>
             ))}
           </div>
+        </section>
+
+        <section className="saga-panel mt-3 p-3.5">
+          <p className="text-[10px] tracking-wider text-primary">{t('testSupport.title')}</p>
+          <p className="mt-1 text-[9.5px] leading-relaxed text-muted-foreground">{t('testSupport.grant')}</p>
+          <p className="mt-2 text-[9.5px] text-muted-foreground">
+            {testSupport?.active
+              ? t('testSupport.active', { days: testSupport.daysRemaining })
+              : t('testSupport.expired')}
+          </p>
+          <div className="mt-2 grid grid-cols-3 gap-2 text-center">
+            <div className="rounded-lg bg-white/[0.03] py-2">
+              <p className="text-[8px] text-muted-foreground">{t('res.tickets')}</p>
+              <p className="text-[12px] tabular-nums">{tickets.toLocaleString('en-US')}</p>
+            </div>
+            <div className="rounded-lg bg-white/[0.03] py-2">
+              <p className="text-[8px] text-muted-foreground">{t('res.gems')}</p>
+              <p className="text-[12px] tabular-nums">{gems.toLocaleString('en-US')}</p>
+            </div>
+            <div className="rounded-lg bg-white/[0.03] py-2">
+              <p className="text-[8px] text-muted-foreground">{t('res.stamina')}</p>
+              <p className="text-[12px] tabular-nums">{stamina}/{staminaMax}</p>
+            </div>
+          </div>
+          <GoldButton
+            onClick={() => actions.refillTestStamina()}
+            disabled={!testSupport?.active || stamina >= staminaMax}
+            className="mt-2 w-full py-2"
+          >
+            {t('testSupport.refill')}
+          </GoldButton>
         </section>
 
         <section className="saga-panel mt-3 p-3.5">
