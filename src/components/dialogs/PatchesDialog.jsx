@@ -1,7 +1,7 @@
 import GameModal from '@/components/common/GameModal';
 import GameIcon from '@/components/common/GameIcon';
 import { useGame } from '@/lib/GameContext';
-import { CHANGELOG } from '@/lib/gameData';
+import { APP_VERSION, CHANGELOG, RELEASE_DATE } from '@/lib/version';
 
 export default function PatchesDialog({ open, onClose }) {
   const { t, lang } = useGame();
@@ -11,7 +11,7 @@ export default function PatchesDialog({ open, onClose }) {
       open={open}
       onClose={onClose}
       title={t('patches.title')}
-      subtitle={`${CHANGELOG[0].version} ? ${CHANGELOG[0].title[lang] || CHANGELOG[0].title.zh}`}
+      subtitle={`${APP_VERSION} · ${CHANGELOG[0].title[lang] || CHANGELOG[0].title.zh} · ${RELEASE_DATE}`}
       width="max-w-2xl"
     >
       <div className="space-y-4">
