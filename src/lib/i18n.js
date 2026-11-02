@@ -225,6 +225,13 @@ export const S = {
   'forge.buy': { zh: '铸成遗物', ja: '遺物を鋳造', en: 'Forge relic' },
   'forge.pickCard': { zh: '选择装备角色', ja: '装備する角色を選択', en: 'Choose a card' },
 
+  'testSupport.title': { zh: '30 天测试资源补给', ja: '30 日間テスト支援', en: '30-day test support' },
+  'testSupport.active': { zh: '测试支援进行中 · 剩余 {days} 天', ja: 'テスト支援中 · 残り {days} 日', en: 'Test support active · {days} days left' },
+  'testSupport.expired': { zh: '30 天测试支援已结束，剩余资源仍可使用', ja: '30 日間のテスト支援は終了しました。残りの資源は引き続き使用できます', en: 'The 30-day test support has ended; remaining resources are yours to keep' },
+  'testSupport.grant': { zh: '已自动发放：抽卡券 +450、钻石 +324,000', ja: '自動付与：召喚券 +450、ダイヤ +324,000', en: 'Granted automatically: 450 tickets and 324,000 gems' },
+  'testSupport.refill': { zh: '免费补满体力至 60', ja: 'スタミナを無料で 60 まで回復', en: 'Free refill stamina to 60' },
+  'testSupport.refilled': { zh: '测试体力已补满', ja: 'テスト用スタミナを回復しました', en: 'Test stamina refilled' },
+  'testSupport.expiredShort': { zh: '已结束', ja: '終了', en: 'Expired' },
   'settings.title': { zh: '系统设置', ja: '設定', en: 'Settings' },
   'settings.language': { zh: '语言', ja: '言語', en: 'Language' },
   'settings.autoplay': { zh: '战斗自动播放', ja: 'バトル自動再生', en: 'Auto-play battles' },
