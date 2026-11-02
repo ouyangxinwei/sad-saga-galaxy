@@ -165,7 +165,7 @@ export default function BattleArena({ mode, n }) {
             onClick={() => setSpeed(speed === 1 ? 2 : speed === 2 ? 3 : 1)}
             className="tap rounded-lg border border-white/10 bg-white/[0.04] px-2 py-1 text-[9px] tabular-nums text-foreground/80"
           >
-            ~{speed}
+            Ã—{speed}
           </button>
           <button
             type="button"
