@@ -1,8 +1,18 @@
 // Single source of truth for in-app, package, and release-document version.
-export const APP_VERSION = 'v0.22';
+export const APP_VERSION = 'v0.23';
 export const RELEASE_DATE = '2026-11-03';
 
 export const CHANGELOG = [
+  {
+    version: APP_VERSION,
+    date: RELEASE_DATE,
+    title: { zh: '全局战斗倍速记忆', ja: '戦闘速度の全体共有と記憶', en: 'Global battle speed preference' },
+    items: {
+      zh: ['战斗倍速改为全局共用，切换到下一关、重试或进入其他支持战斗的模式时自动沿用', '战斗中点击倍速会立即生效，无需重新开始', '倍速选择保存在当前浏览器本地，刷新或重新打开游戏后仍会保留', '默认倍速为 1 倍，可循环切换 1 倍、2 倍、3 倍', '使用独立的本地设置键保存，不修改原有游戏存档、存档版本或战斗计算规则'],
+      ja: ['戦闘速度を全体共通設定にし、次のステージ・再挑戦・他の対応モードでも引き継ぐ', '戦闘中の速度変更は即時反映され、再開始は不要', '速度設定はブラウザーのローカル領域に保存され、再読み込み後も維持', '初期値は 1 倍、1・2・3 倍を順番に切り替え', '独立したローカル設定キーを使用し、既存セーブデータ・バージョン・戦闘計算ルールは変更しない'],
+      en: ['Made battle speed a shared preference across next stages, retries, and other supported battle modes', 'Speed changes take effect immediately during battle', 'Stored the selected speed locally so it survives refreshes and relaunches', 'Defaults to 1x and cycles through 1x, 2x, and 3x', 'Uses a separate local setting key without changing the existing save data, save schema, or battle calculations'],
+    },
+  },
   {
     version: APP_VERSION,
     date: RELEASE_DATE,
