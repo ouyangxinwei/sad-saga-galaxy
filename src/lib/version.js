@@ -1,8 +1,19 @@
 // Single source of truth for in-app, package, and release-document version.
-export const APP_VERSION = 'v0.23';
+export const APP_VERSION = 'v0.24';
 export const RELEASE_DATE = '2026-11-03';
 
 export const CHANGELOG = [
+  {
+    version: APP_VERSION,
+    date: RELEASE_DATE,
+    title: { zh: '30 天测试资源补给', ja: '30 日間テスト資源支援', en: '30-day test resource support' },
+    items: {
+      zh: ['升级后对现有本地存档自动发放一次测试资源；新建本地存档也自动发放一次', '一次性发放 450 张抽卡券与 324,000 钻石，额度按 30 天测试工作量估算并预留 1.5 倍', '测试支持期从首次领取时开始计算，持续 30 天', '测试期内可在系统设置免费一键补满体力至 60，不消耗钻石', '30 天结束后关闭免费补体力，恢复正常体力与商店规则；剩余资源和全部游戏进度保留', '使用独立本地标记防止刷新或重新打开时重复发放，不修改原存档键、存档结构或版本 20'],
+      ja: ['既存のローカルセーブにはアップグレード後 1 回、新規ローカルセーブにも 1 回、テスト資源を自動付与', '召喚券 450 枚とダイヤ 324,000 個を一括付与。30 日間の想定テスト量に 1.5 倍の余裕を設定', 'テスト期間は初回付与時から 30 日間', 'テスト期間中は設定画面からダイヤ消費なしでスタミナを 60 まで即時回復', '30 日経過後は無料回復を停止し、通常の回復・ショップ仕様に戻す。残り資源と全進行状況は保持', '独立したローカルマーカーで再読み込み時の重複付与を防止。既存のセーブキー・構造・バージョン 20 は変更しない'],
+      en: ['Automatically grants test resources once to an existing local save after upgrade and once to a newly created local save', 'Grants 450 summon tickets and 324,000 gems in one batch, based on an estimated 30-day test workload with a 1.5x buffer', 'The 30-day test period starts when the grant is first claimed', 'During the test period, Settings provides a free one-tap refill to 60 stamina without spending gems', 'After 30 days, free refills stop and normal stamina/shop rules resume; all remaining resources and game progress are retained', 'Uses an independent local marker to prevent duplicate grants on refresh/reopen without changing the existing save key, save structure, or schema version 20'],
+    },
+  },
+
   {
     version: APP_VERSION,
     date: RELEASE_DATE,
