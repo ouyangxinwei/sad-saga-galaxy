@@ -1,5 +1,5 @@
 const CACHE_PREFIX = 'oooo-app-shell-';
-const CACHE_NAME = `${CACHE_PREFIX}v1`;
+const CACHE_NAME = `${CACHE_PREFIX}v2`;
 
 self.addEventListener('install', (event) => {
   const base = self.registration.scope;
@@ -17,7 +17,7 @@ self.addEventListener('install', (event) => {
     const cache = await caches.open(CACHE_NAME);
     await cache.addAll(assets);
     const html = await (await cache.match(indexUrl)).text();
-    const bundledAssets = [...html.matchAll(/(?:src|href)="([^"]+\\.(?:js|css)(?:\\?[^"]*)?)"/g)]
+    const bundledAssets = [...html.matchAll(/(?:src|href)="([^"]+\.(?:js|css)(?:\\?[^"]*)?)"/g)]
       .map((match) => new URL(match[1], base).toString());
     if (bundledAssets.length) await cache.addAll(bundledAssets);
     await self.skipWaiting();
