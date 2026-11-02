@@ -105,8 +105,9 @@ export function loadState() {
 export function persist(state) {
   try {
     localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+    return true;
   } catch (e) {
-    /* storage unavailable */
+    return false;
   }
 }
 
