@@ -231,7 +231,7 @@ export const S = {
   'settings.speed': { zh: '播放倍速', ja: '再生速度', en: 'Playback speed' },
   'settings.reset': { zh: '重置存档', ja: 'セーブを初期化', en: 'Reset save' },
   'settings.resetDesc': { zh: '清空所有进度并从第 1 关重新开始。', ja: 'すべての進行を消去し第 1 面から再開します。', en: 'Erase all progress and restart from stage 1.' },
-  'settings.version': { zh: '设计稿 第二十一稿', ja: '設計稿 第 21 版', en: 'Design draft v21' },
+  'settings.version': { zh: '当前版本 {version}', ja: '現在のバージョン {version}', en: 'Current version {version}' },
   'settings.credits': { zh: '悲伤沙加银河系 · 星海运营局', ja: '悲しきサーガ銀河 · 星海運営局', en: 'Sorrowful Saga · Star Sea Bureau' },
 
   'tavern.title': { zh: '冒险者酒馆', ja: '冒険者酒場', en: 'Adventurer Tavern' },
