@@ -6,9 +6,10 @@ import { useGame } from '@/lib/GameContext';
 import { fmt } from '@/lib/format';
 
 export default function IdleDialog({ open, onClose }) {
-  const { t, idle, actions, cleared } = useGame();
+  const { t, idle, actions, cleared, lang, defOf } = useGame();
   const preview = actions.idlePreview();
   const cap = 720;
+  const partyPassives = preview.bonus.details.map((item) => ({ ...item, name: defOf(item.id)?.name?.[lang] || defOf(item.id)?.name?.zh || item.id }));
   const [, setTick] = useState(0);
 
   useEffect(() => {
@@ -69,6 +70,23 @@ export default function IdleDialog({ open, onClose }) {
               <GameIcon name="Map" className="h-3 w-3" />
               {preview.clearsPerHour}/h
             </span>
+          </div>
+        </div>
+        <div className="mt-3 rounded-xl border border-primary/15 bg-primary/[0.035] p-3">
+          <p className="text-[10px] tracking-wider text-primary">{t('idle.passiveTitle')}</p>
+          <div className="mt-2 grid grid-cols-3 gap-1.5 text-center">
+            <div><p className="text-[8px] text-muted-foreground">{t('idle.bonus.gold')}</p><p className="text-[12px] tabular-nums text-primary">+{Math.round(preview.bonus.gold * 100)}%</p></div>
+            <div><p className="text-[8px] text-muted-foreground">{t('idle.bonus.exp')}</p><p className="text-[12px] tabular-nums text-accent">+{Math.round(preview.bonus.exp * 100)}%</p></div>
+            <div><p className="text-[8px] text-muted-foreground">{t('idle.bonus.progress')}</p><p className="text-[12px] tabular-nums text-foreground/80">+{Math.round(preview.bonus.progress * 100)}%</p></div>
+          </div>
+          <div className="mt-2 space-y-1">
+            {partyPassives.map((item) => (
+              <div key={item.id} className="flex flex-wrap items-center justify-between gap-x-2 text-[9px] text-muted-foreground">
+                <span>{item.name} · {t('idle.passive.' + item.classId)}</span>
+                <span className="tabular-nums">{item.effects.map((effect) => '+' + effect.percent + '% ' + t('idle.bonus.' + effect.type)).join(' / ')}</span>
+              </div>
+            ))}
+            {!partyPassives.length ? <p className="text-[9px] text-muted-foreground">{t('idle.passiveEmpty')}</p> : null}
           </div>
         </div>
         <p className="mt-2.5 flex items-center gap-1 text-[10px] text-muted-foreground">
