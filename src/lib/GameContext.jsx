@@ -56,14 +56,53 @@ function readTestSupport() {
   }
 }
 
-// 挂机效率随最高关卡层级提升，统一以「每小时」为单位计算
+// Idle passives are separate from combat passives. Only the five current party slots count.
+const IDLE_PASSIVES = {
+  sword: [{ type: 'gold', rate: 0.05 }],
+  guardian: [{ type: 'gold', rate: 0.05 }],
+  lancer: [{ type: 'progress', rate: 0.05 }],
+  archer: [{ type: 'progress', rate: 0.05 }],
+  mage: [{ type: 'exp', rate: 0.05 }],
+  priest: [{ type: 'exp', rate: 0.05 }],
+  rogue: [{ type: 'gold', rate: 0.05 }],
+  alchemist: [{ type: 'exp', rate: 0.05 }],
+  stargazer: [{ type: 'gold', rate: 0.03 }, { type: 'exp', rate: 0.03 }, { type: 'progress', rate: 0.03 }],
+};
+
+function idleBonusOf(s) {
+  const totals = { gold: 0, exp: 0, progress: 0 };
+  const details = [];
+  (s.party || []).slice(0, 5).forEach((id) => {
+    if (!id || !s.cards?.[id]) return;
+    const def = getCardDef(s, id);
+    if (!def) return;
+    const cls = classOf(def.classId);
+    const classId = cls.baseId || cls.id;
+    const effects = IDLE_PASSIVES[classId] || [];
+    if (!effects.length) return;
+    effects.forEach(({ type, rate }) => { totals[type] += rate; });
+    details.push({ id, classId, effects: effects.map(({ type, rate }) => ({ type, percent: Math.round(rate * 100) })) });
+  });
+  return {
+    gold: Math.min(0.25, totals.gold),
+    exp: Math.min(0.25, totals.exp),
+    progress: Math.min(0.25, totals.progress),
+    details,
+  };
+}
+
+// Base idle rates remain unchanged; current party passives are additive.
 function idleRatesOf(s) {
   const tier = highestTier(s);
+  const bonus = idleBonusOf(s);
+  const baseGold = Math.round(60 * (8 + tier * 1.1));
+  const baseExp = Math.round(60 * (5 + tier * 0.8));
   return {
     tier,
-    goldPerHour: Math.round(60 * (8 + tier * 1.1)),
-    expPerHour: Math.round(60 * (5 + tier * 0.8)),
-    clearsPerHour: 5,
+    bonus,
+    goldPerHour: Math.round(baseGold * (1 + bonus.gold)),
+    expPerHour: Math.round(baseExp * (1 + bonus.exp)),
+    clearsPerHour: 5 * (1 + bonus.progress),
   };
 }
 
@@ -362,8 +401,9 @@ export function GameProvider({ children }) {
   const idlePreview = useCallback(() => {
     const s = ref.current;
     const rates = idleRatesOf(s);
-    const elapsed = s.idle.active ? Math.max(0, (Date.now() - s.idle.at) / 1000) : 0;
-    const seconds = Math.min(IDLE_CAP_MIN * 60, Math.floor(elapsed));
+    const storedSeconds = Math.max(0, Number(s.idle.elapsedSeconds) || 0);
+    const runningSeconds = s.idle.active ? Math.max(0, (Date.now() - s.idle.at) / 1000) : 0;
+    const seconds = Math.min(IDLE_CAP_MIN * 60, Math.floor(storedSeconds + runningSeconds));
     const minutes = Math.floor(seconds / 60);
     return {
       seconds,
@@ -371,7 +411,7 @@ export function GameProvider({ children }) {
       ...rates,
       gold: Math.floor((seconds * rates.goldPerHour) / 3600),
       exp: Math.floor((seconds * rates.expPerHour) / 3600),
-      clears: Math.min(8, Math.floor(minutes / 12)),
+      clears: Math.min(8, Math.floor((seconds * rates.clearsPerHour) / 3600)),
     };
   }, []);
 
@@ -383,9 +423,13 @@ export function GameProvider({ children }) {
     }
     const s = { ...ref.current, progress: { ...ref.current.progress } };
     // 按整秒结算：未满一秒的余数保留；触及 12 小时上限则从此刻重新计时，避免重复补发
+    const now = Date.now();
+    const storedSeconds = Math.max(0, Number(s.idle.elapsedSeconds) || 0);
+    const hitCap = p.seconds >= IDLE_CAP_MIN * 60;
     s.idle = {
       ...s.idle,
-      at: p.seconds >= IDLE_CAP_MIN * 60 ? Date.now() : s.idle.at + p.seconds * 1000,
+      at: hitCap ? now : (s.idle.active ? s.idle.at + Math.max(0, p.seconds - storedSeconds) * 1000 : now),
+      elapsedSeconds: hitCap ? 0 : (s.idle.active ? 0 : Math.max(0, storedSeconds - p.seconds)),
     };
     let clears = p.clears;
     while (clears > 0) {
@@ -401,10 +445,15 @@ export function GameProvider({ children }) {
   }, [commit, idlePreview, notify, t]);
 
   const toggleIdle = useCallback(() => {
-    commit((s) => ({
-      ...s,
-      idle: { active: !s.idle.active, at: Date.now() },
-    }));
+    const now = Date.now();
+    commit((s) => {
+      const storedSeconds = Math.max(0, Number(s.idle.elapsedSeconds) || 0);
+      if (s.idle.active) {
+        const elapsed = Math.min(IDLE_CAP_MIN * 60, Math.floor(storedSeconds + Math.max(0, (now - s.idle.at) / 1000)));
+        return { ...s, idle: { active: false, at: now, elapsedSeconds: elapsed } };
+      }
+      return { ...s, idle: { active: true, at: now, elapsedSeconds: Math.min(IDLE_CAP_MIN * 60, storedSeconds) } };
+    });
   }, [commit]);
 
   const refreshBounties = useCallback(() => {
