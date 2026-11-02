@@ -16,7 +16,7 @@ export const CHANGELOG = [
 
 
   {
-    version: APP_VERSION,
+    version: 'v0.24',
     date: RELEASE_DATE,
     title: { zh: '30 天测试资源补给', ja: '30 日間テスト資源支援', en: '30-day test resource support' },
     items: {
