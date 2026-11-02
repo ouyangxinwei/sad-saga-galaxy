@@ -1,8 +1,20 @@
 // Single source of truth for in-app, package, and release-document version.
-export const APP_VERSION = 'v0.24';
+export const APP_VERSION = 'v0.25';
 export const RELEASE_DATE = '2026-11-03';
 
 export const CHANGELOG = [
+  {
+    version: APP_VERSION,
+    date: RELEASE_DATE,
+    title: { zh: '队伍挂机被动与收益优化', ja: '編成の放置パッシブと報酬改善', en: 'Party idle passives and reward improvements' },
+    items: {
+      zh: ['挂机收益现在会根据当前五人队伍的职业被动获得加成；同类型效果按加法叠加', '金币、经验和主线推进速度分别显示加成比例及队员被动来源', '保留原有挂机基础收益、12 小时上限、5 分钟领取门槛和单次最多推进 8 关', '修复暂停/恢复挂机时未领取时间可能丢失的问题，暂停期间也可保留并领取已累积时间', '旧版 v20 存档自动补充挂机累计时间字段，不重置玩家进度或更换存档键', '挂机被动独立于战斗被动，不增加额外资源掉落'],
+      ja: ['現在の 5 人編成の職業パッシブに応じて放置報酬を強化。同種効果は加算', 'ゴールド・経験値・メイン進行速度の補正率と各メンバーの効果を表示', '従来の基本報酬、12 時間上限、5 分の受取条件、1 回最大 8 面進行を維持', '放置の一時停止・再開時に未受取時間が失われる問題を修正。一時停止中も蓄積時間を保持・受取可能', '既存 v20 セーブに累積時間フィールドを自動補完し、進行状況とセーブキーは維持', '放置パッシブは戦闘パッシブと独立し、追加ドロップは発生しない'],
+      en: ['Idle rewards now receive class-based bonuses from the current five-member party; matching effects stack additively', 'Shows bonus percentages and contributing members for gold, EXP, and main-stage progress', 'Preserves existing base rates, 12-hour cap, 5-minute claim threshold, and 8-stage per-claim limit', 'Fixes lost unclaimed time when pausing/resuming; accrued time remains claimable while paused', 'Automatically adds the accrual field to existing v20 saves without resetting progress or changing the save key', 'Idle passives are independent from combat passives and do not add new drop types'],
+    },
+  },
+
+
   {
     version: APP_VERSION,
     date: RELEASE_DATE,
