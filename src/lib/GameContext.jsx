@@ -40,6 +40,22 @@ const GameCtx = createContext(null);
 
 const IDLE_CAP_MIN = 720;
 
+const TEST_SUPPORT_KEY = 'oooo_v13_test_support_v1';
+const TEST_TICKETS = 450;
+const TEST_GEMS = 324000;
+const TEST_DURATION_MS = 30 * 24 * 60 * 60 * 1000;
+
+function readTestSupport() {
+  try {
+    const raw = localStorage.getItem(TEST_SUPPORT_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return Number.isFinite(parsed?.claimedAt) && Number.isFinite(parsed?.expiresAt) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
 // 挂机效率随最高关卡层级提升，统一以「每小时」为单位计算
 function idleRatesOf(s) {
   const tier = highestTier(s);
@@ -55,6 +71,7 @@ export function GameProvider({ children }) {
   const [state, setState] = useState(loadState);
   const ref = useRef(state);
   const [toasts, setToasts] = useState([]);
+  const [testSupport, setTestSupport] = useState(readTestSupport);
   const toastSeq = useRef(0);
 
   useEffect(() => {
@@ -645,6 +662,25 @@ export function GameProvider({ children }) {
     return true;
   }, [commit, notify, t]);
 
+  const refillTestStamina = useCallback(() => {
+    const support = readTestSupport();
+    if (!support || Date.now() >= support.expiresAt) {
+      notify(t('testSupport.expired'));
+      return false;
+    }
+    const s = { ...ref.current };
+    const info = currentStamina(s);
+    if (info.stamina >= STAMINA_MAX) {
+      notify(t('common.full'));
+      return false;
+    }
+    s.stamina = STAMINA_MAX;
+    s.staminaAt = Date.now();
+    commit(() => s);
+    notify(t('testSupport.refilled'));
+    return true;
+  }, [commit, notify, t]);
+
   const resetSave = useCallback(() => {
     clearSave();
     const fresh = defaultState();
@@ -676,6 +712,7 @@ export function GameProvider({ children }) {
       stamina: info.stamina,
       staminaAt: info.staminaAt,
       staminaMax: STAMINA_MAX,
+      testSupport: testSupport ? { ...testSupport, active: testSupportActive, daysRemaining: Math.max(0, Math.ceil((testSupport.expiresAt - Date.now()) / 86400000)) } : null,
       t,
       notify,
       setLang,
