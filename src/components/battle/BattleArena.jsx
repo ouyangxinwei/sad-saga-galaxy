@@ -13,6 +13,17 @@ import { applyEvent, initialLive, simulateBattle } from '@/lib/battle';
 import { fmt } from '@/lib/format';
 
 const STAMINA_COST = 6;
+const BATTLE_SPEED_KEY = 'oooo_battle_speed_v1';
+
+function loadBattleSpeed() {
+  try {
+    const saved = Number(window.localStorage.getItem(BATTLE_SPEED_KEY));
+    return [1, 2, 3].includes(saved) ? saved : 1;
+  } catch {
+    return 1;
+  }
+}
+
 
 export default function BattleArena({ mode, n }) {
   const game = useGame();
@@ -80,7 +91,15 @@ export default function BattleArena({ mode, n }) {
   const sim = useMemo(() => simulateBattle(allies, enemies), [allies, enemies]);
   const [step, setStep] = useState(0);
   const [live, setLive] = useState(() => initialLive(sim.units));
-  const [speed, setSpeed] = useState(1);
+  const [speed, setSpeed] = useState(loadBattleSpeed);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(BATTLE_SPEED_KEY, String(speed));
+    } catch {
+      // Keep the selected speed for the current battle if storage is unavailable.
+    }
+  }, [speed]);
   const [finished, setFinished] = useState(false);
   const [rewards, setRewards] = useState(null);
   const [result, setResult] = useState(null);
@@ -162,7 +181,7 @@ export default function BattleArena({ mode, n }) {
           </span>
           <button
             type="button"
-            onClick={() => setSpeed(speed === 1 ? 2 : speed === 2 ? 3 : 1)}
+            onClick={() => setSpeed((current) => (current === 1 ? 2 : current === 2 ? 3 : 1))}
             className="tap rounded-lg border border-white/10 bg-white/[0.04] px-2 py-1 text-[9px] tabular-nums text-foreground/80"
           >
             ×{speed}
