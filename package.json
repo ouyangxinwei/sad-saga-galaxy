@@ -1,15 +1,16 @@
 {
   "name": "oooo-app",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.22.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "npm run validate:version && vite build",
     "lint": "eslint . --quiet",
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc -p ./jsconfig.json",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "validate:version": "node scripts/validate-version.mjs"
   },
   "dependencies": {
     "@hello-pangea/dnd": "^17.0.0",
