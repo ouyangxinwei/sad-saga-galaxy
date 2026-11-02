@@ -3,20 +3,25 @@ const CACHE_NAME = `${CACHE_PREFIX}v1`;
 
 self.addEventListener('install', (event) => {
   const base = self.registration.scope;
+  const indexUrl = new URL('index.html', base).toString();
   const assets = [
     base,
-    new URL('index.html', base).toString(),
+    indexUrl,
     new URL('manifest.webmanifest', base).toString(),
     new URL('oooo-icon.svg', base).toString(),
     new URL('oooo-icon-192.svg', base).toString(),
     new URL('oooo-icon-512.svg', base).toString(),
   ];
 
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(assets))
-      .then(() => self.skipWaiting())
-  );
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE_NAME);
+    await cache.addAll(assets);
+    const html = await (await cache.match(indexUrl)).text();
+    const bundledAssets = [...html.matchAll(/(?:src|href)="([^"]+\\.(?:js|css)(?:\\?[^"]*)?)"/g)]
+      .map((match) => new URL(match[1], base).toString());
+    if (bundledAssets.length) await cache.addAll(bundledAssets);
+    await self.skipWaiting();
+  })());
 });
 
 self.addEventListener('activate', (event) => {
