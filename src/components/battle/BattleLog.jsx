@@ -5,22 +5,22 @@ function lineOf(ev, lang, t) {
     case 'round':
       return { tone: 'round', text: t('battle.round', { n: ev.round }) };
     case 'action':
-      return { tone: 'action', text: `${ev.name} ? ${ev.skill?.[lang] || ev.skill?.zh || ''}` };
+      return { tone: 'action', text: `${ev.name} · ${ev.skill?.[lang] || ev.skill?.zh || ''}` };
     case 'damage':
       return {
         tone: ev.crit ? 'crit' : 'damage',
-        text: `${ev.actor} �� ${ev.target}  ${ev.amount.toLocaleString('en-US')}${ev.crit ? ' ?' : ''}`,
+        text: `${ev.actor} → ${ev.target}  ${ev.amount.toLocaleString('en-US')}${ev.crit ? ' ✦' : ''}`,
       };
     case 'heal':
-      return { tone: 'heal', text: `${ev.actor} ? ${ev.target}  ${ev.amount.toLocaleString('en-US')}` };
+      return { tone: 'heal', text: `${ev.actor} → ${ev.target}  ${ev.amount.toLocaleString('en-US')}` };
     case 'shield':
-      return { tone: 'shield', text: `${ev.target} �� ${ev.amount.toLocaleString('en-US')}` };
+      return { tone: 'shield', text: `${ev.target} 🛡 ${ev.amount.toLocaleString('en-US')}` };
     case 'ward':
-      return { tone: 'shield', text: `${ev.name} ? ${Math.round(ev.value * 100)}%` };
+      return { tone: 'shield', text: `${ev.name} · ${Math.round(ev.value * 100)}%` };
     case 'taunt':
-      return { tone: 'action', text: `${ev.target} ? ${t('battle.taunt')}` };
+      return { tone: 'action', text: `${ev.target} · ${t('battle.taunt')}` };
     case 'death':
-      return { tone: 'death', text: `${ev.target} ?` };
+      return { tone: 'death', text: `${ev.target} ✕` };
     case 'revive':
       return { tone: 'revive', text: t('battle.revived', { caster: ev.caster, target: ev.target }) };
     case 'perma':
