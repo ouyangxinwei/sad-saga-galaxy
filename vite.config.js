@@ -1,7 +1,14 @@
+import { fileURLToPath } from 'node:url'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
-// Standalone React/Vite configuration (Base44 plugin removed).
+// GitHub Pages project-site base path.
 export default defineConfig({
+  base: '/sad-saga-galaxy/',
   plugins: [react()],
-});
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
+  },
+})
