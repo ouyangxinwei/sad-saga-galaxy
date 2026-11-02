@@ -4,6 +4,7 @@ import { LANGS } from '@/lib/i18n';
 import { MILESTONES } from '@/lib/gameData';
 import { todayKey } from '@/lib/save';
 import { fmt } from '@/lib/format';
+import { APP_VERSION } from '@/lib/version';
 
 const ACTIONS = [
   { id: 'checkin', icon: 'Gift', key: 'top.checkin' },
@@ -84,6 +85,7 @@ export default function TopBar({ onOpen }) {
             >
               <GameIcon name={a.icon} className="h-[15px] w-[15px] text-foreground/75" />
               <span className="whitespace-nowrap text-[8.5px] tracking-wide text-muted-foreground">{t(a.key)}</span>
+              {a.id === 'patches' ? <span className="text-[7px] leading-none tracking-wide text-primary/80">{APP_VERSION}</span> : null}
               {dots[a.id] ? (
                 <span className="absolute right-1.5 top-0.5 h-1.5 w-1.5 rounded-full bg-rose-400 shadow-[0_0_7px_rgba(251,113,133,0.95)]" />
               ) : null}
