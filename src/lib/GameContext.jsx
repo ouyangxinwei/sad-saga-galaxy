@@ -78,6 +78,7 @@ function idleBonusOf(s) {
     if (!def) return;
     const cls = classOf(def.classId);
     const classId = cls.baseId || cls.id;
+    if (!cls.baseId && cls.id !== def.classId) return;
     const effects = IDLE_PASSIVES[classId] || [];
     if (!effects.length) return;
     effects.forEach(({ type, rate }) => { totals[type] += rate; });
