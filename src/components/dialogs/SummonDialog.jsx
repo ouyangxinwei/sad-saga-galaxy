@@ -52,7 +52,7 @@ export default function SummonDialog({ open, onClose }) {
             <span className="absolute h-40 w-40 rounded-full border border-primary/25 spin-slow" />
             <span className="absolute h-28 w-28 rounded-full border border-dashed border-accent/35 spin-slower" />
             <div className="relative text-center">
-              <p className="saga-display gold-text text-xl">? êØäCè¢? ?</p>
+              <p className="saga-display gold-text text-xl">{t('summon.title')}</p>
               <p className="mt-1 text-[9px] uppercase tracking-[0.3em] text-muted-foreground">{t('summon.rates')}</p>
             </div>
           </div>
@@ -67,7 +67,7 @@ export default function SummonDialog({ open, onClose }) {
               <p className="text-[9.5px] leading-relaxed text-muted-foreground">{t('summon.pityDesc')}</p>
               {ssTokens > 0 ? (
                 <GhostButton onClick={() => setPicking(true)} active className="shrink-0 px-2.5 py-1 text-[10px]">
-                  {t('summon.exchange')} Å~{ssTokens}
+                  {t('summon.exchange')} √ó{ssTokens}
                 </GhostButton>
               ) : null}
             </div>
@@ -160,7 +160,7 @@ export default function SummonDialog({ open, onClose }) {
               disabled={tickets < 10}
               className="py-2.5"
             >
-              {t('summon.again')} Å~10
+              {t('summon.again')} √ó10
             </GoldButton>
           </div>
         </div>
