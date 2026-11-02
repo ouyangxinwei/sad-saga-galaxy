@@ -63,7 +63,7 @@ export function defaultState() {
     checkin: { last: null, streak: 0 },
     fortune: { date: null, id: null },
     msClaimed: { heroes: [], enemies: [] },
-    idle: { active: true, at: Date.now() },
+    idle: { active: true, at: Date.now(), elapsedSeconds: 0 },
     bounties: { slot: bountySlot(), list: generateBounties() },
     relics: {},
     equipped: {},
