@@ -15,7 +15,7 @@ export const CHANGELOG = [
   },
 
   {
-    version: APP_VERSION,
+    version: 'v0.23',
     date: RELEASE_DATE,
     title: { zh: '全局战斗倍速记忆', ja: '戦闘速度の全体共有と記憶', en: 'Global battle speed preference' },
     items: {
@@ -25,7 +25,7 @@ export const CHANGELOG = [
     },
   },
   {
-    version: APP_VERSION,
+    version: 'v0.22',
     date: RELEASE_DATE,
     title: { zh: '版本管理与多语言更新统一', ja: 'バージョン管理と多言語更新の統一', en: 'Unified versioning and multilingual release notes' },
     items: {
