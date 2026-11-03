@@ -375,7 +375,7 @@ export const BOUNTY_TEMPLATES = [
 ];
 export const BOUNTY_MAP = Object.fromEntries(BOUNTY_TEMPLATES.map((b) => [b.id, b]));
 
-export { CHANGELOG } from './version';
+export { CHANGELOG } from './version.js';
 
 export const MILESTONES = [
   { at: 5, gems: 300 },
