@@ -86,3 +86,74 @@ export function normalizeCharacterProgressionState(state) {
     },
   };
 }
+
+export const characterExpNeed = (level) => Math.round(70 + level * 26 + level * level * 0.9);
+
+/**
+ * Adds character EXP to one progression instance. EXP remaining at the current
+ * level cap is deliberately retained so a later breakthrough can consume it.
+ */
+export function addCharacterExperience(record, amount) {
+  if (!record || !Number.isFinite(Number(amount)) || Number(amount) <= 0) {
+    return { record, levelsGained: 0, expGained: 0 };
+  }
+  const expGained = Math.max(0, Math.floor(Number(amount)));
+  let level = Math.max(1, Math.floor(Number(record.level) || INITIAL_CHARACTER_LEVEL));
+  const levelCap = Math.max(level, Math.floor(Number(record.levelCap) || INITIAL_CHARACTER_LEVEL_CAP));
+  let exp = Math.max(0, Math.floor(Number(record.exp) || 0)) + expGained;
+  let levelsGained = 0;
+
+  while (level < levelCap) {
+    const required = characterExpNeed(level);
+    if (exp < required) break;
+    exp -= required;
+    level += 1;
+    levelsGained += 1;
+  }
+
+  return {
+    record: { ...record, level, levelCap, exp },
+    levelsGained,
+    expGained,
+  };
+}
+
+/**
+ * Awards EXP to each deployed character's strongest owned card instance.
+ * Party slots are keyed by card definition, so duplicate copies are not
+ * double-awarded; tie-breakers are current EXP then breakthrough count.
+ */
+export function grantPartyCharacterExperience(state, amount) {
+  if (!state || !Number.isFinite(Number(amount)) || Number(amount) <= 0) {
+    return { state, levelsGained: 0, recipients: [] };
+  }
+  const progression = state.characterProgression;
+  if (!progression?.instances) return { state, levelsGained: 0, recipients: [] };
+
+  const instances = { ...progression.instances };
+  const recipients = [];
+  let levelsGained = 0;
+
+  [...new Set((state.party || []).filter(Boolean))].forEach((cardId) => {
+    const candidates = Object.entries(instances)
+      .filter(([, record]) => record?.cardId === cardId)
+      .sort((a, b) =>
+        (Number(b[1].level) || 1) - (Number(a[1].level) || 1) ||
+        (Number(b[1].exp) || 0) - (Number(a[1].exp) || 0) ||
+        (Number(b[1].breakthroughCount) || 0) - (Number(a[1].breakthroughCount) || 0) ||
+        String(a[0]).localeCompare(String(b[0]))
+      );
+    if (!candidates.length) return;
+    const [instanceId, current] = candidates[0];
+    const result = addCharacterExperience(current, amount);
+    instances[instanceId] = result.record;
+    levelsGained += result.levelsGained;
+    recipients.push({ cardId, instanceId, expGained: result.expGained, levelsGained: result.levelsGained });
+  });
+
+  return {
+    state: { ...state, characterProgression: { ...progression, instances } },
+    levelsGained,
+    recipients,
+  };
+}
