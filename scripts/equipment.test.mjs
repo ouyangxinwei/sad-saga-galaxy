@@ -24,13 +24,13 @@ test('preserves valid nested assignments and clears duplicate IDs', () => {
   const migrated = normalizeEquipmentState({
     equipmentSchemaVersion: 1,
     relics: { r_sword: 1 },
-    equipmentInventory: { weapon: { w_1: 1 }, armor: {} },
+    equipmentInventory: { weapon: { w_starblade: 1 }, armor: {} },
     equipped: {
-      lise: { weapon: 'w_1', armor: null, relic: 'r_sword' },
-      kain: { weapon: 'w_1', armor: null, relic: 'r_sword' },
+      lise: { weapon: 'w_starblade', armor: null, relic: 'r_sword' },
+      kain: { weapon: 'w_starblade', armor: null, relic: 'r_sword' },
     },
   });
-  assert.equal(migrated.equipped.lise.weapon, 'w_1');
+  assert.equal(migrated.equipped.lise.weapon, 'w_starblade');
   assert.equal(migrated.equipped.kain.weapon, null);
   assert.equal(migrated.equipped.lise.relic, 'r_sword');
   assert.equal(migrated.equipped.kain.relic, null);
