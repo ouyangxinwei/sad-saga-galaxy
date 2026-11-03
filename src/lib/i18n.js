@@ -34,6 +34,10 @@ export const S = {
   'player.lp': { zh: '全队 LP', ja: '全隊 LP', en: 'Team LP' },
   'player.cap': { zh: '上限', ja: '上限', en: 'Cap' },
 
+  'progression.breakthroughNeedMax': { zh: '角色达到当前等级上限后才能突破', ja: '現在のレベル上限に到達すると突破できます', en: 'Reach the current level cap to break through' },
+  'progression.breakthroughNeedMaterials': { zh: '突破材料不足', ja: '突破素材が不足しています', en: 'Not enough breakthrough materials' },
+  'progression.breakthroughSuccess': { zh: '角色突破成功', ja: 'キャラクター突破成功', en: 'Character breakthrough complete' },
+
   'fortune.title': { zh: '命运塔罗', ja: '運命のタロット', en: 'Tarot of Fate' },
   'fortune.hint': { zh: '今日的局前全队加护', ja: '本日の全隊加護', en: "Today's party blessing" },
   'fortune.draw': { zh: '占卜今日', ja: '本日を占う', en: 'Draw today' },
