@@ -1,8 +1,17 @@
 // Single source of truth for in-app, package, and release-document version.
-export const APP_VERSION = 'v0.41';
+export const APP_VERSION = 'v0.42';
 export const RELEASE_DATE = '2026-11-04';
 
 export const CHANGELOG = [
+  {
+    version: 'v0.42', date: '2026-11-04',
+    title: { zh: '角色独立经验与等级成长（Phase 2）', ja: 'キャラクター個別経験値・レベル育成（Phase 2）', en: 'Independent character EXP and leveling (Phase 2)' },
+    items: {
+      zh: ['战斗胜利、挂机领取及其他现有经验奖励会同时为当前上阵角色发放独立经验，玩家等级经验规则保持不变', '角色使用与玩家相同的经验成长曲线，独立提升等级，等级上限按每张卡片实例的 levelCap 计算', '达到当前等级上限后，新增经验继续储存在角色经验字段，不会被清零；后续突破提高上限后可继续消耗储存经验升级', '同一角色存在多张重复卡时，仅向该角色成长程度最高的卡片实例发放经验，避免重复卡因同一上阵角色获得多份经验；候补角色不获得经验', '新增角色经验、等级提升、满级经验储存及上阵经验分配回归测试；本阶段不改变战斗属性、突破材料或合成行为'],
+      ja: ['バトル勝利、放置報酬の受取、その他既存の経験値報酬で、編成中キャラクターにも個別経験値を付与。プレイヤーレベルの仕様は変更しない', 'プレイヤーと同じ経験値カーブを使用し、カードインスタンスごとの levelCap まで個別にレベルアップ', '現在の上限到達後も追加経験値をキャラクターの経験値欄に保存し、後続フェーズで突破上限が上がった後にレベルアップへ使用可能', '同一キャラクターの重複カードがある場合、最も育成が進んだインスタンスだけに経験値を付与し、控えキャラクターには付与しない', '経験値付与、レベルアップ、上限後の経験値保存、編成キャラクターへの分配テストを追加。戦闘能力、突破素材、合成動作は変更しない'],
+      en: ['Battle wins, idle claims, and other existing EXP rewards also grant independent EXP to deployed characters; player-level EXP behavior is unchanged', 'Characters use the existing player EXP curve and level independently up to each card instance levelCap', 'EXP earned at the current level cap is stored instead of discarded, ready to be consumed after a future breakthrough raises the cap', 'When duplicate copies exist, only the strongest progression instance for each deployed character receives EXP; reserve characters receive none', 'Adds regression tests for character EXP, leveling, cap storage, and party distribution; combat stats, breakthrough materials, and fusion behavior are unchanged'],
+    }
+  },
   {
     version: 'v0.41', date: RELEASE_DATE,
     title: { zh: '角色独立成长存档结构（Phase 1）', ja: 'キャラクター個別育成セーブ構造（Phase 1）', en: 'Independent character progression save schema (Phase 1)' },
