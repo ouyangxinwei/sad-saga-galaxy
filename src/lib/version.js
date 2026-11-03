@@ -1,8 +1,18 @@
 // Single source of truth for in-app, package, and release-document version.
-export const APP_VERSION = 'v0.37';
+export const APP_VERSION = 'v0.38';
 export const RELEASE_DATE = '2026-11-03';
 
 export const CHANGELOG = [
+  {
+    version: 'v0.38', date: RELEASE_DATE,
+    title: { zh: '自动 Warning 诊断与模拟测试', ja: 'Warning 自動診断とシミュレーションテスト', en: 'Automated warning diagnosis and simulation tests' },
+    items: {
+      zh: ['Debug Console 新增 Warning Diagnosis，支持隔离模拟、真实 Console Warning 捕获、分类统计和历史报告', '新增确定性战斗场景模拟，覆盖普通攻击、技能、装备触发、概率失败、冷却与每回合上限', '修正装备触发中概率失败、冷却阻止、每回合上限和效果不适用被错误标记为 WARN 的问题；这些是正常判定结果，改记 INFO', '保留真正的性能慢调用和异常 Warning，并提供根因线索、发生位置、次数与修复建议', '诊断模拟使用独立日志捕获，不污染正式游戏日志、不修改正式存档或消耗游戏资源', '新增 Warning 分析与模拟回归测试；保留 V0.37 及以前完整更新履历'],
+      ja: ['Debug Console に Warning Diagnosis を追加。隔離シミュレーション、実 Console Warning 捕捉、分類集計、履歴レポートに対応', '通常攻撃・スキル・装備発動・確率失敗・クールダウン・ターン上限を含む決定的な戦闘シナリオを追加', '確率失敗・クールダウン・ターン上限・効果対象外を WARN と誤分類する問題を修正。正常な判定結果として INFO に変更', '実際の低速処理と異常 Warning は保持し、原因候補・発生箇所・回数・修正案を表示', '診断シミュレーションは独立ログで実行し、通常ログ・セーブデータ・ゲーム資源に影響しない', 'Warning 分析とシミュレーション回帰テストを追加し、V0.37 以前の履歴を保持'],
+      en: ['Adds Warning Diagnosis to Debug Console with isolated simulations, runtime Console Warning capture, grouped analysis, and report history', 'Adds deterministic battle scenarios covering basic attacks, skills, equipment triggers, chance failures, cooldowns, and per-turn caps', 'Fixes expected equipment outcomes being mislabeled as WARN: chance failures, cooldown blocks, per-turn caps, and inapplicable effects are now INFO', 'Keeps genuine slow-operation and abnormal warnings visible with likely causes, source locations, counts, and repair guidance', 'Runs diagnostic simulations in an isolated log collector without polluting normal logs, modifying saves, or consuming game resources', 'Adds warning analysis and simulation regression tests while preserving the complete V0.37 and earlier changelog'],
+    }
+  },
+
   {
     version: 'v0.37', date: RELEASE_DATE,
     title: { zh: '装备系统验证、日志审计与数值平衡', ja: '装備システム検証・ログ監査・数値バランス調整', en: 'Equipment system verification, logger audit, and balance' },
