@@ -35,7 +35,7 @@ The `standalone-migration` branch is deployed to GitHub Pages by the workflow in
 
 ## Project documentation
 
-See the `docs/` directory for migration, dependency audit, deployment history, the Idle System V1.1 documentation, and the Character Detail V1.0 specification, player guide, and developer guide, plus the Gallery Character Detail V1.0 specification, player guide, and developer guide, and the GitHub Deployment Status V1.0 specification, player guide, and developer guide.
+See the `docs/` directory for migration, dependency audit, deployment history, the Idle System V1.1 documentation, and the Character Detail V1.0 specification, player guide, and developer guide, plus the Gallery Character Detail V1.0 specification, player guide, and developer guide, the GitHub Deployment Status V1.0 specification, player guide, and developer guide, and the Equipment System V0.32 specification, player guide, and developer guide.
 
 
 ## v0.31 — Saga Execution Logger
