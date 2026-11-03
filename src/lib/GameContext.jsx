@@ -1,4 +1,4 @@
-import { traceSync } from './logger';
+import { logInfo, logWarn, traceSync } from './logger';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { translate } from './i18n';
 import {
@@ -36,7 +36,7 @@ import {
   todayKey,
 } from './save';
 import { cardPower, copiesOf, getCardDef, partyPower, strongestParty, teamTotals } from './cards';
-import { equipItem } from './equipment';
+import { equipItem, getEquipmentDefinition, getEquippedItem } from './equipment';
 
 const GameCtx = createContext(null);
 const traceAction = (name, fn) => (...args) => traceSync('GameContext.' + name, () => fn(...args));
@@ -653,11 +653,19 @@ export function GameProvider({ children }) {
 
   const equipEquipment = useCallback(
     (cardId, slot, itemId) => {
+      const previousItemId = getEquippedItem(ref.current, cardId, slot);
       const result = equipItem(ref.current, cardId, slot, itemId);
       if (!result.ok) {
         notify(result.reason === 'already_equipped' ? t('equipment.alreadyEquipped') : t('common.notEnough'));
+        logWarn('Equipment', 'equipItem', { cardId, slot, itemId, reason: result.reason });
         return false;
       }
+      if (!persist(result.state)) {
+        notify(ref.current.lang === 'ja' ? '保存に失敗しました。装備は変更されていません。' : ref.current.lang === 'en' ? 'Save failed. Equipment was not changed.' : '保存失败，装备状态未更改。');
+        logWarn('Equipment', 'equipItem', { cardId, slot, itemId, reason: 'save_failed' });
+        return false;
+      }
+      logInfo('Equipment', itemId ? 'equipItem' : 'unequipItem', { cardId, slot, previousItemId, itemId, itemName: getEquipmentDefinition(slot, itemId || previousItemId)?.name || null });
       commit(() => result.state);
       return true;
     },

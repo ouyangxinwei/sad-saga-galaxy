@@ -5,166 +5,68 @@ import GameIcon from '@/components/common/GameIcon';
 import CardTile from '@/components/common/CardTile';
 import { GoldButton, GhostButton, Bar } from '@/components/common/Bits';
 import { useGame } from '@/lib/GameContext';
-import { HEROES, RELICS } from '@/lib/gameData';
+import { HEROES, EQUIPMENT_CATALOG, RELICS } from '@/lib/gameData';
+import { EQUIPMENT_SLOTS, getEquippedItem } from '@/lib/equipment';
+import { cardStats } from '@/lib/cards';
+import { logInfo } from '@/lib/logger';
 
-const TABS = ['relics', 'furnace'];
-
-export default function Forge() {
-  const { t, lang, relics, equipped, gems, party, defOf, actions, cardShards, gold } = useGame();
-  const [tab, setTab] = useState('relics');
-  const [cardId, setCardId] = useState(() => new URLSearchParams(window.location.search).get('cardId') || (party || []).filter(Boolean)[0] || null);
-
-  const ownedRelics = RELICS.filter((r) => (relics[r.id] || 0) > 0);
-  const meltable = HEROES.filter((h) => (cardShards[h.id] || 0) >= 5);
-
-  return (
-    <AppShell>
-      <div className="mx-auto max-w-[900px] px-3 pb-28 pt-3 sm:px-6 sm:pt-6">
-        <PageHeader
-          title={t('forge.title')}
-          subtitle={t('forge.meltDesc')}
-          right={
-            <span className="flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-2 py-1 text-[10px] text-accent">
-              <GameIcon name="Gem" className="h-3 w-3" />
-              {gems.toLocaleString('en-US')}
-            </span>
-          }
-        />
-
-        <div className="mt-3 grid grid-cols-2 gap-1.5">
-          {TABS.map((id) => (
-            <button
-              key={id}
-              type="button"
-              onClick={() => setTab(id)}
-              className={`tap rounded-xl border px-2 py-2 text-[10.5px] tracking-wide ${
-                tab === id ? 'border-primary/45 bg-primary/[0.08] text-primary' : 'border-white/10 bg-white/[0.03] text-muted-foreground'
-              }`}
-            >
-              {t(`forge.${id}`)}
-            </button>
-          ))}
-        </div>
-
-        {tab === 'relics' ? (
-          <>
-            <div className="mt-3 grid grid-cols-2 gap-2">
-              {RELICS.map((r) => {
-                const owned = relics[r.id] || 0;
-                return (
-                  <div key={r.id} className="saga-panel p-3">
-                    <div className="flex items-center justify-between">
-                      <span className="rounded-lg border border-white/10 bg-black/25 p-1.5">
-                        <GameIcon name={r.icon} className="h-3.5 w-3.5 text-primary/85" />
-                      </span>
-                      <span className="text-[9px] text-muted-foreground">×{owned}</span>
-                    </div>
-                    <p className="mt-1.5 truncate text-[11px] text-foreground/90">{r.name[lang] || r.name.zh}</p>
-                    <div className="mt-1 flex flex-wrap gap-1">
-                      {r.atk ? <span className="text-[8px] text-rose-300/80">ATK +{Math.round(r.atk * 100)}%</span> : null}
-                      {r.hp ? <span className="text-[8px] text-[#8EF0CF]">HP +{Math.round(r.hp * 100)}%</span> : null}
-                      {r.def ? <span className="text-[8px] text-[#9CC4FF]">DEF +{Math.round(r.def * 100)}%</span> : null}
-                      {r.spd ? <span className="text-[8px] text-primary/80">SPD +{Math.round(r.spd * 100)}%</span> : null}
-                    </div>
-                    <GhostButton
-                      onClick={() => actions.craftRelic(r.id)}
-                      disabled={gems < r.cost}
-                      className="mt-2 w-full px-2 py-1 text-[9.5px]"
-                    >
-                      {t('forge.buy')} · {r.cost}
-                    </GhostButton>
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="saga-panel mt-3 p-3">
-              <p className="text-[10px] tracking-wider text-muted-foreground">{t('forge.pickCard')}</p>
-              <div className="mt-2 flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
-                {(party || []).filter(Boolean).map((id) => (
-                  <CardTile
-                    key={id}
-                    def={defOf(id)}
-                    lang={lang}
-                    size="xs"
-                    selected={cardId === id}
-                    onClick={() => setCardId(id)}
-                  />
-                ))}
-              </div>
-              {cardId ? (
-                <>
-                  <div className="mt-2 flex items-center justify-between text-[9.5px] text-muted-foreground">
-                    <span>{defOf(cardId)?.name?.[lang] || ''}</span>
-                    <span className="text-primary/80">
-                      {RELIC_NAME(equipped[cardId]?.relic, RELICS, lang) || t('common.none')}
-                    </span>
-                  </div>
-                  <div className="mt-1.5 flex flex-wrap gap-1.5">
-                    {ownedRelics.map((r) => (
-                      <button
-                        key={r.id}
-                        type="button"
-                        onClick={() => actions.equipRelic(cardId, r.id)}
-                        className={`tap rounded-lg border px-2 py-1 text-[9px] ${
-                          equipped[cardId]?.relic === r.id
-                            ? 'border-primary/50 bg-primary/10 text-primary'
-                            : 'border-white/10 bg-white/[0.03] text-muted-foreground'
-                        }`}
-                      >
-                        {r.name[lang] || r.name.zh}
-                      </button>
-                    ))}
-                    {equipped[cardId]?.relic ? (
-                      <GhostButton onClick={() => actions.equipRelic(cardId, null)} className="px-2 py-1 text-[9px]">
-                        {t('common.cancel')}
-                      </GhostButton>
-                    ) : null}
-                  </div>
-                </>
-              ) : null}
-            </div>
-          </>
-        ) : (
-          <div className="mt-3 space-y-2">
-            <div className="saga-panel p-3.5">
-              <p className="flex items-center gap-1.5 text-[11px] text-foreground/90">
-                <GameIcon name="Hammer" className="h-3.5 w-3.5 text-primary/80" />
-                {t('forge.furnace')}
-              </p>
-              <p className="mt-1 text-[9.5px] leading-relaxed text-muted-foreground">{t('forge.meltDesc')}</p>
-              <p className="mt-1.5 flex items-center gap-1 text-[9px] text-muted-foreground">
-                <GameIcon name="Coins" className="h-2.5 w-2.5 text-primary/70" />
-                {gold.toLocaleString('en-US')}
-              </p>
-            </div>
-            {meltable.map((h) => {
-              const have = cardShards[h.id] || 0;
-              return (
-                <div key={h.id} className="saga-panel flex items-center gap-3 p-2.5">
-                  <CardTile def={defOf(h.id)} lang={lang} size="xs" locked />
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-[11.5px] text-foreground/90">{h.name[lang] || h.name.zh}</p>
-                    <p className="text-[9px] text-muted-foreground">{t('common.shards')} {have}</p>
-                    <Bar value={have % 5} max={5} color="#8B7BF7" className="mt-1" height="h-1" />
-                  </div>
-                  <GoldButton onClick={() => actions.meltShards(h.id)} disabled={have < 5} className="shrink-0 px-2.5 py-1.5 text-[9.5px]">
-                    {t('forge.melt')}
-                  </GoldButton>
-                </div>
-              );
-            })}
-            {!meltable.length ? (
-              <p className="saga-panel p-6 text-center text-[11px] text-muted-foreground">{t('synth.empty')}</p>
-            ) : null}
-          </div>
-        )}
-      </div>
-    </AppShell>
-  );
-}
-
-function RELIC_NAME(id, list, lang) {
-  const r = list.find((x) => x.id === id);
-  return r ? r.name[lang] || r.name.zh : '';
+const SLOT={weapon:['武器','武器','Weapon'],armor:['防具','防具','Armor'],relic:['遗物','遺物','Relic']};
+const STATS={hp:['生命值','HP','HP'],atk:['攻击力','攻撃力','ATK'],def:['防御力','防御力','DEF'],spd:['速度','速度','SPD'],crit:['暴击率','会心率','CRIT'],critDamagePct:['暴击伤害','会心ダメージ','CRIT DMG'],damageDealtPct:['造成伤害','与ダメージ','Damage dealt'],damageReductionPct:['受到伤害减免','被ダメージ軽減','Damage reduction'],healBonus:['治疗加成','回復量','Healing'],mpCostReductionPct:['MP 消耗减免','MP 消費軽減','MP cost reduction']};
+const EVENTS={onBattleStart:['战斗开始','戦闘開始','Battle start'],onTurnStart:['回合开始','ターン開始','Turn start'],onAttack:['攻击时','攻撃時','On attack'],onCritical:['暴击时','会心時','On critical'],onDamageTaken:['受到伤害时','被ダメージ時','On damage taken'],onHeal:['治疗时','回復時','On heal'],onKill:['击杀时','撃破時','On kill'],onSkillUsed:['使用技能时','スキル使用時','On skill used'],onTurnEnd:['回合结束','ターン終了','Turn end'],onBattleEnd:['战斗结束','戦闘終了','Battle end']};
+const EFFECT={bonus_damage:['追加伤害','追加ダメージ','Bonus damage'],counter:['反击','反撃','Counter'],shield:['护盾','シールド','Shield'],heal_lowest:['治疗最低生命值队友','HP が最も低い味方を回復','Heal lowest-HP ally'],restore_mp:['恢复 MP','MP 回復','Restore MP']};
+const L={zh:0,ja:1,en:2};
+const loc=(v,l)=>v&&typeof v==='object'?v[l]||v.zh||v.en||'':v||'';
+const name=(v,l)=>loc(v?.name,l);
+const pct=v=>(Number(v||0)*100).toFixed(1).replace(/\.0$/,'')+'%';
+const inventory=(s,slot,id)=>Math.max(0,Number((slot==='relic'?s.relics:s.equipmentInventory?.[slot])?.[id])||0);
+const wearer=(s,slot,id)=>Object.entries(s.equipped||{}).find(([,v])=>v?.[slot]===id)?.[0]||null;
+const statLabel=(k,l)=>{const alias={hpPct:'hp',atkPct:'atk',defPct:'def',spdPct:'spd',healPct:'healBonus'};return (STATS[k]||STATS[alias[k]||k.replace(/Pct$/,'')]||[k,k,k])[L[l]??0];};
+function statEntries(item){const s={...(item.stats||{})};['hp','atk','def','spd'].forEach(k=>{if(item[k]!=null)s[k+'Pct']??=item[k];});return [...Object.entries(s),...Object.entries(item.combat||{})].filter(([,v])=>Number(v)!==0);}
+function projected(state,cardId,slot,id){const equipped={...(state.equipped||{})},old=wearer(state,slot,id);if(old&&old!==cardId)equipped[old]={...(equipped[old]||{}),[slot]:null};equipped[cardId]={...(equipped[cardId]||{}),[slot]:id};return {...state,equipped};}
+const display=(k,v)=>['hp','atk','def','spd'].includes(k)?Math.round(v||0).toLocaleString():pct(v);
+function delta(k,a,b){const d=(Number(b)||0)-(Number(a)||0);return Math.abs(d)<.0001?'—':(d>0?'+':'')+(['hp','atk','def','spd'].includes(k)?Math.round(d):pct(d));}
+const TEXT={
+'equipment':{zh:'装备管理',ja:'装備管理',en:'Equipment'},'select':{zh:'选择队伍角色',ja:'パーティーメンバー',en:'Select party member'},'slots':{zh:'装备槽位',ja:'装備スロット',en:'Equipment slots'},'inventory':{zh:'装备目录与库存',ja:'装備一覧・所持品',en:'Catalog & inventory'},'search':{zh:'搜索装备名称',ja:'装備名を検索',en:'Search equipment'},'all':{zh:'全部',ja:'すべて',en:'All'},'owned':{zh:'已拥有',ja:'所持',en:'Owned'},'worn':{zh:'已穿戴',ja:'装備中',en:'Equipped'},'ownedStatus':{zh:'库存可用',ja:'所持品',en:'In inventory'},'notOwned':{zh:'尚未获得',ja:'未入手',en:'Not owned'},'empty':{zh:'空槽位',ja:'空きスロット',en:'Empty slot'},'stats':{zh:'基础属性与战斗加成',ja:'基礎能力・戦闘補正',en:'Base stats & combat bonuses'},'effects':{zh:'特殊触发效果',ja:'特殊発動効果',en:'Special trigger effects'},'compare':{zh:'穿戴前后属性比较',ja:'装備前後の能力比較',en:'Before / after comparison'},'current':{zh:'当前',ja:'現在',en:'Current'},'after':{zh:'穿戴后',ja:'装備後',en:'After'},'change':{zh:'变化',ja:'差分',en:'Change'},'equip':{zh:'穿戴装备',ja:'装備する',en:'Equip'},'unequip':{zh:'卸下装备',ja:'装備を外す',en:'Unequip'},'locate':{zh:'定位当前穿戴者',ja:'装備者を表示',en:'Locate wearer'},'chance':{zh:'触发概率',ja:'発動確率',en:'Chance'},'cooldown':{zh:'冷却回合',ja:'クールダウン',en:'Cooldown'},'max':{zh:'每回合上限',ja:'ターン上限',en:'Per-turn limit'},'owner':{zh:'归属',ja:'対象',en:'Owner'},'craft':{zh:'遗物铸造',ja:'遺物鋳造',en:'Craft relics'},'note':{zh:'只有库存数量大于 0 的装备可以穿戴；当前装备目录未定义品质字段，因此不显示品质筛选。',ja:'所持数が 1 以上の場合のみ装備可能。品質データがないため品質フィルターはありません。',en:'Only owned items can be equipped. The catalog has no quality field, so no rarity filter is shown.'},'noHero':{zh:'当前队伍没有可管理的角色',ja:'メンバーがいません',en:'No party member available'},'noItems':{zh:'没有符合条件的装备',ja:'該当する装備がありません',en:'No matching equipment'},'noStats':{zh:'没有配置基础属性',ja:'基礎能力の設定なし',en:'No base stats'},'noEffects':{zh:'没有配置特殊效果',ja:'特殊効果なし',en:'No special effects'},'compareUnavailable':{zh:'拥有该装备后可预览属性变化',ja:'装備を所持すると比較できます',en:'Own this item to preview the stat changes'}
+};
+function ForgeText({}){}
+export default function Forge(){
+ const game=useGame(),{t,lang,relics,gems,party,defOf,actions,cardShards,gold}=game;
+ const tr=(k)=>TEXT[k]?.[L[lang]??0]||t(k);
+ const [tab,setTab]=useState('equipment'),[cardId,setCardId]=useState(()=>new URLSearchParams(window.location.search).get('cardId')||(party||[]).filter(Boolean)[0]||null);
+ const [slot,setSlot]=useState('weapon'),[selectedId,setSelectedId]=useState(null),[search,setSearch]=useState(''),[filter,setFilter]=useState('all');
+ const partyIds=(party||[]).filter(Boolean),active=partyIds.includes(cardId)?cardId:partyIds[0]||null;
+ const catalog=EQUIPMENT_CATALOG[slot]||[],equippedId=getEquippedItem(game,active,slot);
+ const selected=catalog.find(x=>x.id===selectedId)||catalog.find(x=>x.id===equippedId)||catalog[0]||null;
+ const count=selected?inventory(game,slot,selected.id):0,wearerId=selected?wearer(game,slot,selected.id):null;
+ const before=active?cardStats(game,active):null,after=selected&&count>0&&active?cardStats(projected(game,active,slot,selected.id),active):null;
+ const visible=catalog.filter(x=>{if(search&&!name(x,lang).toLowerCase().includes(search.toLowerCase()))return false;const n=inventory(game,slot,x.id),w=wearer(game,slot,x.id);return filter==='owned'?n>0:filter==='worn'?Boolean(w):true;});
+ const meltable=HEROES.filter(h=>(cardShards[h.id]||0)>=5);
+ const selectSlot=s=>{setSlot(s);setSelectedId(null);setSearch('');};
+ const choose=x=>{setSelectedId(x.id);logInfo('Forge','selectEquipment',{cardId:active,slot,itemId:x.id,owned:inventory(game,slot,x.id)});};
+ const equip=()=>{if(selected&&active&&count>0&&actions.equipEquipment(active,slot,selected.id))logInfo('Forge','equipEquipment',{cardId:active,slot,itemId:selected.id});};
+ const unequip=()=>{if(active&&equippedId&&actions.equipEquipment(active,slot,null))logInfo('Forge','unequipEquipment',{cardId:active,slot,itemId:equippedId});};
+ const compare=()=>{if(selected&&before&&after)logInfo('Forge','compareEquipment',{cardId:active,slot,itemId:selected.id,before,after,wearer:wearerId});};
+ return <AppShell><div className="mx-auto max-w-[980px] px-3 pb-28 pt-3 sm:px-6 sm:pt-6">
+  <PageHeader title={t('forge.title')} subtitle={t('forge.meltDesc')} right={<span className="flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-2 py-1 text-[10px] text-accent"><GameIcon name="Gem" className="h-3 w-3"/>{gems.toLocaleString('en-US')}</span>}/>
+  <div className="mt-3 grid grid-cols-2 gap-1.5">{['equipment','furnace'].map(v=><button key={v} onClick={()=>setTab(v)} className={'tap rounded-xl border px-2 py-2 text-[10px] '+(tab===v?'border-primary/45 bg-primary/[0.08] text-primary':'border-white/10 bg-white/[0.03] text-muted-foreground')}>{v==='equipment'?tr('equipment'):t('forge.furnace')}</button>)}</div>
+  {tab==='equipment'?<>
+   <section className="saga-panel mt-3 p-3"><p className="text-[10px] text-muted-foreground">{tr('select')}</p><div className="mt-2 flex gap-2 overflow-x-auto no-scrollbar">{partyIds.map(id=><CardTile key={id} def={defOf(id)} lang={lang} size="xs" selected={active===id} onClick={()=>setCardId(id)}/>)}</div>{!active?<p className="mt-2 text-xs">{tr('noHero')}</p>:null}</section>
+   <section className="saga-panel mt-3 p-3"><p className="text-[10px] text-muted-foreground">{tr('slots')}</p><div className="mt-2 grid grid-cols-3 gap-2">{EQUIPMENT_SLOTS.map(s=>{const id=getEquippedItem(game,active,s),item=(EQUIPMENT_CATALOG[s]||[]).find(x=>x.id===id);return <button key={s} onClick={()=>selectSlot(s)} className={'tap min-w-0 rounded-xl border p-2 text-left '+(slot===s?'border-primary/50 bg-primary/[0.08]':'border-white/10 bg-white/[0.025]')}><span className="block text-[9px] text-muted-foreground">{SLOT[s][L[lang]??0]}</span><span className="mt-1 block truncate text-[10px]">{item?name(item,lang):t('common.none')}</span><span className="mt-1 block text-[8px] text-primary/70">{item?t('forge.equipped'):tr('empty')}</span></button>;})}</div></section>
+   <section className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
+    <div className="saga-panel min-w-0 p-3"><p className="text-[10px] text-muted-foreground">{tr('inventory')}</p><div className="mt-2 grid grid-cols-3 gap-1">{EQUIPMENT_SLOTS.map(s=><button key={s} onClick={()=>selectSlot(s)} className={'tap rounded-lg border px-1 py-1.5 text-[9px] '+(slot===s?'border-primary/40 bg-primary/10 text-primary':'border-white/10 text-muted-foreground')}>{SLOT[s][L[lang]??0]}</button>)}</div>
+     <input value={search} onChange={e=>setSearch(e.target.value)} placeholder={tr('search')} className="mt-2 w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-[11px] text-foreground outline-none"/>
+     <div className="mt-2 grid grid-cols-3 gap-1">{['all','owned','worn'].map(v=><button key={v} onClick={()=>setFilter(v)} className={'tap rounded-lg border px-1 py-1.5 text-[9px] '+(filter===v?'border-primary/40 bg-primary/10 text-primary':'border-white/10 text-muted-foreground')}>{tr(v)}</button>)}</div>
+     <div className="mt-2 space-y-1.5">{visible.map(item=>{const n=inventory(game,slot,item.id),w=wearer(game,slot,item.id);return <button key={item.id} onClick={()=>choose(item)} className={'tap flex w-full items-center gap-2 rounded-xl border p-2 text-left '+(selected?.id===item.id?'border-primary/50 bg-primary/[0.08]':'border-white/10 bg-white/[0.025]')+(n<1?' opacity-65':'')}><span className="rounded-lg border border-white/10 bg-black/25 p-2"><GameIcon name={item.icon||'Gem'} className="h-4 w-4 text-primary/85"/></span><span className="min-w-0 flex-1"><span className="block truncate text-[10px]">{name(item,lang)}</span><span className="block truncate text-[8px] text-muted-foreground">{w?tr('wornBy').replace('{name}',loc(defOf(w)?.name,lang)):n?tr('ownedStatus'):tr('notOwned')}</span></span><span className="text-[9px] text-muted-foreground">×{n}</span></button>;})}{!visible.length?<p className="p-4 text-center text-[10px]">{tr('noItems')}</p>:null}</div><p className="mt-2 text-[8px] text-muted-foreground">{tr('note')}</p>
+    </div>
+    <div className="saga-panel min-w-0 p-3">{selected?<><div className="flex items-start gap-2"><GameIcon name={selected.icon||'Gem'} className="h-5 w-5 text-primary/85"/><div className="min-w-0 flex-1"><p className="text-[11px]">{name(selected,lang)}</p><p className="text-[9px] text-muted-foreground">×{count}</p>{wearerId?<p className="text-[9px] text-primary/80">{tr('wornBy').replace('{name}',loc(defOf(wearerId)?.name,lang))}</p>:null}</div></div>
+     <p className="mt-3 text-[9px] text-muted-foreground">{tr('stats')}</p><div className="mt-1 grid grid-cols-2 gap-1">{statEntries(selected).map(([k,v])=><div key={k} className="rounded-lg bg-white/[0.035] px-2 py-1.5 text-[9px]"><span className="text-muted-foreground">{statLabel(k,lang)}</span><span className="float-right text-primary/90">+{pct(v)}</span></div>)}{!statEntries(selected).length?<p className="text-[9px]">{tr('noStats')}</p>:null}</div>
+     <p className="mt-3 text-[9px] text-muted-foreground">{tr('effects')}</p>{(selected.effects||[]).map((e,i)=><div key={e.id||i} className="mt-1.5 rounded-xl border border-white/10 bg-black/15 p-2"><p className="text-[10px] text-primary/90">{loc(e.label,lang)||EFFECT[e.effect?.type]?.[L[lang]??0]||e.effect?.type}</p><p className="mt-1 text-[9px]">{EFFECT[e.effect?.type]?.[L[lang]??0]||e.effect?.type} · {EVENTS[e.event]?.[L[lang]??0]||e.event}</p><div className="mt-1 flex flex-wrap gap-x-3 text-[8px] text-muted-foreground">{e.chance!=null?<span>{tr('chance')}: {pct(e.chance)}</span>:null}{e.cooldown!=null?<span>{tr('cooldown')}: {e.cooldown}</span>:null}{e.maxPerTurn!=null?<span>{tr('max')}: {e.maxPerTurn}</span>:null}{e.when?<span>{tr('owner')}: {e.when}</span>:null}</div>{e.effect?.value!=null?<p className="mt-1 text-[9px]">{e.effect.type==='restore_mp'?'+'+e.effect.value+' MP':pct(e.effect.value)}</p>:null}</div>)}{!(selected.effects||[]).length?<p className="text-[9px]">{tr('noEffects')}</p>:null}
+     <div className="mt-3 flex justify-between"><p className="text-[9px] text-muted-foreground">{tr('compare')}</p><button onClick={compare} className="text-[9px] text-primary/80">{tr('logCompare')}</button></div>
+     {before&&after?<div className="mt-1 overflow-hidden rounded-lg border border-white/10"><div className="grid grid-cols-[1fr_.7fr_.7fr_.6fr] gap-1 bg-white/[0.045] px-2 py-1 text-[8px]"><span>{tr('attribute')}</span><span>{tr('current')}</span><span>{tr('after')}</span><span>{tr('change')}</span></div>{['hp','atk','def','spd','crit','critDamagePct','damageDealtPct','damageReductionPct','healBonus','mpCostReductionPct'].map(k=>{const d=delta(k,before[k],after[k]);return <div key={k} className="grid grid-cols-[1fr_.7fr_.7fr_.6fr] gap-1 border-t border-white/5 px-2 py-1 text-[8px]"><span className="truncate text-muted-foreground">{statLabel(k,lang)}</span><span>{display(k,before[k])}</span><span>{display(k,after[k])}</span><span className={d.startsWith('-')?'text-rose-300':'text-emerald-300'}>{d}</span></div>;})}</div>:<p className="mt-1 text-[9px]">{tr('compareUnavailable')}</p>}
+     <div className="mt-3 flex gap-2">{equippedId===selected.id?<GhostButton onClick={unequip} className="flex-1 px-3 py-2 text-[10px]">{tr('unequip')}</GhostButton>:wearerId&&wearerId!==active?<GhostButton onClick={()=>setCardId(wearerId)} className="flex-1 px-3 py-2 text-[10px]">{tr('locate')}</GhostButton>:<GoldButton onClick={equip} disabled={!count||!active} className="flex-1 px-3 py-2 text-[10px]">{tr('equip')}</GoldButton>}</div>
+    </>:<p className="p-6 text-center text-[10px]">{tr('noItems')}</p>}</div>
+   </section>
+   <section className="saga-panel mt-3 p-3"><p className="text-[10px] text-muted-foreground">{tr('craft')}</p><div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">{RELICS.map(r=><div key={r.id} className="rounded-xl border border-white/10 bg-white/[0.025] p-2"><div className="flex justify-between"><GameIcon name={r.icon} className="h-3.5 w-3.5 text-primary/85"/><span className="text-[8px]">×{relics[r.id]||0}</span></div><p className="mt-1 truncate text-[9px]">{name(r,lang)}</p><GhostButton onClick={()=>actions.craftRelic(r.id)} disabled={gems<r.cost} className="mt-2 w-full px-2 py-1 text-[9px]">{t('forge.buy')} · {r.cost}</GhostButton></div>)}</div></section>
+  </>:<div className="mt-3 space-y-2"><div className="saga-panel p-3.5"><p className="flex items-center gap-1.5 text-[11px]"><GameIcon name="Hammer" className="h-3.5 w-3.5 text-primary/80"/>{t('forge.furnace')}</p><p className="mt-1 text-[9.5px] text-muted-foreground">{t('forge.meltDesc')}</p><p className="mt-1.5 text-[9px] text-muted-foreground"><GameIcon name="Coins" className="inline h-2.5 w-2.5"/>{gold.toLocaleString('en-US')}</p></div>{meltable.map(h=>{const n=cardShards[h.id]||0;return <div key={h.id} className="saga-panel flex items-center gap-3 p-2.5"><CardTile def={defOf(h.id)} lang={lang} size="xs" locked/><div className="min-w-0 flex-1"><p className="truncate text-[11px]">{loc(h.name,lang)}</p><p className="text-[9px] text-muted-foreground">{t('common.shards')} {n}</p><Bar value={n%5} max={5} color="#8B7BF7" className="mt-1" height="h-1"/></div><GoldButton onClick={()=>actions.meltShards(h.id)} disabled={n<5} className="shrink-0 px-2.5 py-1.5 text-[9.5px]">{t('forge.melt')}</GoldButton></div>;})}{!meltable.length?<p className="saga-panel p-6 text-center text-[11px]">{t('synth.empty')}</p>:null}</div>}
+ </div></AppShell>;
 }

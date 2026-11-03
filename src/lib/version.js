@@ -4,6 +4,16 @@ export const RELEASE_DATE = '2026-11-03';
 
 export const CHANGELOG = [
   {
+    version: 'v0.36', date: RELEASE_DATE,
+    title: { zh: 'Forge 三槽位装备管理界面', ja: 'Forge 3 スロット装備管理', en: 'Forge three-slot equipment management' },
+    items: {
+      zh: ['Forge 支持武器、防具、遗物三槽位和当前五人队伍角色选择', '新增装备目录、库存数量、名称搜索、已拥有/已穿戴筛选及当前穿戴者定位', '支持装备穿戴、卸下和更换，沿用 Unique 规则', '详情显示真实配置的基础属性、战斗加成、触发事件、效果、概率、冷却和每回合上限', '新增穿戴前后属性比较，装备选择、穿卸和比较写入 Debug Logger', '装备变更前同步确认本地保存成功；失败时不更新状态', '保留遗物铸造、熔炼炉、旧存档、角色养成、战斗触发和装备 AI；目录未定义品质字段，不虚构品质筛选', '保留 v0.35 及以前完整履历'],
+      ja: ['武器・防具・遺物の 3 スロットと現在の 5 人パーティー選択に対応', '装備カタログ、所持数、名前検索、所持・装備中フィルター、装備者への移動を追加', '既存 Unique ルールを維持して装備・解除・交換に対応', '実データの能力値、戦闘補正、発動イベント、効果、確率、クールダウン、ターン上限を表示', '装備前後の能力比較と Debug Logger 記録を追加', '保存成功を同期確認してから状態を更新。失敗時は状態を変更しない', '遺物鋳造、熔錬炉、旧セーブ、育成、戦闘効果、装備 AI を維持。品質データがないため品質フィルターは追加しない', 'v0.35 以前の履歴を保持'],
+      en: ['Adds weapon, armor, and relic slot management for the current five-member party', 'Adds catalog, owned counts, name search, owned/equipped filters, and wearer navigation', 'Supports equip, unequip, and replacement while preserving Unique ownership', 'Displays configured stats, combat bonuses, trigger events, effects, chance, cooldown, and per-turn limits', 'Adds before/after stat comparison and Debug Logger events', 'Verifies local save success before updating state; failed writes leave state unchanged', 'Preserves relic crafting, furnace, old saves, progression, battle triggers, and equipment AI; no fabricated rarity filter', 'Preserves the complete v0.35 and earlier changelog'],
+    }
+  },
+
+  {
     version: 'v0.35', date: RELEASE_DATE,
     title: { zh: '装备与自动战斗 AI 联动', ja: '装備とオートバトル AI の連携', en: 'Equipment-aware auto-battle AI' },
     items: {
