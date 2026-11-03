@@ -171,7 +171,7 @@ export const S = {
   'stages.cleared': { zh: '已通关', ja: 'クリア済み', en: 'Cleared' },
   'stages.challenge': { zh: '挑战', ja: '挑戦', en: 'Challenge' },
   'stages.power': { zh: '推荐战力', ja: '推奨戦力', en: 'Rec. power' },
-  'stages.tip': { zh: '每 5 关为一个章节，第 5 关固定为 BOSS 关卡，需逐关解锁。', ja: '5 面ごとに 1 章、5 面目は必ず BOSS。順番に解放されます。', en: 'Every 5th stage is a chapter boss. Stages unlock in order.' },
+  'stages.tip': { zh: '每 5 关为一个章节。普通模式击败 BOSS 后，可跳过接下来的 4 个小怪关，直接挑战下一个 BOSS。', ja: '5 面ごとに 1 章。ノーマルで BOSS を倒すと、次の雑魚 4 面をスキップして次の BOSS に挑戦できます。', en: 'Every 5 stages form a chapter. In Normal mode, defeating a boss lets you skip the next 4 minion stages and challenge the next boss.' },
   'stages.clearPrev': { zh: '通关上一模式第 100 关后解锁', ja: '前モードの第 100 面クリアで解放', en: 'Clear stage 100 of the previous mode' },
 
   'battle.auto': { zh: '自动战斗', ja: 'オートバトル', en: 'Auto battle' },
@@ -182,6 +182,7 @@ export const S = {
   'battle.round': { zh: '回合 {n}', ja: '{n} ターン目', en: 'Round {n}' },
   'battle.again': { zh: '再次挑战', ja: '再挑戦', en: 'Retry' },
   'battle.next': { zh: '下一关', ja: '次のステージ', en: 'Next stage' },
+  'battle.nextBoss': { zh: '挑战下一个 BOSS', ja: '次の BOSS に挑戦', en: 'Challenge next boss' },
   'battle.back': { zh: '返回关卡', ja: 'ステージへ戻る', en: 'Back to stages' },
   'battle.log': { zh: '战斗记录', ja: '戦闘ログ', en: 'Battle log' },
   'battle.enemy': { zh: '敌方', ja: '敵軍', en: 'Enemies' },
