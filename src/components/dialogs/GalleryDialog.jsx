@@ -4,6 +4,7 @@ import GameModal from '@/components/common/GameModal';
 import GameIcon from '@/components/common/GameIcon';
 import { Bar, Chip } from '@/components/common/Bits';
 import CardTile from '@/components/common/CardTile';
+import CharacterDetailDialog from '@/components/dialogs/CharacterDetailDialog';
 import { useGame } from '@/lib/GameContext';
 import { CLASSES, ENEMIES, HEROES, MONSTER_TYPES, RARITY_COLOR } from '@/lib/gameData';
 import { copiesOf } from '@/lib/cards';
@@ -13,6 +14,7 @@ export default function GalleryDialog({ open, onClose }) {
   const navigate = useNavigate();
   const [tab, setTab] = useState('heroes');
   const [filter, setFilter] = useState('all');
+  const [selectedHeroId, setSelectedHeroId] = useState(null);
 
   const genderFilters = [
     { id: 'all', label: t('common.all') },
@@ -30,6 +32,7 @@ export default function GalleryDialog({ open, onClose }) {
   const enemyList = ENEMIES.filter((e) => filter === 'all' || e.type === filter);
 
   return (
+    <>
     <GameModal open={open} onClose={onClose} title={t('gallery.title')} width="max-w-3xl">
       <div className="flex items-center gap-1.5">
         {[
@@ -124,6 +127,7 @@ export default function GalleryDialog({ open, onClose }) {
                   size="sm"
                   locked={!owned}
                   badge={owned ? (copies > 1 ? `×${copies}` : null) : cardShards[h.id] ? `${cardShards[h.id]}/5` : null}
+                  onClick={owned ? () => setSelectedHeroId(h.id) : undefined}
                 />
               );
             })
@@ -158,5 +162,11 @@ export default function GalleryDialog({ open, onClose }) {
         </div>
       ) : null}
     </GameModal>
+    <CharacterDetailDialog
+      cardId={selectedHeroId}
+      open={!!selectedHeroId}
+      onClose={() => setSelectedHeroId(null)}
+    />
+    </>
   );
 }
