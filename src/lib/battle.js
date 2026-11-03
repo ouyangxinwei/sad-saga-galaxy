@@ -35,6 +35,20 @@ function makeUnitImpl(cfg) {
   };
 }
 
+export function applyEquipmentDamageModifiers(amount, attacker, target) {
+  const dealt = Math.min(1, Math.max(0, Number(attacker?.damageDealtPct) || 0));
+  const reduction = Math.min(0.75, Math.max(0, Number(target?.damageReductionPct) || 0));
+  return amount * (1 + dealt) * (1 - reduction);
+}
+
+export function criticalDamageMultiplier(unit) {
+  return 1.65 + Math.min(1, Math.max(0, Number(unit?.critDamagePct) || 0));
+}
+
+export function healingMultiplier(unit) {
+  return 1 + Math.min(1.5, Math.max(0, Number(unit?.healBonus) || 0));
+}
+
 export function effectiveMpCost(skill, unit) {
   const baseCost = Math.max(0, Number(skill?.mp) || 0);
   const reduction = Math.min(0.5, Math.max(0, Number(unit?.mpCostReductionPct) || 0));
@@ -75,11 +89,10 @@ function chooseSkillImpl(unit, allies, foes, round) {
 
 function damageImpl(attacker, target, sk, events, units) {
   const crit = Math.random() < attacker.crit + (sk.critBonus || 0);
-  let dmg = attacker.atk * sk.power * rnd(0.93, 1.07) * (crit ? 1.65 + (attacker.critDamagePct || 0) : 1);
+  let dmg = attacker.atk * sk.power * rnd(0.93, 1.07) * (crit ? criticalDamageMultiplier(attacker) : 1);
   dmg = Math.max(1, dmg - target.def * (1 - (sk.pierce || 0)) * 0.45);
-  if (attacker.damageDealtPct) dmg *= 1 + Math.min(1, Math.max(0, attacker.damageDealtPct));
   if (target.dr) dmg *= 1 - target.dr;
-  if (target.damageReductionPct) dmg *= 1 - Math.min(0.75, Math.max(0, target.damageReductionPct));
+  dmg = applyEquipmentDamageModifiers(dmg, attacker, target);
   if (target.shield > 0) {
     const absorbed = Math.min(target.shield, dmg);
     target.shield -= absorbed;
@@ -102,7 +115,7 @@ function damageImpl(attacker, target, sk, events, units) {
 }
 
 function healImpl(attacker, target, sk, events) {
-  const amount = Math.round(attacker.atk * sk.heal * (1 + (attacker.healBonus || 0)) * rnd(0.95, 1.05));
+  const amount = Math.round(attacker.atk * sk.heal * healingMultiplier(attacker) * rnd(0.95, 1.05));
   target.hp = Math.min(target.maxHp, target.hp + amount);
   events.push({
     kind: 'heal',
