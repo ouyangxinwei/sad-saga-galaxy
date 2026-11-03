@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AppShell from '@/components/common/AppShell';
 import PageHeader from '@/components/common/PageHeader';
 import CardTile from '@/components/common/CardTile';
@@ -7,9 +8,12 @@ import { GoldButton, GhostButton, Chip } from '@/components/common/Bits';
 import { useGame } from '@/lib/GameContext';
 import { CLASSES } from '@/lib/gameData';
 import { fmt } from '@/lib/format';
+import CharacterDetailDialog from '@/components/dialogs/CharacterDetailDialog';
 
 export default function Formation() {
   const { t, lang, party, cards, defOf, powerOf, actions, presets, presetIndex, power } = useGame();
+  const [detailId, setDetailId] = useState(null);
+  const navigate = useNavigate();
   const [slot, setSlot] = useState(0);
   const [filter, setFilter] = useState('all');
 
@@ -52,7 +56,7 @@ export default function Formation() {
                         size="xs"
                         power={powerOf(id)}
                         selected={slot === i}
-                        onClick={() => setSlot(i)}
+                        onClick={() => setDetailId(id)}
                       />
                       <button
                         type="button"
@@ -141,7 +145,7 @@ export default function Formation() {
               size="sm"
               power={powerOf(id)}
               selected={party.includes(id)}
-              onClick={() => place(id)}
+              onClick={() => setDetailId(id)}
             />
           ))}
         </div>
