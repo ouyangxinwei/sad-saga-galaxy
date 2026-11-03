@@ -17,6 +17,7 @@ const setup=(effect,extra={})=>{
   const owner=unit('owner','ally',{equipmentEffects:[effect],...extra.owner});
   const enemy=unit('enemy','enemy',{...extra.enemy});
   const ally=unit('ally-2','ally',{hp:30,maxHp:100,...extra.ally});
+  if(extra.owner?.mp!=null)owner.mp=extra.owner.mp;
   const units=[owner,enemy,ally],events=[];
   const rt=createEquipmentRuntime(units,extra.random||(()=>0));
   return {owner,enemy,ally,units,events,rt};
