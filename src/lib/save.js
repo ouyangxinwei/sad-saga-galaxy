@@ -91,6 +91,7 @@ function loadStateImpl() {
     }
     const merged = {
       ...base, ...parsed,
+      equipmentSchemaVersion: Number(parsed.equipmentSchemaVersion || 0),
       progress: { ...base.progress, ...(parsed.progress || {}) },
       checkin: { ...base.checkin, ...(parsed.checkin || {}) },
       fortune: { ...base.fortune, ...(parsed.fortune || {}) },
