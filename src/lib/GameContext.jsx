@@ -25,7 +25,6 @@ import {
 import {
   STAMINA_MAX,
   bountySlot,
-  clearSave,
   currentStamina,
   defaultState,
   generateBounties,
