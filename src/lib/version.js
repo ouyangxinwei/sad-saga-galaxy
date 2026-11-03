@@ -1,8 +1,18 @@
 // Single source of truth for in-app, package, and release-document version.
-export const APP_VERSION = 'v0.46';
+export const APP_VERSION = 'v0.47';
 export const RELEASE_DATE = '2026-11-04';
 
 export const CHANGELOG = [
+  {
+    version: 'v0.47', date: '2026-11-04',
+    title: { zh: '职业差异化属性成长（V7 Phase 1）', ja: '職業別ステータス成長（V7 Phase 1）', en: 'Career-specific character stat growth (V7 Phase 1)' },
+    items: {
+      zh: ['首次将角色独立等级接入实际战斗属性：角色等级提升会成长 HP、ATK、DEF、MP', '按现有职业分为攻击、防御、辅助三类；未识别的新职业采用均衡成长', '成长按角色等级 1 级为基准线性累加，不改变角色基础数据；速度、暴击和技能规则保持不变', '角色成长、玩家等级倍率与装备加成分层计算；重复卡片沿用当前最强成长实例参与战斗', '新增职业系数、属性计算、重复卡选择和旧存档兼容回归测试；不修改突破奖励、全队加成或存档结构'],
+      ja: ['キャラクター個別レベルを実際の戦闘能力へ初めて反映し、HP・ATK・DEF・MP が成長', '既存職業を攻撃・防御・支援の 3 系統に分類し、未知の新職業には均衡成長を適用', 'レベル 1 を基準に線形加算し、キャラクター基本データは変更しない。速度・会心・スキル仕様も維持', '職業成長、プレイヤーレベル倍率、装備補正を分離し、重複カードは最も育成されたインスタンスを戦闘に使用', '職業係数、能力計算、重複カード選択、旧セーブ互換の回帰テストを追加。突破報酬・全体ボーナス・セーブ構造は変更しない'],
+      en: ['Connects individual character levels to actual battle stats for the first time: HP, ATK, DEF, and MP now grow with character level', 'Maps existing classes into attack, defense, and support archetypes; unknown future classes use balanced growth', 'Uses linear growth from level 1 without overwriting base character data; SPD, critical stats, and skill rules remain unchanged', 'Keeps career growth, player-level scaling, and equipment bonuses as separate calculation layers; duplicate cards use the strongest progression instance', 'Adds regression tests for career coefficients, stat calculation, duplicate selection, and legacy saves; no breakthrough rewards, team bonus, or save schema changes'],
+    },
+  },
+
   {
     version: 'v0.46', date: '2026-11-04',
     title: { zh: '角色成长 UI 与全面回归测试（Phase 6）', ja: 'キャラクター育成 UI と総合回帰テスト（Phase 6）', en: 'Character progression UI and comprehensive regression tests (Phase 6)' },

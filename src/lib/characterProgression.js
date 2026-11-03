@@ -2,6 +2,27 @@ export const CHARACTER_PROGRESSION_SCHEMA_VERSION = 1;
 export const INITIAL_CHARACTER_LEVEL = 1;
 export const INITIAL_CHARACTER_LEVEL_CAP = 60;
 
+export const CHARACTER_CAREER_GROWTH = Object.freeze({
+  attack: Object.freeze({ hp: 0.003, atk: 0.0055, def: 0.0025, mp: 0.0035 }),
+  defense: Object.freeze({ hp: 0.0055, atk: 0.0025, def: 0.0055, mp: 0.0035 }),
+  support: Object.freeze({ hp: 0.0035, atk: 0.0025, def: 0.0035, mp: 0.0055 }),
+  balanced: Object.freeze({ hp: 0.004, atk: 0.004, def: 0.004, mp: 0.004 }),
+});
+export const CHARACTER_CLASS_ARCHETYPES = Object.freeze({
+  sword: 'attack', lancer: 'attack', archer: 'attack', rogue: 'attack', mage: 'attack',
+  guardian: 'defense',
+  priest: 'support', alchemist: 'support', stargazer: 'support',
+});
+export function getCharacterCareerArchetype(classId) {
+  return CHARACTER_CLASS_ARCHETYPES[classId] || 'balanced';
+}
+export function characterGrowthMultipliers(classId, level = INITIAL_CHARACTER_LEVEL) {
+  const safeLevel = Math.max(1, Math.floor(Number(level) || INITIAL_CHARACTER_LEVEL));
+  const levelSteps = safeLevel - INITIAL_CHARACTER_LEVEL;
+  const rates = CHARACTER_CAREER_GROWTH[getCharacterCareerArchetype(classId)];
+  return Object.fromEntries(Object.entries(rates).map(([stat, rate]) => [stat, 1 + levelSteps * rate]));
+}
+
 // Phase 1 records the confirmed growth policies as data-layer configuration.
 // Runtime enforcement is intentionally left to the later progression phases.
 export const CHARACTER_GROWTH_RULES = Object.freeze({

@@ -2,6 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   CHARACTER_GROWTH_RULES,
+  CHARACTER_CAREER_GROWTH,
+  getCharacterCareerArchetype,
+  characterGrowthMultipliers,
   CHARACTER_PROGRESSION_SCHEMA_VERSION,
   createCharacterProgressionRecord,
   normalizeCharacterProgressionState,
@@ -12,6 +15,7 @@ import {
   breakthroughCharacter,
   fuseCharacterProgressionInstances,
 } from '../src/lib/characterProgression.js';
+import { cardStats } from '../src/lib/cards.js';
 
 test('confirmed character growth policies are represented exactly in Phase 1', () => {
   assert.deepEqual(CHARACTER_GROWTH_RULES, {
@@ -349,4 +353,51 @@ test('character detail EXP progress calculation remains bounded at cap and above
   assert.equal(result.record.level, 60);
   assert.equal(result.record.exp, 12500);
   assert.equal(result.levelsGained, 0);
+});
+
+
+test('career archetypes map existing classes to distinct growth profiles', () => {
+  assert.equal(getCharacterCareerArchetype('sword'), 'attack');
+  assert.equal(getCharacterCareerArchetype('mage'), 'attack');
+  assert.equal(getCharacterCareerArchetype('guardian'), 'defense');
+  assert.equal(getCharacterCareerArchetype('priest'), 'support');
+  assert.equal(getCharacterCareerArchetype('alchemist'), 'support');
+  assert.equal(getCharacterCareerArchetype('stargazer'), 'support');
+  assert.equal(getCharacterCareerArchetype('future-custom-class'), 'balanced');
+  assert.deepEqual(Object.keys(CHARACTER_CAREER_GROWTH), ['attack', 'defense', 'support', 'balanced']);
+});
+test('career growth is zero at level one and uses the approved linear per-level coefficients', () => {
+  assert.deepEqual(characterGrowthMultipliers('sword', 1), { hp: 1, atk: 1, def: 1, mp: 1 });
+  assert.deepEqual(characterGrowthMultipliers('sword', 60), { hp: 1 + 59 * .003, atk: 1 + 59 * .0055, def: 1 + 59 * .0025, mp: 1 + 59 * .0035 });
+  assert.deepEqual(characterGrowthMultipliers('guardian', 60), { hp: 1 + 59 * .0055, atk: 1 + 59 * .0025, def: 1 + 59 * .0055, mp: 1 + 59 * .0035 });
+  assert.deepEqual(characterGrowthMultipliers('priest', 60), { hp: 1 + 59 * .0035, atk: 1 + 59 * .0025, def: 1 + 59 * .0035, mp: 1 + 59 * .0055 });
+  assert.deepEqual(characterGrowthMultipliers('future-custom-class', 60), { hp: 1 + 59 * .004, atk: 1 + 59 * .004, def: 1 + 59 * .004, mp: 1 + 59 * .004 });
+});
+test('character level growth changes battle HP, ATK, DEF and MP while leaving SPD unchanged', () => {
+  const state = { level: 1, rebirth: 0, characterProgression: { instances: { copy: { cardId: 'lise', level: 1, exp: 0, breakthroughCount: 0, levelCap: 60 } } } };
+  const low = cardStats(state, 'lise');
+  const high = cardStats({ ...state, characterProgression: { instances: { copy: { ...state.characterProgression.instances.copy, level: 60 } } } }, 'lise');
+  assert.equal(high.hp, Math.round(low.hp * (1 + 59 * .003)));
+  assert.equal(high.atk, Math.round(low.atk * (1 + 59 * .0055)));
+  assert.equal(high.def, Math.round(low.def * (1 + 59 * .0025)));
+  assert.equal(high.mp, Math.round(low.mp * (1 + 59 * .0035)));
+  assert.equal(high.spd, low.spd);
+});
+test('duplicate copies use the strongest progression record for battle stat growth', () => {
+  const state = { level: 1, rebirth: 0, characterProgression: { instances: {
+    weak: { cardId: 'lise', level: 12, exp: 0, breakthroughCount: 0, levelCap: 60 },
+    strong: { cardId: 'lise', level: 30, exp: 0, breakthroughCount: 0, levelCap: 60 },
+  } } };
+  const stats = cardStats(state, 'lise');
+  const base = cardStats({ level: 1, rebirth: 0 }, 'lise');
+  assert.equal(stats.atk, Math.round(base.atk * (1 + 29 * .0055)));
+});
+test('player-level scaling and equipment bonuses remain separate from career growth', () => {
+  const state = { level: 10, rebirth: 0, characterProgression: { instances: {
+    copy: { cardId: 'lise', level: 20, exp: 0, breakthroughCount: 0, levelCap: 60 },
+  } } };
+  const stats = cardStats(state, 'lise');
+  const base = cardStats({ level: 10, rebirth: 0 }, 'lise');
+  assert.equal(stats.hp, Math.round(base.hp * (1 + 19 * .003)));
+  assert.equal(stats.spd, base.spd);
 });
