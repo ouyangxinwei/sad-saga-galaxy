@@ -1,6 +1,7 @@
 import { logWarn, traceSync } from './logger';
 import { normalizeEquipmentState } from './equipment';
 import { RESET_GEMS, createResetState, persistResetState } from './resetState';
+import { normalizeCharacterProgressionState } from './characterProgression';
 import {
   DEFAULT_UNLOCKED,
   STAGES_PER_MODE,
@@ -38,7 +39,7 @@ function defaultStateImpl() {
     cards[id] = true;
     cardCounts[id] = 1;
   });
-  return {
+  const state = {
     version: 20,
     lang: 'zh',
     level: 1,
@@ -77,6 +78,7 @@ function defaultStateImpl() {
     shopBought: {},
     settings: { speed: 1 },
   };
+  return normalizeCharacterProgressionState(state);
 }
 
 function loadStateImpl() {
@@ -106,7 +108,7 @@ function loadStateImpl() {
     if (Number(parsed.equipmentSchemaVersion || 0) < 1 && !localStorage.getItem(EQUIPMENT_BACKUP_KEY)) {
       localStorage.setItem(EQUIPMENT_BACKUP_KEY, raw);
     }
-    return normalizeEquipmentState(merged);
+    return normalizeCharacterProgressionState(normalizeEquipmentState(merged));
   } catch (e) {
     saveWritesBlocked = true;
     logWarn('Save', 'loadState', { message: e?.message || String(e), recovery: 'Original local save was left untouched.' });
