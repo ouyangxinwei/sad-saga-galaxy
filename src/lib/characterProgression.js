@@ -174,6 +174,38 @@ export function strongestCharacterInstance(state, cardId) {
   )[0] || null;
 }
 
+
+/**
+ * Removes consumed source-card progression instances during rarity fusion.
+ * The three least-developed copies are consumed first, preserving stronger
+ * remaining copies. Growth is never transferred to the fusion result.
+ */
+export function consumeFusedCharacterInstances(state, cardId, count = 3) {
+  const progression = state?.characterProgression;
+  if (!progression?.instances || !cardId) return state;
+  const amount = Math.max(0, Math.floor(Number(count) || 0));
+  if (!amount) return state;
+
+  const candidates = Object.entries(progression.instances)
+    .filter(([, record]) => record?.cardId === cardId)
+    .sort((a, b) =>
+      (Number(a[1].level) || 1) - (Number(b[1].level) || 1) ||
+      (Number(a[1].exp) || 0) - (Number(b[1].exp) || 0) ||
+      (Number(a[1].breakthroughCount) || 0) - (Number(b[1].breakthroughCount) || 0) ||
+      String(a[0]).localeCompare(String(b[0]))
+    );
+
+  const instances = { ...progression.instances };
+  candidates.slice(0, amount).forEach(([instanceId]) => {
+    delete instances[instanceId];
+  });
+
+  return {
+    ...state,
+    characterProgression: { ...progression, instances },
+  };
+}
+
 export function breakthroughCharacter(state, cardId) {
   const selected = strongestCharacterInstance(state, cardId);
   if (!selected) return { state, success: false, reason: 'missing-character' };

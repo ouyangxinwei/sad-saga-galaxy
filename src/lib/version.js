@@ -1,8 +1,18 @@
 // Single source of truth for in-app, package, and release-document version.
-export const APP_VERSION = 'v0.43';
+export const APP_VERSION = 'v0.44';
 export const RELEASE_DATE = '2026-11-04';
 
 export const CHANGELOG = [
+  {
+    version: 'v0.44', date: '2026-11-04',
+    title: { zh: '卡牌融合成长继承（Phase 4）', ja: 'カード融合時の育成データ処理（Phase 4）', en: 'Character growth handling during card fusion (Phase 4)' },
+    items: {
+      zh: ['同名卡融合时同步处理独立角色成长记录，避免旧卡成长数据残留或错绑', '融合消耗的三张材料卡，其成长记录随材料一并移除，不会转移给融合结果', '融合结果卡已有等级、经验、突破次数和等级上限全部保留；结果卡此前不存在时按初始成长创建', '持有超过三张材料卡时，优先消耗成长较低的三张，保留更强的剩余副本', '保持 3 张 A→S、3 张 S→SS 的既有融合规则，并新增融合成长回归测试'],
+      ja: ['同名カード融合時に個別育成レコードも同期処理し、旧カードの育成データ残存や誤紐付けを防止', '素材として消費される 3 枚の育成記録は削除し、融合結果へ移転しない', '融合先カードが既に持つレベル・経験値・突破回数・上限はすべて保持。融合先が未所持なら初期育成状態で作成', '素材カードが 3 枚を超える場合、育成度の低い 3 枚を優先消費し、強い残存コピーを保持', '既存の A 3 枚→S、S 3 枚→SS の融合仕様を維持し、育成データの回帰テストを追加'],
+      en: ['Synchronizes individual character progression records when fusing duplicate cards, preventing stale or misbound growth data', 'Progression records belonging to the three consumed material cards are removed and never transferred to the fusion result', 'Any existing result card keeps its level, EXP, breakthrough count, and level cap; a result not previously owned starts with initial growth', 'When more than three material copies exist, the three least-developed copies are consumed first, preserving stronger remaining copies', 'Preserves the existing 3 A → 1 S and 3 S → 1 SS fusion rules and adds fusion-growth regression tests'],
+    },
+  },
+
   {
     version: 'v0.43', date: '2026-11-04',
     title: { zh: '角色突破与等级上限提升（Phase 3）', ja: 'キャラクター突破とレベル上限解放（Phase 3）', en: 'Character breakthrough and level-cap increases (Phase 3)' },

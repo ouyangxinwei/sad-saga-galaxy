@@ -38,7 +38,7 @@ import {
 } from './save';
 import { cardPower, copiesOf, getCardDef, partyPower, strongestParty, teamTotals } from './cards';
 import { equipItem, getEquipmentDefinition, getEquippedItem } from './equipment';
-import { normalizeCharacterProgressionState, grantPartyCharacterExperience, breakthroughCharacter } from './characterProgression';
+import { normalizeCharacterProgressionState, grantPartyCharacterExperience, breakthroughCharacter, consumeFusedCharacterInstances } from './characterProgression';
 
 const GameCtx = createContext(null);
 const traceAction = (name, fn) => (...args) => traceSync('GameContext.' + name, () => fn(...args));
@@ -589,6 +589,8 @@ export function GameProvider({ children }) {
           stats: classStats(def.classId, next),
         };
       }
+      // Consume the three source progression records; never transfer their growth to the result card.
+      Object.assign(s, consumeFusedCharacterInstances(s, cardId, 3));
       const left = copiesOf(base, cardId) - 3;
       if (left > 0) {
         s.cardCounts[cardId] = left;

@@ -243,9 +243,9 @@ export const S = {
   'synth.empty': { zh: '暂无可用碎片', ja: '欠片がありません', en: 'No shards yet' },
   'synth.fuseCards': { zh: '卡牌融合', ja: 'カード融合', en: 'Card fusion' },
   'synth.fuseDesc': {
-    zh: '同一类型 3 张 A 卡融合为 1 张 S 卡，3 张 S 卡融合为 1 张 SS 卡。融合消耗原有卡牌，不同类型无法混合。',
-    ja: '同型の A 3 枚で S 1 枚、S 3 枚で SS 1 枚に融合。元のカードを消費し、型違いは混合できません。',
-    en: '3 same-type A cards fuse into 1 S card; 3 S cards into 1 SS. The originals are consumed and types cannot be mixed.',
+    zh: '同一类型 3 张 A 卡融合为 1 张 S 卡，3 张 S 卡融合为 1 张 SS 卡。融合消耗原有卡牌，不同类型无法混合；结果卡保留自身成长，材料卡成长不转移。',
+    ja: '同型の A 3 枚で S 1 枚、S 3 枚で SS 1 枚に融合。元カードを消費し、型違いは混合不可。結果カード自身の育成を保持し、素材カードの育成は引き継ぎません。',
+    en: '3 same-type A cards fuse into 1 S card; 3 S cards into 1 SS. Originals are consumed, types cannot be mixed, and only the result card’s existing growth is retained.',
   },
   'synth.copies': { zh: '持有 {n}/3', ja: '所持 {n}/3', en: '{n}/3 owned' },
   'synth.fuseGo': { zh: '融合 3 → 1', ja: '融合 3 → 1', en: 'Fuse 3 → 1' },
