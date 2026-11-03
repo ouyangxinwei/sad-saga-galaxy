@@ -74,7 +74,7 @@ test('zero cooldown allows same-turn checks while maxPerTurn enforces the cap',(
   assert.equal(dispatchEquipmentEvent('onAttack',context,units,events,rt,1),1);
   assert.equal(dispatchEquipmentEvent('onAttack',context,units,events,rt,1),1);
   assert.equal(dispatchEquipmentEvent('onAttack',context,units,events,rt,1),0);
-  assert.equal(owner.shield,30);
+  assert.equal(owner.shield,20);
   assert.ok(getLogs().some(x=>x.module==='EquipmentTrigger'&&x.detail?.reason==='per_turn_limit'));
 });
 

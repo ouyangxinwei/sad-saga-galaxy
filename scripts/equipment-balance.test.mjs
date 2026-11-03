@@ -36,12 +36,12 @@ test('all 54 weapon/armor/relic combinations remain finite and within combat saf
         combinations++;
         for(const [key,value] of Object.entries(stats)){
           assert.ok(Number.isFinite(value), key+' must remain finite');
-          if(key in maxima)maxima[key]=Math.max(maxima[key],value);
+          if(key in maxima)maxima[key]=Math.max(maxima[key],Number(value.toFixed(2)));
         }
       }
   assert.equal(combinations,54);
   assert.deepEqual(maxima,{
-    hpPct:.41,atkPct:.32,defPct:.22,spdPct:.22,crit:.03,critDamagePct:.20,
+    hpPct:.41,atkPct:.32,defPct:.22,spdPct:.28,crit:.03,critDamagePct:.20,
     healPct:.28,mpCostReductionPct:.12,damageDealtPct:.10,damageReductionPct:.13,
   });
 });

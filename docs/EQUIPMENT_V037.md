@@ -17,7 +17,7 @@ V0.37 verifies the existing three-slot equipment system and its combat integrati
 | HP | +41% |
 | ATK | +32% |
 | DEF | +22% |
-| SPD | +22% |
+| SPD | +28% |
 | Crit rate | +3 percentage points |
 | Crit damage | +20% |
 | Healing | +28% |
