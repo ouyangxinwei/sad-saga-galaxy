@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { HEROES } from '../src/lib/gameData.js';
+import { HEROES, heroStats } from '../src/lib/gameData.js';
 import { cardStats, partyUnits } from '../src/lib/cards.js';
 import { getEquipmentBonuses } from '../src/lib/equipment.js';
 import { applyEquipmentDamageModifiers, criticalDamageMultiplier, effectiveMpCost, healingMultiplier } from '../src/lib/battle.js';
@@ -38,8 +38,9 @@ test('keeps existing relic stat bonuses and calculates expanded character stats'
     relics: { r_sword: 1 },
     equipped: { lise: { weapon: null, armor: null, relic: 'r_sword' } },
   }, 'lise');
-  assert.equal(stats.hp, hero.stats.hp);
-  assert.equal(stats.atk, Math.round(hero.stats.atk * 1.12));
+  const base = heroStats(hero);
+  assert.equal(stats.hp, base.hp);
+  assert.equal(stats.atk, Math.round(base.atk * 1.12));
   assert.equal(stats.critDamagePct, 0.10);
 });
 
@@ -47,7 +48,7 @@ test('passes hybrid modifiers into ally battle units', () => {
   const unit = partyUnits(equippedState)[0];
   assert.equal(unit.damageDealtPct, 0.10);
   assert.equal(unit.damageReductionPct, 0.05);
-  assert.equal(unit.crit, Math.min(0.75, HEROES.find((item) => item.id === 'lise').stats.crit + 0.03));
+  assert.equal(unit.crit, Math.min(0.75, heroStats(HEROES.find((item) => item.id === 'lise')).crit + 0.03));
 });
 
 test('applies bounded damage, critical, healing, and MP-cost modifiers', () => {
