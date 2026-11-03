@@ -253,6 +253,7 @@ export const S = {
   'forge.furnace': { zh: '熔炼炉', ja: '熔錬炉', en: 'Furnace' },
   'forge.equip': { zh: '装备', ja: '装備', en: 'Equip' },
   'forge.equipped': { zh: '装备中', ja: '装備中', en: 'Equipped' },
+  'equipment.alreadyEquipped': { zh: '该装备已由其他角色穿戴', ja: 'この装備は他のキャラクターが装備中です', en: 'This item is already equipped by another character' },
   'forge.melt': { zh: '熔炼 5 碎片', ja: '欠片 5 個を熔錬', en: 'Melt 5 shards' },
   'forge.meltDesc': { zh: '将多余碎片熔为钻石，每次 5 枚碎片 → 150 钻石。', ja: '余った欠片を熔かしてダイヤに。5 枚 → 150 ダイヤ。', en: 'Melt spare shards: 5 shards → 150 gems.' },
   'forge.buy': { zh: '铸成遗物', ja: '遺物を鋳造', en: 'Forge relic' },
