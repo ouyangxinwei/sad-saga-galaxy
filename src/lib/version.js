@@ -1,8 +1,18 @@
 // Single source of truth for in-app, package, and release-document version.
-export const APP_VERSION = 'v0.28';
+export const APP_VERSION = 'v0.29';
 export const RELEASE_DATE = '2026-11-03';
 
 export const CHANGELOG = [
+  {
+    version: APP_VERSION,
+    date: RELEASE_DATE,
+    title: { zh: 'PWA 安装兼容性修复', ja: 'PWA インストール互換性の修正', en: 'PWA installation compatibility fix' },
+    items: {
+      zh: ['修复 index.html 引用不存在的 oooo-icon.svg，改为引用实际存在的 192 SVG 图标', '修复 Service Worker 预缓存不存在的 oooo-icon.svg 导致 install 阶段失败的问题', '确认 Manifest 图标路径与 public 目录文件一致，保留 192×192 和 512×512 SVG 图标声明', '将 Service Worker 缓存版本提升至 v10，促使已访问用户更新应用壳资源', '不修改游戏存档、存档键、游戏逻辑或现有 PWA 安装身份'],
+      ja: ['index.html の存在しない oooo-icon.svg 参照を修正し、実在する 192 SVG アイコンへ変更', 'Service Worker の install 時に存在しない oooo-icon.svg を事前キャッシュして失敗する問題を修正', 'Manifest のアイコンパスと public ディレクトリの実ファイルを一致させ、192/512 SVG を維持', 'Service Worker キャッシュを v10 に更新し、既存ユーザーが新しいアプリシェルを取得できるようにする', 'ゲームセーブ、セーブキー、ゲームロジック、PWA のインストール ID は変更しない'],
+      en: ['Fixed index.html referencing the missing oooo-icon.svg by pointing to the existing 192 SVG icon', 'Removed the missing oooo-icon.svg from Service Worker precaching, which could fail installation', 'Aligned manifest icon paths with actual files in public while retaining 192x192 and 512x512 SVG declarations', 'Bumped the Service Worker cache to v10 so returning clients can update the app shell', 'Did not change game saves, save keys, game logic, or the existing PWA app identity'],
+    },
+  },
   {
     version: APP_VERSION,
     date: RELEASE_DATE,
