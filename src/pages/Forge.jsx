@@ -12,7 +12,7 @@ const TABS = ['relics', 'furnace'];
 export default function Forge() {
   const { t, lang, relics, equipped, gems, party, defOf, actions, cardShards, gold } = useGame();
   const [tab, setTab] = useState('relics');
-  const [cardId, setCardId] = useState((party || []).filter(Boolean)[0] || null);
+  const [cardId, setCardId] = useState(() => new URLSearchParams(window.location.search).get('cardId') || (party || []).filter(Boolean)[0] || null);
 
   const ownedRelics = RELICS.filter((r) => (relics[r.id] || 0) > 0);
   const meltable = HEROES.filter((h) => (cardShards[h.id] || 0) >= 5);
