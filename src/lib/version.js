@@ -1,8 +1,18 @@
 // Single source of truth for in-app, package, and release-document version.
-export const APP_VERSION = 'v0.31';
+export const APP_VERSION = 'v0.32';
 export const RELEASE_DATE = '2026-11-03';
 
 export const CHANGELOG = [
+  {
+    version: APP_VERSION,
+    date: RELEASE_DATE,
+    title: { zh: '三槽位装备底层系统', ja: '3 スロット装備基盤', en: 'Three-slot equipment foundation' },
+    items: {
+      zh: ['建立武器、防具、遗物三槽位装备数据结构，并保留原有遗物装备与属性加成', '新增 Unique 穿戴校验：同一件装备 ID 同一时间只能由一名角色穿戴，支持安全卸下与重新穿戴', '旧版角色到遗物的平面装备数据自动迁移为三槽位结构，重复穿戴时按首个有效角色保留', '迁移前自动保留原始存档备份，使用独立 equipmentSchemaVersion 标记并保持迁移幂等', '保留原有 v20 存档键、遗物库存、角色养成、资源和战斗规则；新增装备迁移单元测试', 'Service Worker 缓存升级至 v13，确保已安装 PWA 获取本次版本'],
+      ja: ['武器・防具・遺物の 3 スロット装備データ構造を追加し、既存の遺物装備と能力補正を維持', 'Unique 装備チェックを追加。同じ装備 ID は同時に 1 人のキャラクターのみ装備可能で、安全な解除・再装備に対応', '旧形式のキャラクター→遺物データを 3 スロット形式へ自動移行し、重複装備は最初の有効な装備者のみ保持', '移行前に元のセーブをバックアップし、equipmentSchemaVersion で管理。移行は冪等', '既存 v20 セーブキー、遺物在庫、育成、資源、戦闘ルールを維持。装備移行の単体テストを追加', 'Service Worker キャッシュを v13 に更新し、インストール済み PWA に本バージョンを適用'],
+      en: ['Added a three-slot equipment data model for weapons, armor, and relics while preserving existing relic equipment and stat bonuses', 'Added Unique validation: the same equipment ID can be worn by only one character at a time, with safe unequip and re-equip support', 'Automatically migrates legacy character-to-relic mappings into the three-slot structure and keeps only the first valid wearer for duplicate assignments', 'Backs up the original save before migration and tracks the schema with equipmentSchemaVersion; migration is idempotent', 'Preserves the existing v20 save key, relic inventory, character progression, resources, and battle rules; adds equipment migration unit tests', 'Bumped the Service Worker cache to v13 so installed PWAs receive this release'],
+    },
+  },
   {
     version: APP_VERSION,
     date: RELEASE_DATE,
