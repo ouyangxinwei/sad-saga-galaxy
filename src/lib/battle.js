@@ -58,13 +58,63 @@ export function dispatchEquipmentEvent(name,context,units,events,rt,round=1){
   }
  }return fired;
 }
+function equipmentAiProfile(unit) {
+ const profile={offense:0,aoe:0,healing:0,defense:0,taunt:0,mp:0};
+ for(const trigger of unit.equipmentEffects||[]){
+  const effect=trigger?.effect||{},value=Math.min(1,Math.max(0,Number(effect.value)||0));
+  if(effect.type==='bonus_damage'&&trigger.event==='onAttack')profile.offense+=8+value*12;
+  if(effect.type==='bonus_damage'&&trigger.event==='onCritical')profile.offense+=5+value*10;
+  if(effect.type==='counter'&&trigger.event==='onDamageTaken')profile.taunt+=6+value*18;
+  if(effect.type==='shield'&&['onBattleStart','onTurnStart','onDamageTaken'].includes(trigger.event))profile.defense+=5+value*14;
+  if(effect.type==='heal_lowest'&&['onHeal','onTurnStart'].includes(trigger.event))profile.healing+=6+value*14;
+  if(effect.type==='restore_mp'&&trigger.event==='onSkillUsed')profile.mp+=5+Math.min(8,Math.max(0,Number(effect.value)||0)*.25);
+ }
+ profile.offense=Math.min(24,profile.offense);
+ profile.defense=Math.min(20,profile.defense);
+ profile.taunt=Math.min(20,profile.taunt);
+ profile.healing=Math.min(22,profile.healing);
+ profile.mp=Math.min(12,profile.mp);
+ profile.aoe=profile.offense*.55;
+ return profile;
+}
+
+export function scoreSkills(u,allies,foes,round=1){
+ const profile=equipmentAiProfile(u);
+ const wounded=allies.filter(a=>a.alive&&a.hp<a.maxHp*.72);
+ const averageMissing=wounded.length?wounded.reduce((sum,a)=>sum+(1-a.hp/a.maxHp),0)/wounded.length:0;
+ return (u.skills||[]).flatMap(id=>{
+  const skill=SKILLS[id];
+  if(!skill||effectiveMpCost(skill,u)>u.mp)return [];
+  let baseScore=0,bonus=0;
+  if(skill.kind==='attack'){
+   baseScore=skill.target==='all'?28+foes.length*24:56;
+   if(profile.offense)bonus+=profile.offense*(skill.target==='all'?1.15:.72);
+   if(skill.target==='all'&&foes.length>=2)bonus+=profile.aoe*Math.min(1.5,(foes.length-1)*.5);
+   if(skill.hits>1&&profile.offense)bonus+=profile.offense*.18;
+  }else if(skill.kind==='support'){
+   if(!wounded.length)baseScore=0;
+   else if(skill.target==='all')baseScore=72+wounded.length*14;
+   else if(skill.target==='random')baseScore=68;
+   else baseScore=58+(1-wounded[0].hp/wounded[0].maxHp)*42;
+   if(baseScore>0&&profile.healing)bonus+=profile.healing*(.45+averageMissing);
+  }else if(skill.kind==='defense'){
+   if(skill.taunt)baseScore=round<3?76:18;
+   else if(skill.mitigate)baseScore=round<5?70:24;
+   else baseScore=allies.some(a=>a.alive&&a.hp<a.maxHp*.72)?66:12;
+   if(skill.taunt&&profile.taunt)bonus+=profile.taunt;
+   if((skill.shield||skill.mitigate)&&profile.defense)bonus+=profile.defense*(skill.mitigate?1:.85);
+  }
+  if(skill.mp>0&&profile.mp)bonus+=profile.mp*Math.min(1,skill.mp/30);
+  return [{sk:skill,id,baseScore,bonus,score:baseScore+bonus}];
+ });
+}
+
 function chooseSkillImpl(u,allies,foes,round){
- const opts=[];u.skills.forEach(id=>{const s=SKILLS[id];if(!s||effectiveMpCost(s,u)>u.mp)return;let score=0,w=allies.filter(a=>a.alive&&a.hp<a.maxHp*.72);
- if(s.kind==='attack')score=s.target==='all'?28+foes.length*24:56;
- else if(s.kind==='support'){if(!w.length)score=0;else if(s.target==='all')score=72+w.length*14;else if(s.target==='random')score=68;else score=58+(1-w[0].hp/w[0].maxHp)*42;}
- else if(s.kind==='defense'){if(s.taunt)score=round<3?76:18;else if(s.mitigate)score=round<5?70:24;else score=allies.some(a=>a.alive&&a.hp<a.maxHp*.72)?66:12;}
- opts.push({sk:s,id,score:score*rnd(.92,1.08)});});
- opts.sort((a,b)=>b.score-a.score);return opts.length&&opts[0].score>40?opts[0]:{sk:BASIC,id:'basic'};
+ const opts=scoreSkills(u,allies,foes,round).map(option=>({...option,rolledScore:option.score*rnd(.92,1.08)}));
+ opts.sort((a,b)=>b.rolledScore-a.rolledScore);
+ const chosen=opts.length&&opts[0].rolledScore>40?opts[0]:{sk:BASIC,id:'basic',baseScore:0,bonus:0,score:0,rolledScore:0};
+ logInfo('BattleAI','chooseSkill',{unit:u.uid,round,chosenSkillId:chosen.id,candidates:opts.map(({id,baseScore,bonus,score,rolledScore})=>({id,baseScore,bonus,score,rolledScore})),equipmentAware:(u.equipmentEffects||[]).length>0});
+ return chosen;
 }
 function damage(a,t,s,events,units,round,rt){
  const crit=Math.random()<a.crit+(s.critBonus||0);let d=a.atk*s.power*rnd(.93,1.07)*(crit?criticalDamageMultiplier(a):1);

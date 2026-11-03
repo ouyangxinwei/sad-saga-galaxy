@@ -1,8 +1,18 @@
 // Single source of truth for in-app, package, and release-document version.
-export const APP_VERSION = 'v0.34';
+export const APP_VERSION = 'v0.35';
 export const RELEASE_DATE = '2026-11-03';
 
 export const CHANGELOG = [
+  {
+    version: 'v0.35', date: RELEASE_DATE,
+    title: { zh: '装备与自动战斗 AI 联动', ja: '装備とオートバトル AI の連携', en: 'Equipment-aware auto-battle AI' },
+    items: {
+      zh: ['自动战斗 AI 根据已装备的实际触发效果调整攻击、群攻、治疗、防御与嘲讽技能评分', '追加伤害、暴击追击、反击、护盾、治疗和技能后 MP 恢复均参与战术评分，不针对具体装备 ID 写死规则', '保留原有技能基础评分、随机选择机制与 MP 可用性检查；没有相关装备效果时维持原有评分', '新增可独立测试的技能评分函数，并通过 Debug Logger 记录候选技能评分、装备加成和最终选择', '新增测试覆盖装备前后评分变化、治疗/防御/群攻/MP 联动和无装备兼容性', '不改变主动技能 MP 消耗、每回合 MP 恢复、装备触发规则、存档结构或 Forge 界面', '保留 v0.34 及以前的完整更新履历'],
+      ja: ['装備中の実際の発動効果に応じて、攻撃・全体攻撃・回復・防御・挑発スキルの AI 評価を調整', '追加ダメージ・会心追撃・反撃・シールド・回復・スキル使用後の MP 回復を戦術評価に反映。特定装備 ID への固定依存なし', '従来の基礎評価・ランダム選択・MP 使用可能判定を維持し、関連装備効果がない場合は従来の評価を維持', '単体テスト可能なスキル評価関数を追加し、候補スキルの評価・装備ボーナス・最終選択を Debug Logger に記録', '装備前後の評価差、回復・防御・全体攻撃・MP 連携、装備なし時の互換性をテスト', 'アクティブスキルの MP 消費、毎ターンの MP 回復、装備発動ルール、セーブ構造、Forge 画面は変更しない', 'v0.34 以前の更新履歴を完全保持'],
+      en: ['Adjusts attack, AoE, healing, defense, and taunt skill scores from the actual equipped trigger effects', 'Uses bonus damage, critical follow-ups, counters, shields, healing, and post-skill MP recovery as tactical signals without hardcoding equipment IDs', 'Preserves base scoring, randomized selection, and MP affordability checks; units without relevant equipment retain their original base scores', 'Exports a directly testable skill-scoring function and logs candidate scores, equipment bonuses, and final choices through Debug Logger', 'Adds tests for score changes with equipment, healing/defense/AoE/MP synergies, and compatibility without equipment', 'Does not change active-skill MP costs, per-round MP regeneration, equipment trigger rules, save data, or the Forge UI', 'Preserves the complete v0.34 and earlier release history'],
+    }
+  },
+
   {
     version: 'v0.34', date: RELEASE_DATE,
     title: { zh: '战斗事件与装备特殊触发', ja: '戦闘イベントと装備特殊効果', en: 'Battle events and equipment triggers' },
