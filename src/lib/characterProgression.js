@@ -94,7 +94,7 @@ export const characterExpNeed = (level) => Math.round(70 + level * 26 + level * 
  * level cap is deliberately retained so a later breakthrough can consume it.
  */
 export function addCharacterExperience(record, amount) {
-  if (!record || !Number.isFinite(Number(amount)) || Number(amount) <= 0) {
+  if (!record || !Number.isFinite(Number(amount)) || Number(amount) < 0 || (Number(amount) === 0 && Number(record.exp) <= 0)) {
     return { record, levelsGained: 0, expGained: 0 };
   }
   const expGained = Math.max(0, Math.floor(Number(amount)));
@@ -155,5 +155,43 @@ export function grantPartyCharacterExperience(state, amount) {
     state: { ...state, characterProgression: { ...progression, instances } },
     levelsGained,
     recipients,
+  };
+}
+
+
+export function characterBreakthroughCost(breakthroughCount = 0) {
+  const count = Math.max(0, Math.floor(Number(breakthroughCount) || 0));
+  return { shards: 3 + count * 2, gold: 1000 * (count + 1) };
+}
+
+export function strongestCharacterInstance(state, cardId) {
+  const instances = state?.characterProgression?.instances || {};
+  return Object.entries(instances).filter(([, record]) => record?.cardId === cardId).sort((a, b) =>
+    (Number(b[1].level) || 1) - (Number(a[1].level) || 1) ||
+    (Number(b[1].exp) || 0) - (Number(a[1].exp) || 0) ||
+    (Number(b[1].breakthroughCount) || 0) - (Number(a[1].breakthroughCount) || 0) ||
+    String(a[0]).localeCompare(String(b[0]))
+  )[0] || null;
+}
+
+export function breakthroughCharacter(state, cardId) {
+  const selected = strongestCharacterInstance(state, cardId);
+  if (!selected) return { state, success: false, reason: 'missing-character' };
+  const [instanceId, record] = selected;
+  if (record.level < record.levelCap) return { state, success: false, reason: 'level-cap-not-reached', record };
+  const cost = characterBreakthroughCost(record.breakthroughCount);
+  const shards = Number(state.cardShards?.[cardId]) || 0;
+  const gold = Number(state.gold) || 0;
+  if (shards < cost.shards || gold < cost.gold) return { state, success: false, reason: 'insufficient-materials', cost, record };
+  const raised = { ...record, breakthroughCount: record.breakthroughCount + 1, levelCap: record.levelCap + 10 };
+  const progressed = addCharacterExperience(raised, 0).record;
+  return {
+    state: {
+      ...state,
+      gold: gold - cost.gold,
+      cardShards: { ...(state.cardShards || {}), [cardId]: shards - cost.shards },
+      characterProgression: { ...state.characterProgression, instances: { ...state.characterProgression.instances, [instanceId]: progressed } },
+    },
+    success: true, cost, record: progressed, instanceId,
   };
 }
