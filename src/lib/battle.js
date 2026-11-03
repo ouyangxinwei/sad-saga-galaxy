@@ -23,7 +23,7 @@ function die(target,units,events,killer,round,rt){
 }
 function directDamage(a,t,n,events,units,round,rt){
  if(!a?.alive||!t?.alive||n<=0)return;
- let d=Math.max(1,n),abs=Math.min(t.shield||0,d);t.shield=(t.shield||0)-abs;d-=abs;t.hp=Math.max(0,t.hp-d);
+ let d=Math.max(1,n-(Number(t.def)||0)*.45);if(t.dr)d*=1-t.dr;d=applyEquipmentDamageModifiers(d,a,t);d=Math.max(1,d);const abs=Math.min(t.shield||0,d);t.shield=(t.shield||0)-abs;d-=abs;t.hp=Math.max(0,t.hp-d);
  events.push({kind:'damage',sid:a.uid,tid:t.uid,actor:a.name,target:t.name,amount:Math.round(d),crit:false,shield:Math.round(t.shield),hp:Math.round(t.hp),maxHp:Math.round(t.maxHp),equipment:true});
  if(t.hp<=0&&t.alive)die(t,units,events,a,round,rt);
 }
@@ -53,7 +53,7 @@ export function dispatchEquipmentEvent(name,context,units,events,rt,round=1){
    if(rt.random()>=chance){note('WARN',name,owner,tr,'chance_failed',{chance});continue;}
    const ok=applyEffect({...tr,itemId:tr.itemId},owner,{...context,eventName:name},units,events,rt,round);
    if(!ok){note('WARN',name,owner,tr,'effect_not_applicable');continue;}
-   rt.turnCounts.set(turnKey,count+1);rt.cooldowns.set(key,round+Math.max(0,Number(tr.cooldown)||0)+1);fired++;
+   const cooldown=Math.max(0,Number(tr.cooldown)||0);rt.turnCounts.set(turnKey,count+1);rt.cooldowns.set(key,round+cooldown+(cooldown>0?1:0));fired++;
    note('INFO',name,owner,tr,'cooldown_set',{readyRound:rt.cooldowns.get(key)});
   }
  }return fired;

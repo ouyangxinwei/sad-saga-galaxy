@@ -1,8 +1,18 @@
 // Single source of truth for in-app, package, and release-document version.
-export const APP_VERSION = 'v0.36';
+export const APP_VERSION = 'v0.37';
 export const RELEASE_DATE = '2026-11-03';
 
 export const CHANGELOG = [
+  {
+    version: 'v0.37', date: RELEASE_DATE,
+    title: { zh: '装备系统验证、日志审计与数值平衡', ja: '装備システム検証・ログ監査・数値バランス調整', en: 'Equipment system verification, logger audit, and balance' },
+    items: {
+      zh: ['补齐装备特殊效果运行测试：追加伤害、反击、护盾、治疗、MP 恢复、概率、冷却、每回合上限、死亡保护和目标归属', '追加伤害与反击统一套用目标 DEF、伤害减免和装备伤害修正，避免绕过防御造成过高伤害', '修正 0 回合冷却语义：允许同回合再次尝试，由 maxPerTurn 独立限制触发次数；正数冷却仍按完整回合计算', '新增全装备目录配置校验与 54 种三槽组合属性上限测试，验证现有属性配置处于预期范围', '验证 Debug Logger 对成功触发、概率失败、冷却阻止、次数上限和效果不适用的记录', '保留装备目录原始概率与效果强度；通过统一伤害结算修正特殊伤害，不进行无依据的随机削弱', '修复 V0.33 履历引用当前版本常量导致的版本号错标，保留 V0.36 及以前完整履历', '不改变存档结构、角色养成、装备 Unique 规则、主动技能 MP 和每回合 MP 恢复'],
+      ja: ['追加ダメージ・反撃・シールド・回復・MP 回復、確率、クールダウン、ターン上限、死亡保護、対象判定の実行テストを追加', '追加ダメージと反撃に対象 DEF・被ダメージ軽減・装備ダメージ補正を適用し、防御無視による過剰ダメージを防止', 'クールダウン 0 の意味を修正。同一ターン内の再判定を許可し、発動回数は maxPerTurn で制御。正数クールダウンは従来どおり完全なターン単位', '全装備カタログの設定検証と 54 通りの 3 スロット組み合わせ能力上限テストを追加', '発動成功・確率失敗・クールダウン・ターン上限・効果不適用の Debug Logger 記録を検証', '装備カタログの確率と効果値は維持し、統一ダメージ計算で特殊ダメージを調整', 'V0.33 の履歴が現在バージョン定数を参照して誤表示される問題を修正。V0.36 以前の履歴を保持', 'セーブ構造、育成、Unique ルール、アクティブスキル MP、毎ターン MP 回復は変更しない'],
+      en: ['Adds runtime tests for bonus damage, counters, shields, healing, MP recovery, chance, cooldown, per-turn caps, death guards, and owner matching', 'Routes bonus damage and counters through target DEF, damage reduction, and equipment damage modifiers instead of bypassing defenses', 'Fixes zero-cooldown semantics: another same-turn attempt is allowed and maxPerTurn controls the cap; positive cooldowns still count complete locked rounds', 'Adds catalog configuration validation and stat-cap coverage for all 54 three-slot combinations', 'Verifies Debug Logger records for successful triggers, chance failures, cooldown blocks, per-turn caps, and inapplicable effects', 'Keeps catalog chance and effect values; balances special damage through consistent mitigation rather than arbitrary nerfs', 'Fixes the V0.33 changelog entry that incorrectly referenced the current version constant; preserves all earlier release history', 'Does not change save schema, progression, Unique ownership, active-skill MP, or per-turn MP regeneration'],
+    }
+  },
+
   {
     version: 'v0.36', date: RELEASE_DATE,
     title: { zh: 'Forge 三槽位装备管理界面', ja: 'Forge 3 スロット装備管理', en: 'Forge three-slot equipment management' },
@@ -34,8 +44,8 @@ export const CHANGELOG = [
   },
 
   {
-    version: APP_VERSION,
-    date: RELEASE_DATE,
+    version: 'v0.33',
+    date: '2026-11-03',
     title: { zh: 'Hybrid 装备属性与战斗修正', ja: 'Hybrid 装備ステータスと戦闘補正', en: 'Hybrid equipment stats and combat modifiers' },
     items: {
       zh: ['建立武器、防具、遗物统一装备目录，支持 HP、ATK、DEF、SPD、暴击率、暴击伤害、治疗加成与 MP 消耗减免', '所有装备槽位的基础属性与战斗修正按加法统一叠加，并设置合理上限，避免极端数值', '现有六件遗物保留原有 HP/ATK/DEF/SPD 数值，同时加入轻量 Hybrid 战斗特性', '新增武器与防具的静态装备定义，当前不自动发放库存，也不改变现有 Forge 获取流程', '战斗计算接入伤害提升、受到伤害降低、暴击伤害、治疗强化和 MP 消耗减免', '自动技能选择按装备后的实际 MP 消耗判断可用性；MP 每回合恢复规则保持不变', '新增装备属性与战斗修正测试，保留旧存档结构、角色养成和既有战斗机制'],

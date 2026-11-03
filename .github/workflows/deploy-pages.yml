@@ -27,7 +27,7 @@ jobs:
           node-version: 22
       - name: Install dependencies
         run: npm install
-      - name: Run equipment migration tests
+      - name: Run equipment system, battle trigger, and balance tests
         run: npm run test:equipment
       - name: Build production site
         env:
