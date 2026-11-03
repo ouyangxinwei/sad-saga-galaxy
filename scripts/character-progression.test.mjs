@@ -1,10 +1,21 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  CHARACTER_GROWTH_RULES,
   CHARACTER_PROGRESSION_SCHEMA_VERSION,
   createCharacterProgressionRecord,
   normalizeCharacterProgressionState,
 } from '../src/lib/characterProgression.js';
+
+test('confirmed character growth policies are represented exactly in Phase 1', () => {
+  assert.deepEqual(CHARACTER_GROWTH_RULES, {
+    breakthroughLevel: 'keep',
+    breakthroughLimit: 'unlimited',
+    breakthroughRequirement: 'materials',
+    maxLevelExp: 'store',
+    duplicateFusionGrowth: 'strongest',
+  });
+});
 
 test('legacy owned cards migrate to independent level-one progression records', () => {
   const state = normalizeCharacterProgressionState({
