@@ -28,6 +28,9 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: Build production site
+        env:
+          VITE_GIT_COMMIT_SHA: ${{ github.sha }}
+          VITE_GIT_BRANCH: ${{ github.ref_name }}
         run: npm run build
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v6

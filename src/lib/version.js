@@ -1,10 +1,21 @@
 // Single source of truth for in-app, package, and release-document version.
-export const APP_VERSION = 'v0.29';
+export const APP_VERSION = 'v0.30';
 export const RELEASE_DATE = '2026-11-03';
 
 export const CHANGELOG = [
   {
     version: APP_VERSION,
+    date: RELEASE_DATE,
+    title: { zh: 'GitHub 部署状态监控', ja: 'GitHub デプロイ状態の確認', en: 'GitHub deployment status monitor' },
+    items: {
+      zh: ['版本履历顶部新增 GitHub Pages 部署状态卡片，显示当前版本、目标分支和 Commit SHA', '打开版本履历时自动查询 GitHub Actions，并提供手动刷新按钮', '仅当当前构建 Commit SHA 对应的 Build 与 Deploy Job 均成功时显示部署成功', '区分部署中、失败、尚未部署和无法确认，避免把旧版本或其他分支的成功误报为当前版本成功', '显示对应 Workflow Run 链接和最后检查时间；公开仓库通过 GitHub API 查询，不保存 Token', 'GitHub Actions 构建时注入 Commit SHA 与分支信息；本地构建缺少元数据时显示未知', '支持中文、日文、英文，保留 v0.29 及以前的版本履历'],
+      ja: ['バージョン履歴上部に GitHub Pages のデプロイ状態カードを追加し、現在のバージョン・対象ブランチ・Commit SHA を表示', '履歴を開くと GitHub Actions を自動確認し、手動更新ボタンも提供', '現在の Commit SHA に対応する Build と Deploy Job が両方成功した場合のみ成功と判定', 'デプロイ中・失敗・未デプロイ・確認不能を区別し、旧版や別ブランチの成功を誤表示しない', 'Workflow Run リンクと最終確認時刻を表示。公開 GitHub API を使い Token は保存しない', 'Actions のビルド時に Commit SHA とブランチを注入し、ローカルビルドで情報がなければ不明と表示', '中国語・日本語・英語に対応し、v0.29 以前の履歴を保持'],
+      en: ['Added a GitHub Pages deployment status card above version history with current version, target branch, and commit SHA', 'Automatically checks GitHub Actions when history opens and provides a manual refresh button', 'Reports success only when Build and Deploy jobs for the exact current build commit both succeed', 'Distinguishes in progress, failed, not deployed, and unknown; older or other-branch deployments never count as current success', 'Shows the matching workflow run link and last check time; uses the public GitHub API without storing a token', 'Injects commit SHA and branch during Actions builds; local builds without metadata show Unknown', 'Supports Chinese, Japanese, and English while preserving v0.29 and earlier history'],
+    },
+  },
+
+  {
+    version: 'v0.29',
     date: RELEASE_DATE,
     title: { zh: 'PWA 安装兼容性修复', ja: 'PWA インストール互換性の修正', en: 'PWA installation compatibility fix' },
     items: {
@@ -14,7 +25,7 @@ export const CHANGELOG = [
     },
   },
   {
-    version: APP_VERSION,
+    version: 'v0.29',
     date: RELEASE_DATE,
     title: { zh: '普通任务 BOSS 跳关', ja: 'ノーマルクエストの BOSS スキップ', en: 'Normal quest boss progression skip' },
     items: {
