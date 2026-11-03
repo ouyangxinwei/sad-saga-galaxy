@@ -116,8 +116,7 @@ export default function Settings() {
               </GhostButton>
               <GoldButton
                 onClick={() => {
-                  actions.resetSave();
-                  setConfirming(false);
+                  if (actions.resetSave()) setConfirming(false);
                 }}
                 className="py-2"
               >
