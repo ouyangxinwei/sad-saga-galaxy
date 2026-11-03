@@ -11,6 +11,7 @@ export const SAVE_KEY = 'saga_galaxy_save_v20';
 export const EQUIPMENT_BACKUP_KEY = 'saga_galaxy_save_v20_equipment_backup_v1';
 let saveWritesBlocked = false;
 export const STAMINA_MAX = 60;
+export const RESET_GEMS = 9999;
 export const STAMINA_MS = 180000; // 1 per 3 min
 
 export function todayKey(d = new Date()) {
@@ -132,6 +133,13 @@ function clearSaveImpl() {
 }
 
 export function defaultState() { return traceSync('Save.defaultState', () => defaultStateImpl()); }
+export function resetState() { return traceSync('Save.resetState', () => ({ ...defaultStateImpl(), gems: RESET_GEMS })); }
+export function replaceSave(state) {
+  return traceSync('Save.replaceSave', () => {
+    try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); saveWritesBlocked = false; return true; }
+    catch (error) { logWarn('Save', 'replaceSave', { message: error?.message || String(error) }); return false; }
+  }, { hasState: Boolean(state) });
+}
 export function loadState() { return traceSync('Save.loadState', () => loadStateImpl()); }
 export function persist(state) { return traceSync('Save.persist', () => persistImpl(state), { hasState: Boolean(state) }); }
 export function clearSave() { return traceSync('Save.clearSave', () => clearSaveImpl()); }
