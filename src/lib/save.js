@@ -125,6 +125,7 @@ function persistImpl(state) {
 function clearSaveImpl() {
   try {
     localStorage.removeItem(SAVE_KEY);
+    saveWritesBlocked = false;
   } catch (e) {
     /* noop */
   }
