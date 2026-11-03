@@ -70,8 +70,10 @@ function emit(level, moduleName, functionName, event, traceId, detail = {}, dura
     const list = readLogs();
     list.push(entry);
     if (list.length > MAX_LOGS) list.splice(0, list.length - MAX_LOGS);
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }
-    catch (error) { console.warn('[SagaLogger] Log storage unavailable', error); }
+    if (typeof localStorage !== 'undefined') {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }
+      catch (error) { console.warn('[SagaLogger] Log storage unavailable', error); }
+    }
     const method = level === 'ERROR' ? 'error' : level === 'WARN' ? 'warn' : 'info';
     console[method]('[SagaLogger]', entry);
     listeners.forEach((listener) => { try { listener([...list].reverse()); } catch { /* isolated listener */ } });
