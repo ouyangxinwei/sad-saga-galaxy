@@ -15,7 +15,7 @@ export const CHANGELOG = [
   },
 
   {
-    version: APP_VERSION,
+    version: 'v0.25',
     date: RELEASE_DATE,
     title: { zh: '队伍挂机被动与收益优化', ja: '編成の放置パッシブと報酬改善', en: 'Party idle passives and reward improvements' },
     items: {
