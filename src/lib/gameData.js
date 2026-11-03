@@ -357,13 +357,28 @@ export const FORTUNES = [
 ];
 
 export const RELICS = [
-  { id: 'r_sword', name: { zh: '星刃残片', ja: '星刃の残片', en: 'Starblade Shard' }, atk: 0.12, hp: 0, spd: 0, cost: 400, icon: 'Swords' },
-  { id: 'r_aegis', name: { zh: '悲叹之盾', ja: '悲嘆の盾', en: 'Shield of Sorrow' }, atk: 0, hp: 0.18, def: 0.1, cost: 400, icon: 'Shield' },
-  { id: 'r_wing', name: { zh: '银河之翼', ja: '銀河の翼', en: 'Galactic Wing' }, atk: 0.06, hp: 0.06, spd: 0.12, cost: 700, icon: 'Feather' },
-  { id: 'r_orb', name: { zh: '星核宝珠', ja: '星核の珠', en: 'Core Orb' }, atk: 0.2, hp: 0.1, spd: 0, cost: 1100, icon: 'Orbit' },
-  { id: 'r_crown', name: { zh: '旧王冠冕', ja: '旧王の冠', en: 'Crown of Old Kings' }, atk: 0.16, hp: 0.2, def: 0.08, cost: 1600, icon: 'Crown' },
-  { id: 'r_tear', name: { zh: '星海之泪', ja: '星海の涙', en: 'Tear of the Star Sea' }, atk: 0.1, hp: 0.26, spd: 0.06, cost: 2000, icon: 'Gem' },
+  { id: 'r_sword', name: { zh: '星刃残片', ja: '星刃の残片', en: 'Starblade Shard' }, atk: 0.12, hp: 0, spd: 0, stats: { atkPct: 0.12 }, combat: { critDamagePct: 0.10 }, cost: 400, icon: 'Swords' },
+  { id: 'r_aegis', name: { zh: '悲叹之盾', ja: '悲嘆の盾', en: 'Shield of Sorrow' }, atk: 0, hp: 0.18, def: 0.1, stats: { hpPct: 0.18, defPct: 0.10 }, combat: { damageReductionPct: 0.08 }, cost: 400, icon: 'Shield' },
+  { id: 'r_wing', name: { zh: '银河之翼', ja: '銀河の翼', en: 'Galactic Wing' }, atk: 0.06, hp: 0.06, spd: 0.12, stats: { atkPct: 0.06, hpPct: 0.06, spdPct: 0.12 }, combat: { mpCostReductionPct: 0.06 }, cost: 700, icon: 'Feather' },
+  { id: 'r_orb', name: { zh: '星核宝珠', ja: '星核の珠', en: 'Core Orb' }, atk: 0.2, hp: 0.1, spd: 0, stats: { atkPct: 0.20, hpPct: 0.10 }, combat: { damageDealtPct: 0.06 }, cost: 1100, icon: 'Orbit' },
+  { id: 'r_crown', name: { zh: '旧王冠冕', ja: '旧王の冠', en: 'Crown of Old Kings' }, atk: 0.16, hp: 0.2, def: 0.08, stats: { atkPct: 0.16, hpPct: 0.20, defPct: 0.08 }, combat: { damageDealtPct: 0.04, damageReductionPct: 0.04 }, cost: 1600, icon: 'Crown' },
+  { id: 'r_tear', name: { zh: '星海之泪', ja: '星海の涙', en: 'Tear of the Star Sea' }, atk: 0.1, hp: 0.26, spd: 0.06, stats: { atkPct: 0.10, hpPct: 0.26, spdPct: 0.06 }, combat: { healPct: 0.10 }, cost: 2000, icon: 'Gem' },
 ];
+
+// Static catalogs are separate from inventory ownership. Acquisition and UI are handled later.
+export const WEAPONS = [
+  { id: 'w_starblade', slot: 'weapon', name: { zh: '星铸长剑', ja: '星鋳の長剣', en: 'Starforged Blade' }, stats: { atkPct: 0.12, crit: 0.03 }, combat: { damageDealtPct: 0.04 }, icon: 'Sword' },
+  { id: 'w_solarbow', slot: 'weapon', name: { zh: '曙光长弓', ja: '暁光の長弓', en: 'Dawnbreak Bow' }, stats: { atkPct: 0.08, spdPct: 0.06, critDamagePct: 0.10 }, combat: { damageDealtPct: 0.02 }, icon: 'Crosshair' },
+  { id: 'w_mystic', slot: 'weapon', name: { zh: '秘仪法杖', ja: '秘儀の杖', en: 'Mystic Staff' }, stats: { atkPct: 0.06, crit: 0.02 }, combat: { healPct: 0.08, mpCostReductionPct: 0.06 }, icon: 'Wand2' },
+];
+
+export const ARMORS = [
+  { id: 'a_iron', slot: 'armor', name: { zh: '星纹重甲', ja: '星紋の重鎧', en: 'Astral Plate' }, stats: { hpPct: 0.15, defPct: 0.12 }, combat: { damageReductionPct: 0.05 }, icon: 'Shield' },
+  { id: 'a_wind', slot: 'armor', name: { zh: '逐风轻甲', ja: '風追いの軽鎧', en: 'Windrunner Armor' }, stats: { hpPct: 0.06, spdPct: 0.10 }, combat: { damageReductionPct: 0.02 }, icon: 'Feather' },
+  { id: 'a_medic', slot: 'armor', name: { zh: '圣愈法衣', ja: '聖癒の法衣', en: 'Sanctuary Robe' }, stats: { hpPct: 0.10, defPct: 0.05 }, combat: { healPct: 0.10 }, icon: 'Heart' },
+];
+
+export const EQUIPMENT_CATALOG = { weapon: WEAPONS, armor: ARMORS, relic: RELICS };
 
 export const BOUNTY_TEMPLATES = [
   { id: 'b_rogue', classId: 'rogue', minutes: 25, name: { zh: '夜色信使', ja: '夜色の使者', en: 'Night Courier' }, rewards: { gold: 900, exp: 520, shards: 1 } },
