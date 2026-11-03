@@ -2,6 +2,16 @@ export const CHARACTER_PROGRESSION_SCHEMA_VERSION = 1;
 export const INITIAL_CHARACTER_LEVEL = 1;
 export const INITIAL_CHARACTER_LEVEL_CAP = 60;
 
+// Phase 1 records the confirmed growth policies as data-layer configuration.
+// Runtime enforcement is intentionally left to the later progression phases.
+export const CHARACTER_GROWTH_RULES = Object.freeze({
+  breakthroughLevel: 'keep',
+  breakthroughLimit: 'unlimited',
+  breakthroughRequirement: 'materials',
+  maxLevelExp: 'store',
+  duplicateFusionGrowth: 'strongest',
+});
+
 export function createCharacterProgressionRecord(cardId, instanceId, instanceNumber = 1) {
   if (!cardId || !instanceId) throw new Error('cardId and instanceId are required');
   return {
