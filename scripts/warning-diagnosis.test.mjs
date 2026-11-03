@@ -19,7 +19,7 @@ test('warning groups merge repeated records and retain sample details', () => {
   ]);
   assert.equal(groups.length, 1); assert.equal(groups[0].count, 2); assert.equal(groups[0].samples.length, 2);
 });
-test('isolated deterministic battle simulations complete without actionable warnings', async () => {
+test('isolated repeatable battle simulations complete without actionable warnings', async () => {
   const report = await runWarningSimulation();
   assert.equal(report.scenarioCount, 4); assert.equal(report.scenarios.length, 4);
   assert.equal(report.warningCount, 0); assert.equal(report.status, 'simulation-clean');
