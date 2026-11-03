@@ -1,8 +1,18 @@
 // Single source of truth for in-app, package, and release-document version.
-export const APP_VERSION = 'v0.42';
+export const APP_VERSION = 'v0.43';
 export const RELEASE_DATE = '2026-11-04';
 
 export const CHANGELOG = [
+  {
+    version: 'v0.43', date: '2026-11-04',
+    title: { zh: '角色突破与等级上限提升（Phase 3）', ja: 'キャラクター突破とレベル上限解放（Phase 3）', en: 'Character breakthrough and level-cap increases (Phase 3)' },
+    items: {
+      zh: ['角色达到当前等级上限后可进行突破，突破后保留当前等级并将等级上限提高 10 级；突破次数不限', '突破消耗该角色专属碎片与金币：首次 3 个碎片 + 1,000 金币，之后每次碎片增加 2 个、金币增加 1,000', '材料不足或角色未达到等级上限时禁止操作；成功后自动扣除材料', '突破后继续结算此前储存在满级状态的经验，角色等级不会因突破而重置', '角色详情页新增成长、突破次数、经验储存、材料余额及突破操作；不改变玩家等级经验和战斗属性'],
+      ja: ['現在のレベル上限に到達すると突破可能。現在レベルを維持したまま上限を 10 引き上げ、回数制限なし', '突破には対象キャラクター専用の欠片とゴールドを消費。初回は欠片 3 個 + 1,000 ゴールド、以降は毎回欠片 +2 個、ゴールド +1,000', '上限未到達または素材不足の場合は実行不可とし、成功時に素材を自動消費', '突破後、上限到達時に保存された経験値を引き続き反映し、キャラクターレベルはリセットしない', 'キャラクター詳細に個別育成、突破回数、保存経験値、素材残高、突破操作を追加。プレイヤー経験値と戦闘能力は変更しない'],
+      en: ['Characters can break through at their current level cap; the current level is preserved and the cap increases by 10 with no breakthrough limit', 'Consumes character-specific shards and gold: first breakthrough costs 3 shards + 1,000 gold; each later breakthrough adds 2 shards and 1,000 gold', 'Blocked until the level cap is reached and when materials are insufficient; successful breakthroughs deduct materials automatically', 'Previously stored max-level EXP is processed after the cap rises; character level is never reset', 'Adds individual growth, breakthrough count, stored EXP, material balances, and breakthrough action to character details; player EXP and combat stats remain unchanged'],
+    }
+  },
+
   {
     version: 'v0.42', date: '2026-11-04',
     title: { zh: '角色独立经验与等级成长（Phase 2）', ja: 'キャラクター個別経験値・レベル育成（Phase 2）', en: 'Independent character EXP and leveling (Phase 2)' },
