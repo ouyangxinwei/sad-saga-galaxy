@@ -8,9 +8,9 @@ import { cardStats, relicOf } from '@/lib/cards';
 import { fmt } from '@/lib/format';
 
 const LABELS = {
-  zh: { level: '等级', power: '战力', hp: '最大 HP', mp: '最大 MP', stats: '基础属性', atk: '攻击', def: '防御', spd: '速度', crit: '暴击率', equipment: '装备', none: '尚未装备遗物', skills: '主动技能', passive: '职业被动', target: '目标', cost: 'MP 消耗', attack: '攻击', support: '辅助', defense: '防御', single: '单体', all: '全体', self: '自身', ally: '友方', random: '随机', place: '编入当前选中位置', openForge: '前往装备管理', equipped: '装备中' },
-  ja: { level: 'レベル', power: '戦力', hp: '最大 HP', mp: '最大 MP', stats: '基本ステータス', atk: '攻撃', def: '防御', spd: '速度', crit: '会心率', equipment: '装備', none: '遺物未装備', skills: 'アクティブスキル', passive: '職業パッシブ', target: '対象', cost: 'MP 消費', attack: '攻撃', support: '支援', defense: '防御', single: '単体', all: '全体', self: '自身', ally: '味方', random: 'ランダム', place: '選択中の枠に編成', openForge: '装備管理へ', equipped: '装備中' },
-  en: { level: 'Level', power: 'Power', hp: 'Max HP', mp: 'Max MP', stats: 'Attributes', atk: 'ATK', def: 'DEF', spd: 'SPD', crit: 'Crit Rate', equipment: 'Equipment', none: 'No relic equipped', skills: 'Active Skills', passive: 'Class Passive', target: 'Target', cost: 'MP cost', attack: 'Attack', support: 'Support', defense: 'Defense', single: 'Single', all: 'All', self: 'Self', ally: 'Ally', random: 'Random', place: 'Place in selected slot', openForge: 'Open equipment manager', equipped: 'Equipped' },
+  zh: { level: '等级', power: '战力', hp: '最大 HP', mp: '最大 MP', stats: '基础属性', atk: '攻击', def: '防御', spd: '速度', crit: '暴击率', equipment: '装备', none: '尚未装备遗物', skills: '主动技能', passive: '职业被动', target: '目标', cost: 'MP 消耗', attack: '攻击', support: '辅助', defense: '防御', single: '单体', all: '全体', self: '自身', ally: '友方', random: '随机', note: 'HP / MP 显示角色最大值；战斗中的实时值仅在战斗界面变化。', place: '编入当前选中位置', openForge: '前往装备管理', equipped: '装备中' },
+  ja: { level: 'レベル', power: '戦力', hp: '最大 HP', mp: '最大 MP', stats: '基本ステータス', atk: '攻撃', def: '防御', spd: '速度', crit: '会心率', equipment: '装備', none: '遺物未装備', skills: 'アクティブスキル', passive: '職業パッシブ', target: '対象', cost: 'MP 消費', attack: '攻撃', support: '支援', defense: '防御', single: '単体', all: '全体', self: '自身', ally: '味方', random: 'ランダム', note: 'HP / MP はキャラクターの最大値です。戦闘中の現在値は戦闘画面に表示されます。', place: '選択中の枠に編成', openForge: '装備管理へ', equipped: '装備中' },
+  en: { level: 'Level', power: 'Power', hp: 'Max HP', mp: 'Max MP', stats: 'Attributes', atk: 'ATK', def: 'DEF', spd: 'SPD', crit: 'Crit Rate', equipment: 'Equipment', none: 'No relic equipped', skills: 'Active Skills', passive: 'Class Passive', target: 'Target', cost: 'MP cost', attack: 'Attack', support: 'Support', defense: 'Defense', single: 'Single', all: 'All', self: 'Self', ally: 'Ally', random: 'Random', note: 'HP / MP show maximum values; live values change only in battle.', place: 'Place in selected slot', openForge: 'Open equipment manager', equipped: 'Equipped' },
 };
 const percent = (value) => `${Math.round(value * 100)}%`;
 
@@ -55,7 +55,7 @@ export default function CharacterDetailDialog({ cardId, open, onClose, onPlace, 
             <p className="text-[10px] text-muted-foreground">{L.power} <span className="text-primary">{fmt(powerOf(cardId))}</span></p>
             <p className="text-[10px] text-emerald-300">{L.hp}: {fmt(stats.hp)}</p>
             <p className="text-[10px] text-sky-300">{L.mp}: {fmt(stats.mp)}</p>
-            <p className="text-[9px] text-muted-foreground">HP / MP 显示角色最大值；战斗中的实时值仅在战斗界面变化。</p>
+            <p className="text-[9px] text-muted-foreground">{L.note}</p>
           </div>
         </div>
 
