@@ -16,7 +16,7 @@ function detectIncomplete() {
       const list = pending.get(key) || [];
       list.push(item);
       pending.set(key, list);
-    } else if (['END', 'RETURN', 'ERROR', 'SLOW', 'INCOMPLETE'].includes(item.event)) {
+    } else if (['END', 'RETURN', 'ERROR', 'SLOW', 'INCOMPLETE'].includes(item.event) || (item.event === 'WARN' && item.duration != null)) {
       const list = pending.get(key) || [];
       list.pop();
       if (list.length) pending.set(key, list);
@@ -104,7 +104,9 @@ export function traceSync(name, callback, detail = {}) {
     emit('INFO', moduleName, functionName, 'ASYNC', traceId, { status: 'pending' });
     return Promise.resolve(result).then(
       (value) => {
-        emit('INFO', moduleName, functionName, 'END', traceId, { status: 'resolved' }, Math.round(performance.now() - start));
+        const duration = Math.round(performance.now() - start);
+        const warning = duration >= 500;
+        emit(warning ? 'WARN' : 'INFO', moduleName, functionName, duration >= 1000 ? 'SLOW' : warning ? 'WARN' : 'END', traceId, { status: 'resolved' }, duration);
         return value;
       },
       (error) => {
@@ -117,9 +119,10 @@ export function traceSync(name, callback, detail = {}) {
   }
   const duration = Math.round(performance.now() - start);
   const isReturn = result === null || result === false;
-  const slow = duration >= 500;
-  emit(slow ? 'WARN' : 'INFO', moduleName, functionName,
-    isReturn ? 'RETURN' : slow ? 'SLOW' : 'END', traceId,
+  const warning = duration >= 500;
+  const verySlow = duration >= 1000;
+  emit(warning ? 'WARN' : 'INFO', moduleName, functionName,
+    isReturn ? 'RETURN' : verySlow ? 'SLOW' : warning ? 'WARN' : 'END', traceId,
     isReturn ? { ...detail, reason: result === null ? 'returned_null' : 'returned_false' } : detail, duration);
   return result;
 }
