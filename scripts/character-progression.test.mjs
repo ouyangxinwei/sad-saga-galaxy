@@ -336,7 +336,8 @@ test('deployed characters store battle EXP at their cap without changing player 
   const result = grantPartyCharacterExperience(state, 450);
   assert.equal(result.state.characterProgression.instances['lise-main'].level, 60);
   assert.equal(result.state.characterProgression.instances['lise-main'].exp, 570);
-  assert.equal(result.state.characterProgression.instances['kain-main'].level, 2);
+  assert.equal(result.state.characterProgression.instances['kain-main'].level, 4);
+  assert.equal(result.state.characterProgression.instances['kain-main'].exp, 71);
   assert.equal(result.state.level, 22);
   assert.equal(result.state.exp, 777);
   assert.equal(result.recipients.length, 2);
