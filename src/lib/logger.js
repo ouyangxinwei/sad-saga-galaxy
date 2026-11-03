@@ -5,6 +5,8 @@ const listeners = new Set();
 const traceStack = [];
 let sequence = 0;
 let incompleteChecked = false;
+let diagnosticCollector = null;
+let consoleWarningCaptureInstalled = false;
 
 function detectIncomplete() {
   if (incompleteChecked || !memoryLogs) return;
@@ -61,6 +63,10 @@ function emit(level, moduleName, functionName, event, traceId, detail = {}, dura
       module: moduleName || 'App', function: functionName || 'unknown',
       event, traceId: traceId || 'untracked', duration, detail,
     };
+    if (diagnosticCollector) {
+      if (level === 'WARN' || level === 'ERROR') diagnosticCollector.push(entry);
+      return entry;
+    }
     const list = readLogs();
     list.push(entry);
     if (list.length > MAX_LOGS) list.splice(0, list.length - MAX_LOGS);
@@ -135,4 +141,30 @@ export function clearLogs() {
   memoryLogs = [];
   try { localStorage.removeItem(STORAGE_KEY); } catch { /* keep gameplay running */ }
   listeners.forEach((listener) => { try { listener([]); } catch { /* isolated listener */ } });
+}
+
+export async function captureDiagnosticLogs(callback) {
+  const previous = diagnosticCollector;
+  const captured = [];
+  diagnosticCollector = captured;
+  try { const value = await callback(); return { value, records: [...captured] }; }
+  finally { diagnosticCollector = previous; }
+}
+
+export function installConsoleWarningCapture() {
+  if (consoleWarningCaptureInstalled || typeof console === 'undefined') return;
+  consoleWarningCaptureInstalled = true;
+  const originalWarn = console.warn.bind(console);
+  console.warn = (...args) => {
+    originalWarn(...args);
+    if (args[0] === '[SagaLogger]') return;
+    const message = args.map((item) => {
+      if (item instanceof Error) return item.message;
+      if (typeof item === 'string') return item;
+      try { return JSON.stringify(item); } catch { return String(item); }
+    }).join(' ');
+    emit('WARN', 'Console', 'warn', 'CONSOLE_WARN', 'untracked', {
+      message: message.slice(0, 1200), stack: new Error('Console warning capture').stack || null, source: 'console.warn',
+    });
+  };
 }
