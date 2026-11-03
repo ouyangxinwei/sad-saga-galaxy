@@ -1,8 +1,18 @@
 // Single source of truth for in-app, package, and release-document version.
-export const APP_VERSION = 'v0.39';
-export const RELEASE_DATE = '2026-11-03';
+export const APP_VERSION = 'v0.40';
+export const RELEASE_DATE = '2026-11-04';
 
 export const CHANGELOG = [
+  {
+    version: 'v0.40', date: RELEASE_DATE,
+    title: { zh: '重置时同时补满抽奖宝石与抽奖券', ja: 'リセット時に召喚ジェムと召喚券を補充', en: 'Reset summon gems and tickets together' },
+    items: {
+      zh: ['每次执行 Reset Game，抽奖宝石与抽奖券均固定重置为 9999', '两种资源均覆盖重置前余额；普通新游戏首次启动的初始资源不变', '修正重置保存失败时确认框仍关闭的问题，只有存档成功写入后才关闭', '保留 V13 一次性测试支持标记，不因重置重复领取一次性测试资源', '保留 V0.39 及以前完整版本履历；自动挂机功能不包含在本次改动中'],
+      ja: ['Reset Game のたびに召喚ジェムと召喚券をそれぞれ 9999 に初期化', 'リセット前の残高を引き継がず、通常の新規ゲーム開始時の初期資源は変更しない', '保存失敗時に確認画面が閉じる問題を修正し、保存成功後のみ閉じる', 'V13 の一回限りのテスト支援マーカーを保持し、リセットによる重複付与を防止', 'V0.39 以前の履歴を保持。自動放置機能は今回の変更に含まない'],
+      en: ['Every Reset Game action sets both summon gems and summon tickets to exactly 9999', 'Both balances replace their pre-reset values; ordinary new-game starting resources remain unchanged', 'Fixes the confirmation dialog closing after a failed save; it now closes only after persistence succeeds', 'Preserves the V13 one-time test-support marker to prevent duplicate one-time grants', 'Preserves the complete V0.39 and earlier changelog; the auto-idle feature is not part of this change'],
+    }
+  },
+
   {
     version: 'v0.39', date: RELEASE_DATE,
     title: { zh: '重置游戏时固定抽奖宝石数量', ja: 'ゲームリセット時の召喚ジェム初期化', en: 'Reset summon gems on game restart' },
