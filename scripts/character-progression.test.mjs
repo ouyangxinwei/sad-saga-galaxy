@@ -288,3 +288,64 @@ test('breakthrough applies all stored EXP after raising the cap without discardi
   assert.equal(result.record.breakthroughCount, 1);
 });
 
+
+
+test('legacy v20 save migration preserves player progression, resources, equipment and existing character growth', () => {
+  const legacySave = {
+    version: 20,
+    level: 42,
+    exp: 987,
+    rebirth: 2,
+    gold: 45678,
+    gems: 321,
+    tickets: 7,
+    cards: { lise: true, kain: true, archer: true },
+    cardCounts: { lise: 2, kain: 1, archer: 1 },
+    equipped: { lise: 'relic-1' },
+    equipmentInventory: { weapon: { blade: 2 }, armor: {} },
+    party: ['lise', 'kain'],
+    progress: { normal: 35, hard: 4, nightmare: 0 },
+  };
+  const migrated = normalizeCharacterProgressionState(legacySave);
+  assert.equal(migrated.level, 42);
+  assert.equal(migrated.exp, 987);
+  assert.equal(migrated.gold, 45678);
+  assert.equal(migrated.gems, 321);
+  assert.equal(migrated.tickets, 7);
+  assert.deepEqual(migrated.equipped, legacySave.equipped);
+  assert.deepEqual(migrated.equipmentInventory, legacySave.equipmentInventory);
+  assert.deepEqual(migrated.party, legacySave.party);
+  assert.deepEqual(migrated.progress, legacySave.progress);
+  assert.equal(Object.values(migrated.characterProgression.instances).length, 4);
+  assert.equal(Object.values(migrated.characterProgression.instances).filter((record) => record.cardId === 'lise').length, 2);
+  assert.ok(Object.values(migrated.characterProgression.instances).every((record) => record.level === 1 && record.exp === 0));
+  assert.deepEqual(normalizeCharacterProgressionState(migrated).characterProgression, migrated.characterProgression);
+});
+
+test('deployed characters store battle EXP at their cap without changing player EXP', () => {
+  const capped = { ...createCharacterProgressionRecord('lise', 'lise-main'), level: 60, levelCap: 60, exp: 120 };
+  const state = {
+    level: 22,
+    exp: 777,
+    party: ['lise', 'kain'],
+    characterProgression: { schemaVersion: 1, instances: {
+      'lise-main': capped,
+      'kain-main': createCharacterProgressionRecord('kain', 'kain-main'),
+    } },
+  };
+  const result = grantPartyCharacterExperience(state, 450);
+  assert.equal(result.state.characterProgression.instances['lise-main'].level, 60);
+  assert.equal(result.state.characterProgression.instances['lise-main'].exp, 570);
+  assert.equal(result.state.characterProgression.instances['kain-main'].level, 2);
+  assert.equal(result.state.level, 22);
+  assert.equal(result.state.exp, 777);
+  assert.equal(result.recipients.length, 2);
+});
+
+test('character detail EXP progress calculation remains bounded at cap and above', () => {
+  const capped = { ...createCharacterProgressionRecord('lise', 'lise-main'), level: 60, levelCap: 60, exp: 12000 };
+  const result = addCharacterExperience(capped, 500);
+  assert.equal(result.record.level, 60);
+  assert.equal(result.record.exp, 12500);
+  assert.equal(result.levelsGained, 0);
+});

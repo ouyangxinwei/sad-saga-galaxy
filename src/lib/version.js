@@ -1,8 +1,18 @@
 // Single source of truth for in-app, package, and release-document version.
-export const APP_VERSION = 'v0.45';
+export const APP_VERSION = 'v0.46';
 export const RELEASE_DATE = '2026-11-04';
 
 export const CHANGELOG = [
+  {
+    version: 'v0.46', date: '2026-11-04',
+    title: { zh: '角色成长 UI 与全面回归测试（Phase 6）', ja: 'キャラクター育成 UI と総合回帰テスト（Phase 6）', en: 'Character progression UI and comprehensive regression tests (Phase 6)' },
+    items: {
+      zh: ['角色详情显示正确的角色自身等级与等级上限，不再混用玩家等级', '新增经验进度条、当前经验、升级所需经验与剩余经验；满级储存经验状态清晰显示', '战斗胜利结算明确显示上阵角色各自获得的角色经验，与玩家经验奖励区分', '移动端角色详情继续采用安全区域适配的底部弹层；战斗结算调整为可滚动底部弹层，避免小屏遮挡按钮', '补充 V20 旧存档迁移、经验奖励分配、满级储存、突破与合成成长回归测试；不重置存档、不修改战斗数值'],
+      ja: ['キャラクター詳細にキャラクター自身のレベルと上限を正しく表示し、プレイヤーレベルとの混同を解消', '経験値バー、現在経験値、次レベル必要経験値、残り経験値を表示。上限到達後の保存経験値も明確化', 'バトル勝利画面で編成キャラクターごとの獲得経験値をプレイヤー経験値と分けて表示', 'モバイルのキャラクター詳細はセーフエリア対応のボトムシートを維持し、バトル結果も小画面でスクロール可能なボトムシートに調整', 'V20旧セーブ移行、経験値配布、上限保存、突破・融合育成の回帰テストを追加。セーブ初期化や戦闘数値変更なし'],
+      en: ['Character details now show the character’s own level and cap instead of accidentally displaying the player level', 'Adds an EXP progress bar, current EXP, EXP required for the next level, and remaining EXP; stored max-level EXP is clearly labeled', 'Battle victory results explicitly show character EXP awarded to each deployed character, separate from player EXP', 'Keeps the safe-area-aware mobile character detail sheet and changes battle results into a scrollable bottom sheet for small screens', 'Adds regression coverage for V20 legacy-save migration, EXP distribution, max-level storage, breakthrough, and fusion; no save reset or combat-stat changes'],
+    },
+  },
+
   {
     version: 'v0.45', date: '2026-11-04',
     title: { zh: '角色突破与合成成长继承整合（Phase 5）', ja: 'キャラクター突破・合成育成継承の統合（Phase 5）', en: 'Breakthrough and fusion growth inheritance integration (Phase 5)' },

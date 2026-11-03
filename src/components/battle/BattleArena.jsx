@@ -242,7 +242,7 @@ export default function BattleArena({ mode, n }) {
 
       {finished ? (
         <motion.div
-          className="fixed inset-0 z-[140] flex items-center justify-center p-5"
+          className="fixed inset-0 z-[140] flex items-end justify-center px-0 pt-[env(safe-area-inset-top)] pb-0 sm:items-center sm:p-5"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
@@ -251,7 +251,7 @@ export default function BattleArena({ mode, n }) {
             initial={{ y: 26, opacity: 0, scale: 0.97 }}
             animate={{ y: 0, opacity: 1, scale: 1 }}
             transition={{ type: 'spring', stiffness: 240, damping: 24 }}
-            className="saga-panel relative w-full max-w-sm overflow-hidden p-5 text-center"
+            className="saga-panel relative max-h-[calc(100dvh-env(safe-area-inset-top)-env(safe-area-inset-bottom)-12px)] w-full max-w-sm overflow-y-auto overscroll-contain rounded-b-none rounded-t-2xl p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] text-center sm:max-h-[90vh] sm:rounded-2xl sm:p-5"
           >
             <div className="hairline absolute inset-x-6 top-0" />
             <p className={`saga-display text-2xl ${result === 'win' ? 'gold-text' : 'text-rose-300/90'}`}>
@@ -265,6 +265,7 @@ export default function BattleArena({ mode, n }) {
               <div className="mt-4 rounded-xl border border-white/[0.08] bg-white/[0.025] p-3">
                 <p className="mb-1.5 text-[9px] uppercase tracking-[0.18em] text-muted-foreground">{t('common.reward')}</p>
                 <RewardLine reward={rewards} t={t} lang={lang} />
+                {rewards.characterExp > 0 ? <p className="mt-2 border-t border-white/[0.08] pt-2 text-left text-[10px] leading-relaxed text-emerald-300">{lang === 'ja' ? `編成キャラクターそれぞれに +${fmt(rewards.characterExp)} EXP` : lang === 'en' ? `Each deployed character receives +${fmt(rewards.characterExp)} character EXP` : `上阵角色各获得 +${fmt(rewards.characterExp)} 角色经验`}</p> : null}
               </div>
             ) : null}
 
