@@ -3,7 +3,7 @@ import GameIcon from '@/components/common/GameIcon';
 import CardTile from '@/components/common/CardTile';
 import { GoldButton, GhostButton } from '@/components/common/Bits';
 import { useGame } from '@/lib/GameContext';
-import { SKILLS, RELICS, classOf } from '@/lib/gameData';
+import { SKILLS, classOf } from '@/lib/gameData';
 import { cardStats, relicOf } from '@/lib/cards';
 import { fmt } from '@/lib/format';
 
@@ -16,7 +16,7 @@ const percent = (value) => `${Math.round(value * 100)}%`;
 
 export default function CharacterDetailDialog({ cardId, open, onClose, onPlace, onOpenForge }) {
   const game = useGame();
-  const { t, lang, defOf, powerOf, level, rebirth } = game;
+  const { lang, defOf, powerOf, level, rebirth } = game;
   const L = LABELS[lang] || LABELS.zh;
   const def = cardId ? defOf(cardId) : null;
   if (!def) return null;
