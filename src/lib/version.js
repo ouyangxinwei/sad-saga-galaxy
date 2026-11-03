@@ -14,7 +14,7 @@ export const CHANGELOG = [
     },
   },
   {
-    version: APP_VERSION,
+    version: 'v0.31',
     date: RELEASE_DATE,
     title: { zh: '程序执行日志系统', ja: '実行ログシステム', en: 'Execution logging system' },
     items: {
