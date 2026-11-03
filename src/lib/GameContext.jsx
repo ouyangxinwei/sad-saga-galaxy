@@ -38,6 +38,7 @@ import {
 } from './save';
 import { cardPower, copiesOf, getCardDef, partyPower, strongestParty, teamTotals } from './cards';
 import { equipItem, getEquipmentDefinition, getEquippedItem } from './equipment';
+import { normalizeCharacterProgressionState } from './characterProgression';
 
 const GameCtx = createContext(null);
 const traceAction = (name, fn) => (...args) => traceSync('GameContext.' + name, () => fn(...args));
@@ -164,7 +165,7 @@ export function GameProvider({ children }) {
   }, []);
 
   const commit = useCallback((fn) => traceSync('GameContext.commit', () => {
-    const next = fn({ ...ref.current });
+    const next = normalizeCharacterProgressionState(fn({ ...ref.current }));
     ref.current = next;
     setState(next);
     return next;
