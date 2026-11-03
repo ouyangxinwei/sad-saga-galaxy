@@ -27,6 +27,8 @@ jobs:
           node-version: 22
       - name: Install dependencies
         run: npm install
+      - name: Run equipment migration tests
+        run: npm run test:equipment
       - name: Build production site
         env:
           VITE_GIT_COMMIT_SHA: ${{ github.sha }}
