@@ -1,7 +1,7 @@
 {
   "name": "oooo-app",
   "private": true,
-  "version": "0.32.0",
+  "version": "0.33.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -11,7 +11,7 @@
     "typecheck": "tsc -p ./jsconfig.json",
     "preview": "vite preview",
     "validate:version": "node scripts/validate-version.mjs",
-    "test:equipment": "node --test scripts/equipment.test.mjs"
+    "test:equipment": "node --test scripts/equipment*.test.mjs"
   },
   "dependencies": {
     "@hello-pangea/dnd": "^17.0.0",
