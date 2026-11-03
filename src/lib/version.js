@@ -1,16 +1,16 @@
 // Single source of truth for in-app, package, and release-document version.
-export const APP_VERSION = 'v0.26';
+export const APP_VERSION = 'v0.27';
 export const RELEASE_DATE = '2026-11-03';
 
 export const CHANGELOG = [
   {
     version: APP_VERSION,
     date: RELEASE_DATE,
-    title: { zh: '角色详情系统', ja: 'キャラクター詳細画面', en: 'Character detail system' },
+    title: { zh: '图鉴角色详情', ja: '図鑑キャラクター詳細', en: 'Gallery character details' },
     items: {
-      zh: ['首页队伍卡片和队伍编成页面中的角色卡片，点击后直接打开角色详情', '详情展示最大 HP、最大 MP、攻击、防御、速度、暴击率、等级与战力', '展示当前装备遗物及其属性加成，并可从详情快捷进入装备管理', '展示职业主动技能的目标、MP 消耗、伤害/治疗/防御效果，以及职业被动', '队伍编成页面保留队伍槽位选择，并在详情中提供编入当前选中位置的操作', '支持中文、日文、英文；不改变存档结构和战斗计算规则'],
-      ja: ['ホームの編成カードと編成画面のキャラクターカードをタップすると詳細を直接表示', '最大 HP・最大 MP・攻撃・防御・速度・会心率・レベル・戦力を表示', '装備中の遺物と能力補正を表示し、装備管理へ移動可能', '職業アクティブスキルの対象・MP 消費・攻撃/回復/防御効果と職業パッシブを表示', '編成画面では枠選択を維持し、詳細画面から選択中の枠へ配置可能', '中国語・日本語・英語に対応。セーブ構造と戦闘計算は変更しない'],
-      en: ['Tapping party cards on Home or Formation now opens character details directly', 'Shows maximum HP/MP, ATK, DEF, SPD, crit rate, level, and power', 'Displays equipped relic and stat bonuses, with a shortcut to equipment management', 'Lists class active skills with target, MP cost, attack/heal/defense effects, plus class passive', 'Formation keeps explicit slot selection and adds a place-in-selected-slot action in the detail dialog', 'Supports Chinese, Japanese, and English without changing save data or combat calculations'],
+      zh: ['图鉴中点击已获得的英雄卡片即可打开统一角色详情', '详情复用 v0.26 角色详情组件，展示最大 HP/MP、基础属性、装备、主动技能和职业被动', '未获得的英雄仍保持锁定，不开放详情；敌人图鉴交互保持不变', '关闭详情后返回原图鉴，保留当前标签与筛选状态', '与首页、阵容入口共享相同角色属性计算和多语言显示，不改变存档结构'],
+      ja: ['図鑑で獲得済み英雄カードをタップすると共通キャラクター詳細を表示', 'v0.26 の詳細コンポーネントを再利用し、最大 HP/MP・基本能力・装備・アクティブスキル・職業パッシブを表示', '未獲得英雄はロック状態を維持し、敵図鑑の操作は変更しない', '詳細を閉じると現在のタブとフィルターを保持して図鑑へ戻る', 'ホーム・編成と同じ能力計算および多言語表示を使用し、セーブ構造は変更しない'],
+      en: ['Tapping an owned hero card in the Gallery now opens the shared character detail dialog', 'Reuses the v0.26 detail component for maximum HP/MP, attributes, equipment, active skills, and class passive', 'Unowned heroes remain locked; enemy gallery interactions are unchanged', 'Closing details returns to the Gallery with its current tab and filters preserved', 'Shares the same stat calculations and translations as Home and Formation without changing save data'],
     },
   },
 
