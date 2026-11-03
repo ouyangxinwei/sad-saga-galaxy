@@ -46,13 +46,13 @@ export function dispatchEquipmentEvent(name,context,units,events,rt,round=1){
   for(let i=0;i<owner.equipmentEffects.length;i++){const tr=owner.equipmentEffects[i];if(tr.event!==name||!ALLOWED.has(tr.effect?.type))continue;
    if(tr.when==='target' ? context.target!==owner : (context.owner ? context.owner!==owner : !['onBattleStart','onBattleEnd'].includes(name)))continue;
    const key=owner.uid+':'+(tr.itemId||'item')+':'+(tr.id||i),ready=rt.cooldowns.get(key)||0;
-   if(round<ready){note('WARN',name,owner,tr,'cooldown',{readyRound:ready,round});continue;}
+   if(round<ready){note('INFO',name,owner,tr,'cooldown',{readyRound:ready,round});continue;}
    const turnKey=round+':'+key,count=rt.turnCounts.get(turnKey)||0,limit=Math.max(1,Number(tr.maxPerTurn)||1);
-   if(count>=limit){note('WARN',name,owner,tr,'per_turn_limit',{count,limit});continue;}
+   if(count>=limit){note('INFO',name,owner,tr,'per_turn_limit',{count,limit});continue;}
    const chance=Math.min(1,Math.max(0,Number(tr.chance??1)));
-   if(rt.random()>=chance){note('WARN',name,owner,tr,'chance_failed',{chance});continue;}
+   if(rt.random()>=chance){note('INFO',name,owner,tr,'chance_failed',{chance});continue;}
    const ok=applyEffect({...tr,itemId:tr.itemId},owner,{...context,eventName:name},units,events,rt,round);
-   if(!ok){note('WARN',name,owner,tr,'effect_not_applicable');continue;}
+   if(!ok){note('INFO',name,owner,tr,'effect_not_applicable');continue;}
    const cooldown=Math.max(0,Number(tr.cooldown)||0);rt.turnCounts.set(turnKey,count+1);rt.cooldowns.set(key,round+cooldown+(cooldown>0?1:0));fired++;
    note('INFO',name,owner,tr,'cooldown_set',{readyRound:rt.cooldowns.get(key)});
   }
