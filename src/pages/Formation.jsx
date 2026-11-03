@@ -150,6 +150,13 @@ export default function Formation() {
           ))}
         </div>
       </div>
+      <CharacterDetailDialog
+        cardId={detailId}
+        open={!!detailId}
+        onClose={() => setDetailId(null)}
+        onPlace={(id) => { place(id); setDetailId(null); }}
+        onOpenForge={(id) => navigate(`/forge?cardId=${encodeURIComponent(id)}`)}
+      />
     </AppShell>
   );
 }
