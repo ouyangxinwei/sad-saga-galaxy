@@ -59,7 +59,7 @@ export function RewardLine({ reward, t, lang }) {
   if (reward?.gems) items.push({ icon: 'Gem', color: '#8B7BF7', value: reward.gems });
   if (reward?.tickets) items.push({ icon: 'Ticket', color: '#6FE3C0', value: reward.tickets });
   if (reward?.exp) items.push({ icon: 'Sparkles', color: '#9B8CFF', value: reward.exp });
-  if (reward?.shards) items.push({ icon: 'Layers', color: '#F0748F', value: `√ó~${reward.shards}` });
+  if (reward?.shards) items.push({ icon: 'Layers', color: '#F0748F', value: `Å~${reward.shards}` });
   if (reward?.medals) items.push({ icon: 'Trophy', color: '#F0B85C', value: reward.medals });
 
   return (

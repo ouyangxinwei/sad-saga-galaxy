@@ -11,6 +11,7 @@ export default function IdleDialog({ open, onClose }) {
   const cap = 720;
   const [, setTick] = useState(0);
 
+  // –Ê”Â??Šú??•büVC?—Ý?—^?o‘¬—¦??“¯?
   useEffect(() => {
     if (!open) return undefined;
     const id = setInterval(() => setTick((n) => n + 1), 1000);

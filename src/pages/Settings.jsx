@@ -59,7 +59,6 @@ export default function Settings() {
               { to: '/formation', icon: 'Users', key: 'nav.formation' },
               { to: '/synthesis', icon: 'Sparkles', key: 'nav.synthesis' },
               { to: '/forge', icon: 'Hammer', key: 'nav.forge' },
-              { to: '/debug', icon: 'Bug', key: 'Debug Console' },
             ].map((row) => (
               <Link
                 key={row.to}

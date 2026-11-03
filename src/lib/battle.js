@@ -1,5 +1,4 @@
 import { SKILLS } from './gameData';
-import { traceSync } from './logger';
 
 const rnd = (min, max) => min + Math.random() * (max - min);
 
@@ -11,7 +10,7 @@ const BASIC = {
   mp: 0,
 };
 
-function makeUnitImpl(cfg) {
+export function makeUnit(cfg) {
   return {
     ...cfg,
     maxHp: cfg.maxHp || cfg.hp,
@@ -36,7 +35,7 @@ const lowestHpRatio = (list) =>
 
 const lowestHp = (list) => list.filter((u) => u.alive).sort((a, b) => a.hp - b.hp)[0];
 
-function chooseSkillImpl(unit, allies, foes, round) {
+function chooseSkill(unit, allies, foes, round) {
   const options = [];
   unit.skills.forEach((id) => {
     const sk = SKILLS[id];
@@ -63,7 +62,7 @@ function chooseSkillImpl(unit, allies, foes, round) {
   return { sk: BASIC, id: 'basic' };
 }
 
-function damageImpl(attacker, target, sk, events, units) {
+function damage(attacker, target, sk, events, units) {
   const crit = Math.random() < attacker.crit + (sk.critBonus || 0);
   let dmg = attacker.atk * sk.power * rnd(0.93, 1.07) * (crit ? 1.65 : 1);
   dmg = Math.max(1, dmg - target.def * (1 - (sk.pierce || 0)) * 0.45);
@@ -89,7 +88,7 @@ function damageImpl(attacker, target, sk, events, units) {
   if (target.hp <= 0) handleDeath(target, units, events);
 }
 
-function healImpl(attacker, target, sk, events) {
+function heal(attacker, target, sk, events) {
   const amount = Math.round(attacker.atk * sk.heal * (1 + (attacker.healBonus || 0)) * rnd(0.95, 1.05));
   target.hp = Math.min(target.maxHp, target.hp + amount);
   events.push({
@@ -104,7 +103,7 @@ function healImpl(attacker, target, sk, events) {
   });
 }
 
-function handleDeathImpl(unit, units, events) {
+function handleDeath(unit, units, events) {
   unit.alive = false;
   unit.hp = 0;
   unit.taunt = 0;
@@ -138,7 +137,7 @@ function handleDeathImpl(unit, units, events) {
   });
 }
 
-function actImpl(unit, units, round, events) {
+function act(unit, units, round, events) {
   const allies = units.filter((u) => u.side === unit.side && u.alive);
   const foes = units.filter((u) => u.side !== unit.side && u.alive);
   if (!foes.length) return;
@@ -196,7 +195,7 @@ function actImpl(unit, units, round, events) {
   }
 }
 
-function simulateBattleImpl(allyCfgs, enemyCfgs, maxRounds = 40) {
+export function simulateBattle(allyCfgs, enemyCfgs, maxRounds = 40) {
   const units = [
     ...allyCfgs.map((u) => makeUnit({ ...u, side: 'ally' })),
     ...enemyCfgs.map((u, i) => makeUnit({ ...u, side: 'enemy', uid: `e_${i}` })),
@@ -246,7 +245,7 @@ function simulateBattleImpl(allyCfgs, enemyCfgs, maxRounds = 40) {
   return { events, result, rounds: round, final, units };
 }
 
-function initialLiveImpl(units) {
+export function initialLive(units) {
   return Object.fromEntries(
     units.map((u) => [
       u.uid,
@@ -263,7 +262,7 @@ function initialLiveImpl(units) {
   );
 }
 
-function applyEventImpl(live, ev) {
+export function applyEvent(live, ev) {
   if (!ev) return live;
   const patch = (uid, data) => (live[uid] ? { ...live, [uid]: { ...live[uid], ...data } } : live);
   switch (ev.kind) {
@@ -287,33 +286,4 @@ function applyEventImpl(live, ev) {
     default:
       return live;
   }
-}
-function chooseSkill(unit, allies, foes, round) {
-  return traceSync('Battle.chooseSkill', () => chooseSkillImpl(unit, allies, foes, round), { unit: unit?.uid, round });
-}
-function damage(attacker, target, sk, events, units) {
-  return traceSync('Battle.damage', () => damageImpl(attacker, target, sk, events, units), { attacker: attacker?.uid, target: target?.uid, skill: sk?.name });
-}
-function heal(attacker, target, sk, events) {
-  return traceSync('Battle.heal', () => healImpl(attacker, target, sk, events), { healer: attacker?.uid, target: target?.uid, skill: sk?.name });
-}
-function handleDeath(unit, units, events) {
-  return traceSync('Battle.handleDeath', () => handleDeathImpl(unit, units, events), { unit: unit?.uid });
-}
-function act(unit, units, round, events) {
-  return traceSync('Battle.act', () => actImpl(unit, units, round, events), { unit: unit?.uid, round });
-}
-export function makeUnit(cfg) {
-  return traceSync('Battle.makeUnit', () => makeUnitImpl(cfg), { unit: cfg?.uid || cfg?.name || 'unknown' });
-}
-export function simulateBattle(allyCfgs, enemyCfgs, maxRounds = 40) {
-  return traceSync('Battle.simulateBattle', () => simulateBattleImpl(allyCfgs, enemyCfgs, maxRounds), {
-    allies: allyCfgs?.length || 0, enemies: enemyCfgs?.length || 0, maxRounds,
-  });
-}
-export function initialLive(units) {
-  return traceSync('Battle.initialLive', () => initialLiveImpl(units), { units: units?.length || 0 });
-}
-export function applyEvent(live, ev) {
-  return traceSync('Battle.applyEvent', () => applyEventImpl(live, ev), { eventKind: ev?.kind || 'unknown' });
 }

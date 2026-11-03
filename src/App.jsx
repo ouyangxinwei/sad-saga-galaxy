@@ -13,7 +13,6 @@ import Formation from '@/pages/Formation';
 import Synthesis from '@/pages/Synthesis';
 import Forge from '@/pages/Forge';
 import Settings from '@/pages/Settings';
-import Debug from '@/pages/Debug';
 import { GameProvider } from '@/lib/GameContext';
 
 const AuthenticatedApp = () => {
@@ -49,7 +48,6 @@ const AuthenticatedApp = () => {
       <Route path="/synthesis" element={<Synthesis />} />
       <Route path="/forge" element={<Forge />} />
       <Route path="/settings" element={<Settings />} />
-      <Route path="/debug" element={<Debug />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
