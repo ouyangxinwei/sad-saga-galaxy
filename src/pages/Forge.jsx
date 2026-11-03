@@ -97,7 +97,7 @@ export default function Forge() {
                   <div className="mt-2 flex items-center justify-between text-[9.5px] text-muted-foreground">
                     <span>{defOf(cardId)?.name?.[lang] || ''}</span>
                     <span className="text-primary/80">
-                      {RELIC_NAME(equipped[cardId], RELICS, lang) || t('common.none')}
+                      {RELIC_NAME(equipped[cardId]?.relic, RELICS, lang) || t('common.none')}
                     </span>
                   </div>
                   <div className="mt-1.5 flex flex-wrap gap-1.5">
@@ -107,7 +107,7 @@ export default function Forge() {
                         type="button"
                         onClick={() => actions.equipRelic(cardId, r.id)}
                         className={`tap rounded-lg border px-2 py-1 text-[9px] ${
-                          equipped[cardId] === r.id
+                          equipped[cardId]?.relic === r.id
                             ? 'border-primary/50 bg-primary/10 text-primary'
                             : 'border-white/10 bg-white/[0.03] text-muted-foreground'
                         }`}
@@ -115,7 +115,7 @@ export default function Forge() {
                         {r.name[lang] || r.name.zh}
                       </button>
                     ))}
-                    {equipped[cardId] ? (
+                    {equipped[cardId]?.relic ? (
                       <GhostButton onClick={() => actions.equipRelic(cardId, null)} className="px-2 py-1 text-[9px]">
                         {t('common.cancel')}
                       </GhostButton>
