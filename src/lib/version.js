@@ -15,6 +15,17 @@ export const CHANGELOG = [
   },
 
   {
+    version: 'v0.26',
+    date: RELEASE_DATE,
+    title: { zh: '角色详情系统', ja: 'キャラクター詳細画面', en: 'Character detail system' },
+    items: {
+      zh: ['首页队伍卡片和队伍编成页面中的角色卡片，点击后直接打开角色详情', '详情展示最大 HP、最大 MP、攻击、防御、速度、暴击率、等级与战力', '展示当前装备遗物及其属性加成，并可从详情快捷进入装备管理', '展示职业主动技能的目标、MP 消耗、伤害/治疗/防御效果，以及职业被动', '队伍编成页面保留队伍槽位选择，并在详情中提供编入当前选中位置的操作', '支持中文、日文、英文；不改变存档结构和战斗计算规则'],
+      ja: ['ホームの編成カードと編成画面のキャラクターカードをタップすると詳細を直接表示', '最大 HP・最大 MP・攻撃・防御・速度・会心率・レベル・戦力を表示', '装備中の遺物と能力補正を表示し、装備管理へ移動可能', '職業アクティブスキルの対象・MP 消費・攻撃/回復/防御効果と職業パッシブを表示', '編成画面では枠選択を維持し、詳細画面から選択中の枠へ配置可能', '中国語・日本語・英語に対応。セーブ構造と戦闘計算は変更しない'],
+      en: ['Tapping party cards on Home or Formation now opens character details directly', 'Shows maximum HP/MP, ATK, DEF, SPD, crit rate, level, and power', 'Displays equipped relic and stat bonuses, with a shortcut to equipment management', 'Lists class active skills with target, MP cost, attack/heal/defense effects, plus class passive', 'Formation keeps explicit slot selection and adds a place-in-selected-slot action in the detail dialog', 'Supports Chinese, Japanese, and English without changing save data or combat calculations'],
+    },
+  },
+
+  {
     version: 'v0.25',
     date: RELEASE_DATE,
     title: { zh: '队伍挂机被动与收益优化', ja: '編成の放置パッシブと報酬改善', en: 'Party idle passives and reward improvements' },
