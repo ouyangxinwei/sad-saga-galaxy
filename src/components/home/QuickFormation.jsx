@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useGame } from '@/lib/GameContext';
 import CardTile from '@/components/common/CardTile';
 import GameIcon from '@/components/common/GameIcon';
@@ -9,6 +9,7 @@ import { fmt } from '@/lib/format';
 export default function QuickFormation() {
   const { t, lang, party, powerOf, defOf, actions, presets, presetIndex } = useGame();
   const [detailId, setDetailId] = useState(null);
+  const navigate = useNavigate();
   const slots = Array.from({ length: 5 }, (_, i) => party[i] || null);
 
   return (
@@ -47,7 +48,7 @@ export default function QuickFormation() {
           <Link to="/formation" className="tap flex items-center gap-0.5 text-[10px] text-primary/80 hover:text-primary">{t('quick.edit')}<GameIcon name="ChevronRight" className="h-3 w-3" /></Link>
         </div>
       </div>
-      <CharacterDetailDialog cardId={detailId} open={!!detailId} onClose={() => setDetailId(null)} />
+      <CharacterDetailDialog cardId={detailId} open={!!detailId} onClose={() => setDetailId(null)} onOpenForge={(id) => navigate(`/forge?cardId=${encodeURIComponent(id)}`)} />
     </section>
   );
 }
