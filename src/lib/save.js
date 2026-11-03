@@ -1,4 +1,5 @@
 import { logWarn, traceSync } from './logger';
+import { normalizeEquipmentState } from './equipment';
 import {
   DEFAULT_UNLOCKED,
   STAGES_PER_MODE,
@@ -7,6 +8,8 @@ import {
 } from './gameData';
 
 export const SAVE_KEY = 'saga_galaxy_save_v20';
+export const EQUIPMENT_BACKUP_KEY = 'saga_galaxy_save_v20_equipment_backup_v1';
+let saveWritesBlocked = false;
 export const STAMINA_MAX = 60;
 export const STAMINA_MS = 180000; // 1 per 3 min
 
@@ -74,6 +77,7 @@ function defaultStateImpl() {
 }
 
 function loadStateImpl() {
+  saveWritesBlocked = false;
   try {
     const raw = localStorage.getItem(SAVE_KEY);
     if (!raw) return defaultState();
@@ -81,13 +85,10 @@ function loadStateImpl() {
     const base = defaultState();
     const cardCounts = { ...base.cardCounts, ...(parsed.cardCounts || {}) };
     if (!parsed.cardCounts) {
-      Object.keys(parsed.cards || {}).forEach((id) => {
-        cardCounts[id] = cardCounts[id] || 1;
-      });
+      Object.keys(parsed.cards || {}).forEach((id) => { cardCounts[id] = cardCounts[id] || 1; });
     }
-    return {
-      ...base,
-      ...parsed,
+    const merged = {
+      ...base, ...parsed,
       progress: { ...base.progress, ...(parsed.progress || {}) },
       checkin: { ...base.checkin, ...(parsed.checkin || {}) },
       fortune: { ...base.fortune, ...(parsed.fortune || {}) },
@@ -98,12 +99,18 @@ function loadStateImpl() {
       cards: { ...base.cards, ...(parsed.cards || {}) },
       cardCounts,
     };
+    if (Number(parsed.equipmentSchemaVersion || 0) < 1 && !localStorage.getItem(EQUIPMENT_BACKUP_KEY)) {
+      localStorage.setItem(EQUIPMENT_BACKUP_KEY, raw);
+    }
+    return normalizeEquipmentState(merged);
   } catch (e) {
+    saveWritesBlocked = true;
+    logWarn('Save', 'loadState', { message: e?.message || String(e), recovery: 'Original local save was left untouched.' });
     return defaultState();
   }
 }
-
 function persistImpl(state) {
+  if (saveWritesBlocked) return false;
   try {
     localStorage.setItem(SAVE_KEY, JSON.stringify(state));
     return true;
