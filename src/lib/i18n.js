@@ -243,9 +243,9 @@ export const S = {
   'synth.empty': { zh: '暂无可用碎片', ja: '欠片がありません', en: 'No shards yet' },
   'synth.fuseCards': { zh: '卡牌融合', ja: 'カード融合', en: 'Card fusion' },
   'synth.fuseDesc': {
-    zh: '同一类型 3 张 A 卡融合为 1 张 S 卡，3 张 S 卡融合为 1 张 SS 卡。融合消耗原有卡牌，不同类型无法混合；结果卡保留自身成长，材料卡成长不转移。',
-    ja: '同型の A 3 枚で S 1 枚、S 3 枚で SS 1 枚に融合。元カードを消費し、型違いは混合不可。結果カード自身の育成を保持し、素材カードの育成は引き継ぎません。',
-    en: '3 same-type A cards fuse into 1 S card; 3 S cards into 1 SS. Originals are consumed, types cannot be mixed, and only the result card’s existing growth is retained.',
+    zh: '同一类型 3 张 A 卡融合为 1 张 S 卡，3 张 S 卡融合为 1 张 SS 卡。融合消耗三张成长较弱的材料卡，并在材料卡与已有结果卡之间比较，完整继承成长程度最高的一份等级、经验、突破次数和等级上限。',
+    ja: '同型の A 3 枚で S 1 枚、S 3 枚で SS 1 枚に融合。育成度の低い素材 3 枚を消費し、素材カードと既存の結果カードを比較して、最も育成された 1 枚のレベル・経験値・突破回数・上限を完全継承します。',
+    en: '3 same-type A cards fuse into 1 S card; 3 S cards into 1 SS. The three least-developed materials are consumed, and the strongest complete growth record across the materials and existing result copies is inherited.',
   },
   'synth.copies': { zh: '持有 {n}/3', ja: '所持 {n}/3', en: '{n}/3 owned' },
   'synth.fuseGo': { zh: '融合 3 → 1', ja: '融合 3 → 1', en: 'Fuse 3 → 1' },

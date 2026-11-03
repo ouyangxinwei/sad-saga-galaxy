@@ -1,8 +1,18 @@
 // Single source of truth for in-app, package, and release-document version.
-export const APP_VERSION = 'v0.44';
+export const APP_VERSION = 'v0.45';
 export const RELEASE_DATE = '2026-11-04';
 
 export const CHANGELOG = [
+  {
+    version: 'v0.45', date: '2026-11-04',
+    title: { zh: '角色突破与合成成长继承整合（Phase 5）', ja: 'キャラクター突破・合成育成継承の統合（Phase 5）', en: 'Breakthrough and fusion growth inheritance integration (Phase 5)' },
+    items: {
+      zh: ['修正突破后满级储存经验的结算，突破提高上限后自动继续升级并保留剩余经验', '合成时比较三张被消耗材料卡与已有结果卡的成长记录，完整继承成长程度最高的一份记录', '继承内容包括等级、经验、突破次数和等级上限，并重新绑定到合成结果卡的独立实例 ID', '材料卡中优先消耗成长较低的三张；未被消耗的更强副本继续保留', '补充突破多级经验结算、材料成长继承、结果卡成长胜出及实例绑定回归测试；保留旧存档和现有合成规则'],
+      ja: ['突破で上限を引き上げた後、保存済み経験値を継続計算し、残り経験値も保持するよう修正', '融合時に消費する素材 3 枚と既存の結果カードの育成記録を比較し、最も育成された 1 件を完全継承', 'レベル・経験値・突破回数・レベル上限を継承し、融合結果カードの新しい個別インスタンス ID に正しく再紐付け', '素材カードが 3 枚を超える場合は育成度の低い 3 枚を消費し、より強い残存コピーを維持', '複数レベル分の経験値精算、素材育成の継承、既存結果カード優先、インスタンス紐付けの回帰テストを追加。旧セーブと既存融合ルールを維持'],
+      en: ['Corrects stored max-level EXP settlement so a breakthrough immediately processes available EXP after raising the cap and retains the remainder', 'Fusion compares the three consumed material copies with already-owned result copies and inherits the single strongest complete growth record', 'Transfers level, EXP, breakthrough count, and level cap, correctly rebinding the record to a new result-card instance ID', 'Consumes the three least-developed source copies first and preserves stronger unconsumed copies', 'Adds regression tests for multi-level EXP settlement, material inheritance, existing-result winners, and instance binding while preserving legacy saves and fusion rules'],
+    },
+  },
+
   {
     version: 'v0.44', date: '2026-11-04',
     title: { zh: '卡牌融合成长继承（Phase 4）', ja: 'カード融合時の育成データ処理（Phase 4）', en: 'Character growth handling during card fusion (Phase 4)' },

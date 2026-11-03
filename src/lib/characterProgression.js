@@ -176,29 +176,61 @@ export function strongestCharacterInstance(state, cardId) {
 
 
 /**
- * Removes consumed source-card progression instances during rarity fusion.
- * The three least-developed copies are consumed first, preserving stronger
- * remaining copies. Growth is never transferred to the fusion result.
+ * Fuses card progression without losing growth. The three weakest source copies
+ * are consumed; the strongest progression among those copies and already-owned
+ * result copies is retained. A winning source record is rebound to a fresh
+ * result-card instance ID. If an existing result copy wins, it stays untouched
+ * and normalization creates the newly fused copy at its initial growth.
  */
-export function consumeFusedCharacterInstances(state, cardId, count = 3) {
+export function fuseCharacterProgressionInstances(state, sourceCardId, resultCardId, count = 3) {
   const progression = state?.characterProgression;
-  if (!progression?.instances || !cardId) return state;
+  if (!progression?.instances || !sourceCardId || !resultCardId) return state;
   const amount = Math.max(0, Math.floor(Number(count) || 0));
   if (!amount) return state;
 
-  const candidates = Object.entries(progression.instances)
-    .filter(([, record]) => record?.cardId === cardId)
+  const compareGrowth = (a, b) =>
+    (Number(b.record.level) || 1) - (Number(a.record.level) || 1) ||
+    (Number(b.record.exp) || 0) - (Number(a.record.exp) || 0) ||
+    (Number(b.record.breakthroughCount) || 0) - (Number(a.record.breakthroughCount) || 0) ||
+    (Number(b.record.levelCap) || INITIAL_CHARACTER_LEVEL_CAP) - (Number(a.record.levelCap) || INITIAL_CHARACTER_LEVEL_CAP) ||
+    (a.origin === 'result' ? -1 : 1);
+
+  const all = Object.entries(progression.instances);
+  const sourceCandidates = all
+    .filter(([, record]) => record?.cardId === sourceCardId)
     .sort((a, b) =>
       (Number(a[1].level) || 1) - (Number(b[1].level) || 1) ||
       (Number(a[1].exp) || 0) - (Number(b[1].exp) || 0) ||
       (Number(a[1].breakthroughCount) || 0) - (Number(b[1].breakthroughCount) || 0) ||
+      (Number(a[1].levelCap) || INITIAL_CHARACTER_LEVEL_CAP) - (Number(b[1].levelCap) || INITIAL_CHARACTER_LEVEL_CAP) ||
       String(a[0]).localeCompare(String(b[0]))
     );
+  const consumed = sourceCandidates.slice(0, amount);
+  const resultCandidates = all
+    .filter(([, record]) => record?.cardId === resultCardId)
+    .map(([instanceId, record]) => ({ instanceId, record, origin: 'result' }));
+  const sourceGrowth = consumed.map(([instanceId, record]) => ({ instanceId, record, origin: 'source' }));
+  const winner = [...sourceGrowth, ...resultCandidates].sort(compareGrowth)[0] || null;
 
   const instances = { ...progression.instances };
-  candidates.slice(0, amount).forEach(([instanceId]) => {
-    delete instances[instanceId];
-  });
+  consumed.forEach(([instanceId]) => { delete instances[instanceId]; });
+
+  if (winner?.origin === 'source') {
+    let nextNumber = all
+      .filter(([, record]) => record?.cardId === resultCardId)
+      .reduce((max, [, record]) => Math.max(max, Number(record.instanceNumber) || 0), 0) + 1;
+    let instanceId = `card:${encodeURIComponent(resultCardId)}:${nextNumber}`;
+    while (instances[instanceId]) {
+      nextNumber += 1;
+      instanceId = `card:${encodeURIComponent(resultCardId)}:${nextNumber}`;
+    }
+    instances[instanceId] = {
+      ...winner.record,
+      instanceId,
+      cardId: resultCardId,
+      instanceNumber: nextNumber,
+    };
+  }
 
   return {
     ...state,

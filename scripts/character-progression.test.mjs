@@ -10,7 +10,7 @@ import {
   grantPartyCharacterExperience,
   characterBreakthroughCost,
   breakthroughCharacter,
-  consumeFusedCharacterInstances,
+  fuseCharacterProgressionInstances,
 } from '../src/lib/characterProgression.js';
 
 test('confirmed character growth policies are represented exactly in Phase 1', () => {
@@ -210,33 +210,79 @@ test('breakthrough has no fixed count limit', () => {
 });
 
 
-test('fusion consumes source instances without transferring their growth to the result', () => {
+test('fusion transfers the strongest consumed source growth to the new result copy', () => {
   const sourceRecords = {
     'src-1': { ...createCharacterProgressionRecord('lise', 'src-1', 1), level: 12, exp: 10 },
     'src-2': { ...createCharacterProgressionRecord('lise', 'src-2', 2), level: 30, exp: 50, breakthroughCount: 2, levelCap: 80 },
     'src-3': { ...createCharacterProgressionRecord('lise', 'src-3', 3), level: 8, exp: 5 },
   };
-  const resultRecord = { ...createCharacterProgressionRecord('lise_S', 'result-1'), level: 30, exp: 222, breakthroughCount: 4, levelCap: 100 };
+  const existingResult = { ...createCharacterProgressionRecord('lise_S', 'result-1'), level: 20, exp: 200 };
   const state = {
     cards: { lise: true, lise_S: true },
     cardCounts: { lise: 3, lise_S: 1 },
-    characterProgression: { schemaVersion: 1, instances: { ...sourceRecords, 'result-1': resultRecord } },
+    characterProgression: { schemaVersion: 1, instances: { ...sourceRecords, 'result-1': existingResult } },
   };
-  const consumed = consumeFusedCharacterInstances(state, 'lise', 3);
-  assert.deepEqual(Object.keys(consumed.characterProgression.instances), ['result-1']);
-  assert.deepEqual(consumed.characterProgression.instances['result-1'], resultRecord);
+  const fused = fuseCharacterProgressionInstances(state, 'lise', 'lise_S', 3);
+  const rebound = Object.values(fused.characterProgression.instances).find((record) => record.cardId === 'lise_S' && record.instanceId !== 'result-1');
+  assert.equal(rebound.level, 30);
+  assert.equal(rebound.exp, 50);
+  assert.equal(rebound.breakthroughCount, 2);
+  assert.equal(rebound.levelCap, 80);
+  assert.equal(fused.characterProgression.instances['result-1'].level, 20);
+  assert.equal(Object.values(fused.characterProgression.instances).some((record) => record.cardId === 'lise'), false);
   assert.equal(state.characterProgression.instances['src-2'].level, 30);
 });
 
-test('fusion consumes the three weakest source instances and preserves stronger leftovers', () => {
+test('fusion preserves an existing result copy when it is the strongest growth record', () => {
+  const instances = {
+    'src-1': { ...createCharacterProgressionRecord('lise', 'src-1'), level: 12, exp: 10 },
+    'src-2': { ...createCharacterProgressionRecord('lise', 'src-2'), level: 30, exp: 50 },
+    'src-3': { ...createCharacterProgressionRecord('lise', 'src-3'), level: 8, exp: 5 },
+    'result-1': { ...createCharacterProgressionRecord('lise_S', 'result-1'), level: 45, exp: 22, breakthroughCount: 3, levelCap: 90 },
+  };
+  const state = {
+    cards: { lise: true, lise_S: true },
+    cardCounts: { lise: 3, lise_S: 1 },
+    characterProgression: { schemaVersion: 1, instances },
+  };
+  const fused = fuseCharacterProgressionInstances(state, 'lise', 'lise_S', 3);
+  assert.deepEqual(fused.characterProgression.instances['result-1'], instances['result-1']);
+  assert.equal(Object.values(fused.characterProgression.instances).filter((record) => record.cardId === 'lise_S').length, 1);
+  assert.equal(Object.values(fused.characterProgression.instances).some((record) => record.cardId === 'lise'), false);
+});
+
+test('fusion compares breakthrough progress and preserves the strongest remaining source copies', () => {
   const instances = {
     weak: { ...createCharacterProgressionRecord('lise', 'weak'), level: 5 },
     middle: { ...createCharacterProgressionRecord('lise', 'middle'), level: 10 },
     strong: { ...createCharacterProgressionRecord('lise', 'strong'), level: 50, exp: 300 },
-    strongest: { ...createCharacterProgressionRecord('lise', 'strongest'), level: 60, breakthroughCount: 3 },
+    strongest: { ...createCharacterProgressionRecord('lise', 'strongest'), level: 60, breakthroughCount: 3, levelCap: 90 },
   };
   const state = { characterProgression: { instances } };
-  const consumed = consumeFusedCharacterInstances(state, 'lise', 3);
-  assert.deepEqual(Object.keys(consumed.characterProgression.instances), ['strongest']);
-  assert.equal(consumed.characterProgression.instances.strongest.level, 60);
+  const fused = fuseCharacterProgressionInstances(state, 'lise', 'lise_S', 3);
+  assert.equal(fused.characterProgression.instances.strongest.cardId, 'lise_S');
+  assert.equal(fused.characterProgression.instances.strongest.level, 60);
+  assert.equal(fused.characterProgression.instances.strong.cardId, 'lise');
+  assert.equal(Object.values(fused.characterProgression.instances).filter((record) => record.cardId === 'lise_S').length, 1);
 });
+
+test('breakthrough applies all stored EXP after raising the cap without discarding remainder', () => {
+  const record = {
+    ...createCharacterProgressionRecord('lise', 'lise-main'),
+    level: 60,
+    levelCap: 60,
+    exp: characterExpNeed(60) + characterExpNeed(61) + 37,
+  };
+  const state = {
+    gold: 5000,
+    cardShards: { lise: 8 },
+    characterProgression: { schemaVersion: 1, instances: { 'lise-main': record } },
+  };
+  const result = breakthroughCharacter(state, 'lise');
+  assert.equal(result.success, true);
+  assert.equal(result.record.level, 62);
+  assert.equal(result.record.levelCap, 70);
+  assert.equal(result.record.exp, 37);
+  assert.equal(result.record.breakthroughCount, 1);
+});
+
