@@ -33,6 +33,8 @@ import {
   loadState,
   nextStageTarget,
   persist,
+  replaceSave,
+  resetState,
   todayKey,
 } from './save';
 import { cardPower, copiesOf, getCardDef, partyPower, strongestParty, teamTotals } from './cards';
@@ -786,11 +788,16 @@ export function GameProvider({ children }) {
   }, [commit, notify, t]);
 
   const resetSave = useCallback(() => {
-    clearSave();
-    const fresh = defaultState();
+    const fresh = resetState();
+    // Persist first: if storage fails, keep the existing in-memory and on-disk save intact.
+    if (!replaceSave(fresh)) {
+      notify(ref.current.lang === 'ja' ? 'リセットの保存に失敗しました。既存データは変更されていません。' : ref.current.lang === 'en' ? 'Reset could not be saved. Existing data was not changed.' : '重置保存失败，原有数据未更改。');
+      return false;
+    }
     ref.current = fresh;
     setState(fresh);
-  }, []);
+    return true;
+  }, [notify]);
 
   useEffect(() => {
     const timer = setInterval(() => {
