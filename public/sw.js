@@ -1,5 +1,5 @@
 const CACHE_PREFIX = 'oooo-app-shell-';
-const CACHE_NAME = `${CACHE_PREFIX}v29`;
+const CACHE_NAME = `${CACHE_PREFIX}v30`;
 
 self.addEventListener('install', (event) => {
   const base = self.registration.scope;

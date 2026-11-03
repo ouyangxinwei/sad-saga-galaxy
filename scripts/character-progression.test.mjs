@@ -3,6 +3,9 @@ import assert from 'node:assert/strict';
 import {
   CHARACTER_GROWTH_RULES,
   CHARACTER_CAREER_GROWTH,
+  CHARACTER_BREAKTHROUGH_REWARDS,
+  characterBreakthroughReward,
+  getCharacterBreakthroughBonuses,
   getCharacterCareerArchetype,
   characterGrowthMultipliers,
   CHARACTER_PROGRESSION_SCHEMA_VERSION,
@@ -175,6 +178,7 @@ test('breakthrough preserves level, raises cap, consumes materials, and applies 
   const result = breakthroughCharacter(state, 'lise');
   assert.equal(result.success, true);
   assert.equal(result.record.breakthroughCount, 1);
+  assert.deepEqual(result.record.breakthroughBonuses, { hp: 20, atk: 6, def: 2, mp: 3 });
   assert.equal(result.record.levelCap, 70);
   assert.equal(result.record.level, 61);
   assert.equal(result.state.gold, 4000);
@@ -400,4 +404,74 @@ test('player-level scaling and equipment bonuses remain separate from career gro
   const base = cardStats({ level: 10, rebirth: 0 }, 'lise');
   assert.equal(stats.hp, Math.round(base.hp * (1 + 19 * .003)));
   assert.equal(stats.spd, base.spd);
+});
+
+
+test('fixed breakthrough rewards are career-specific flat stat bonuses', () => {
+  assert.deepEqual(CHARACTER_BREAKTHROUGH_REWARDS.attack, { hp: 20, atk: 6, def: 2, mp: 3 });
+  assert.deepEqual(CHARACTER_BREAKTHROUGH_REWARDS.defense, { hp: 35, atk: 2, def: 6, mp: 3 });
+  assert.deepEqual(CHARACTER_BREAKTHROUGH_REWARDS.support, { hp: 20, atk: 2, def: 3, mp: 8 });
+  assert.deepEqual(CHARACTER_BREAKTHROUGH_REWARDS.balanced, { hp: 25, atk: 4, def: 4, mp: 4 });
+  assert.deepEqual(characterBreakthroughReward('sword'), CHARACTER_BREAKTHROUGH_REWARDS.attack);
+  assert.deepEqual(characterBreakthroughReward('guardian'), CHARACTER_BREAKTHROUGH_REWARDS.defense);
+  assert.deepEqual(characterBreakthroughReward('priest'), CHARACTER_BREAKTHROUGH_REWARDS.support);
+});
+test('one successful breakthrough grants its fixed reward once and cannot duplicate it on a second immediate attempt', () => {
+  const record = { ...createCharacterProgressionRecord('lise', 'lise-main'), level: 60, levelCap: 60 };
+  const state = { gold: 5000, cardShards: { lise: 8 }, characterProgression: { instances: { 'lise-main': record } } };
+  const first = breakthroughCharacter(state, 'lise');
+  assert.equal(first.success, true);
+  assert.deepEqual(first.record.breakthroughBonuses, { hp: 20, atk: 6, def: 2, mp: 3 });
+  const second = breakthroughCharacter(first.state, 'lise');
+  assert.equal(second.success, false);
+  assert.deepEqual(first.state.characterProgression.instances['lise-main'].breakthroughBonuses, { hp: 20, atk: 6, def: 2, mp: 3 });
+});
+test('subsequent unlimited breakthroughs add one fixed reward per successful breakthrough', () => {
+  let state = { gold: 100000, cardShards: { kain: 100 }, characterProgression: { instances: {
+    'kain-main': { ...createCharacterProgressionRecord('kain', 'kain-main'), level: 60, levelCap: 60 },
+  } } };
+  for (let count = 1; count <= 3; count += 1) {
+    const current = state.characterProgression.instances['kain-main'];
+    state = { ...state, characterProgression: { instances: { 'kain-main': { ...current, level: current.levelCap } } } };
+    const result = breakthroughCharacter(state, 'kain');
+    assert.equal(result.success, true);
+    assert.equal(result.record.breakthroughCount, count);
+    assert.equal(result.record.levelCap, 60 + count * 10);
+    assert.deepEqual(result.record.breakthroughBonuses, { hp: 35 * count, atk: 2 * count, def: 6 * count, mp: 3 * count });
+    state = result.state;
+  }
+});
+test('legacy records backfill cumulative breakthrough rewards without changing level, EXP or resources', () => {
+  const legacy = {
+    level: 25, exp: 456, gold: 9000, cardShards: { lise: 4 },
+    cards: { lise: true }, cardCounts: { lise: 1 },
+    characterProgression: { instances: {
+      'lise-old': { ...createCharacterProgressionRecord('lise', 'lise-old'), level: 70, exp: 123, breakthroughCount: 1, levelCap: 70 },
+    } },
+  };
+  const migrated = normalizeCharacterProgressionState(legacy);
+  const record = migrated.characterProgression.instances['lise-old'];
+  assert.deepEqual(record.breakthroughBonuses, { hp: 20, atk: 6, def: 2, mp: 3 });
+  assert.equal(record.level, 70); assert.equal(record.exp, 123);
+  assert.equal(migrated.gold, 9000); assert.deepEqual(migrated.cardShards, { lise: 4 });
+});
+test('fixed breakthrough bonuses affect battle stats as flat values, independent of player level scaling', () => {
+  const base = { level: 1, rebirth: 0 };
+  const state = { ...base, characterProgression: { instances: {
+    'lise-main': { ...createCharacterProgressionRecord('lise', 'lise-main'), breakthroughCount: 2, levelCap: 80, breakthroughBonuses: { hp: 40, atk: 12, def: 4, mp: 6 } },
+  } } };
+  const stats = cardStats(state, 'lise'), original = cardStats(base, 'lise');
+  assert.equal(stats.hp, original.hp + 40); assert.equal(stats.atk, original.atk + 12);
+  assert.equal(stats.def, original.def + 4); assert.equal(stats.mp, original.mp + 6);
+});
+test('fusion inherits the complete breakthrough bonus data from the strongest progression record', () => {
+  const instances = {
+    weak1: { ...createCharacterProgressionRecord('lise', 'weak1'), level: 10, breakthroughCount: 1, levelCap: 70, breakthroughBonuses: { hp: 20, atk: 6, def: 2, mp: 3 } },
+    strong: { ...createCharacterProgressionRecord('lise', 'strong'), level: 60, breakthroughCount: 2, levelCap: 80, breakthroughBonuses: { hp: 40, atk: 12, def: 4, mp: 6 } },
+    weak2: { ...createCharacterProgressionRecord('lise', 'weak2'), level: 5 },
+  };
+  const fused = fuseCharacterProgressionInstances({ characterProgression: { instances } }, 'lise', 'lise_S', 3);
+  const result = Object.values(fused.characterProgression.instances).find((record) => record.cardId === 'lise_S');
+  assert.equal(result.level, 60); assert.equal(result.breakthroughCount, 2);
+  assert.deepEqual(result.breakthroughBonuses, { hp: 40, atk: 12, def: 4, mp: 6 });
 });

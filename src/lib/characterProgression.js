@@ -1,3 +1,4 @@
+import { HEROES } from './gameData.js';
 export const CHARACTER_PROGRESSION_SCHEMA_VERSION = 1;
 export const INITIAL_CHARACTER_LEVEL = 1;
 export const INITIAL_CHARACTER_LEVEL_CAP = 60;
@@ -15,6 +16,28 @@ export const CHARACTER_CLASS_ARCHETYPES = Object.freeze({
 });
 export function getCharacterCareerArchetype(classId) {
   return CHARACTER_CLASS_ARCHETYPES[classId] || 'balanced';
+}
+
+export const CHARACTER_BREAKTHROUGH_REWARDS = Object.freeze({
+  attack: Object.freeze({ hp: 20, atk: 6, def: 2, mp: 3 }),
+  defense: Object.freeze({ hp: 35, atk: 2, def: 6, mp: 3 }),
+  support: Object.freeze({ hp: 20, atk: 2, def: 3, mp: 8 }),
+  balanced: Object.freeze({ hp: 25, atk: 4, def: 4, mp: 4 }),
+});
+export function characterClassIdFor(state, cardId) {
+  return state?.customDefs?.[cardId]?.classId || HEROES.find((hero) => hero.id === cardId)?.classId || null;
+}
+export function characterBreakthroughReward(classId) {
+  return CHARACTER_BREAKTHROUGH_REWARDS[getCharacterCareerArchetype(classId)];
+}
+export function getCharacterBreakthroughBonuses(record, classId) {
+  const count = Math.max(0, Math.floor(Number(record?.breakthroughCount) || 0));
+  const reward = characterBreakthroughReward(classId);
+  const stored = record?.breakthroughBonuses;
+  return Object.fromEntries(['hp', 'atk', 'def', 'mp'].map((stat) => [
+    stat, stored && Number.isFinite(Number(stored[stat]))
+      ? Math.max(0, Number(stored[stat])) : reward[stat] * count,
+  ]));
 }
 export function characterGrowthMultipliers(classId, level = INITIAL_CHARACTER_LEVEL) {
   const safeLevel = Math.max(1, Math.floor(Number(level) || INITIAL_CHARACTER_LEVEL));
@@ -74,15 +97,15 @@ export function normalizeCharacterProgressionState(state) {
     existing.forEach(({ key, record }) => {
       const level = Math.max(1, Math.floor(Number(record.level) || INITIAL_CHARACTER_LEVEL));
       const levelCap = Math.max(INITIAL_CHARACTER_LEVEL_CAP, level, Math.floor(Number(record.levelCap) || INITIAL_CHARACTER_LEVEL_CAP));
+      const breakthroughCount = Math.max(0, Math.floor(Number(record.breakthroughCount) || 0));
       instances[key] = {
-        ...record,
-        instanceId: record.instanceId || key,
-        cardId,
+        ...record, instanceId: record.instanceId || key, cardId,
         instanceNumber: Math.max(1, Math.floor(Number(record.instanceNumber) || 1)),
-        level,
-        exp: Math.max(0, Math.floor(Number(record.exp) || 0)),
-        breakthroughCount: Math.max(0, Math.floor(Number(record.breakthroughCount) || 0)),
-        levelCap,
+        level, exp: Math.max(0, Math.floor(Number(record.exp) || 0)),
+        breakthroughCount, levelCap,
+        breakthroughBonuses: getCharacterBreakthroughBonuses(
+          { ...record, breakthroughCount }, characterClassIdFor(state, cardId),
+        ),
       };
     });
 
@@ -268,7 +291,14 @@ export function breakthroughCharacter(state, cardId) {
   const shards = Number(state.cardShards?.[cardId]) || 0;
   const gold = Number(state.gold) || 0;
   if (shards < cost.shards || gold < cost.gold) return { state, success: false, reason: 'insufficient-materials', cost, record };
-  const raised = { ...record, breakthroughCount: record.breakthroughCount + 1, levelCap: record.levelCap + 10 };
+  const classId = characterClassIdFor(state, cardId);
+  const reward = characterBreakthroughReward(classId);
+  const currentBonuses = getCharacterBreakthroughBonuses(record, classId);
+  const breakthroughBonuses = Object.fromEntries(['hp', 'atk', 'def', 'mp'].map((stat) => [stat, currentBonuses[stat] + reward[stat]]));
+  const raised = {
+    ...record, breakthroughCount: record.breakthroughCount + 1,
+    levelCap: record.levelCap + 10, breakthroughBonuses,
+  };
   const progressed = addCharacterExperience(raised, 0).record;
   return {
     state: {

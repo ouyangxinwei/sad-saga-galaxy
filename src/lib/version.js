@@ -1,8 +1,18 @@
 // Single source of truth for in-app, package, and release-document version.
-export const APP_VERSION = 'v0.47';
+export const APP_VERSION = 'v0.48';
 export const RELEASE_DATE = '2026-11-04';
 
 export const CHANGELOG = [
+  {
+    version: 'v0.48', date: '2026-11-04',
+    title: { zh: '角色突破固定属性奖励（V7 Phase 2）', ja: 'キャラクター突破の固定ステータス報酬（V7 Phase 2）', en: 'Fixed character breakthrough stat rewards (V7 Phase 2)' },
+    items: {
+      zh: ['每次成功突破都会获得一次职业专属的固定 HP、ATK、DEF、MP 属性奖励', '攻击型偏向 ATK，防御型偏向 HP/DEF，辅助型偏向 MP；未识别职业采用均衡奖励', '奖励作为独立累计数据保存，不随玩家等级倍率、职业等级成长或装备百分比再次放大', '旧存档按已有突破次数补齐累计奖励，不重置等级、经验、资源或装备', '突破仍保持等级不变、等级上限 +10、无限次数、原材料与金币递增成本及储存经验结算', '合成沿用最强成长记录并完整继承突破奖励；增加重复突破、旧档补齐、战斗属性和融合继承测试'],
+      ja: ['突破成功ごとに職業別の固定 HP・ATK・DEF・MP 報酬を 1 回付与', '攻撃型は ATK、防御型は HP/DEF、支援型は MP を重視。未知の職業は均衡報酬', '報酬は累積データとして個別保存し、プレイヤーレベル倍率・職業成長・装備割合で再増幅しない', '旧セーブは既存の突破回数から累積報酬を補完し、レベル・経験値・資源・装備をリセットしない', '突破時レベル維持、上限 +10、回数無制限、既存の素材・ゴールド増加コスト、保存経験値精算を維持', '融合時は最強育成記録と突破報酬を完全継承。重複付与防止、旧セーブ補完、戦闘能力、融合継承テストを追加'],
+      en: ['Each successful breakthrough grants one fixed career-specific HP, ATK, DEF, and MP reward', 'Attack favors ATK, defense favors HP/DEF, and support favors MP; unknown classes receive balanced rewards', 'Rewards are stored cumulatively and are not multiplied again by player-level scaling, career growth, or equipment percentages', 'Legacy saves backfill cumulative rewards from existing breakthrough counts without resetting levels, EXP, resources, or equipment', 'Preserves level on breakthrough, +10 level cap, unlimited count, existing escalating shard/gold costs, and stored-EXP settlement', 'Fusion continues to inherit the strongest complete progression record including breakthrough rewards; adds duplicate-grant, migration, battle-stat, and fusion tests'],
+    },
+  },
+
   {
     version: 'v0.47', date: '2026-11-04',
     title: { zh: '职业差异化属性成长（V7 Phase 1）', ja: '職業別ステータス成長（V7 Phase 1）', en: 'Career-specific character stat growth (V7 Phase 1)' },

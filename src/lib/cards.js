@@ -1,6 +1,6 @@
 import { HEROES, RELICS, classOf, heroStats } from './gameData.js';
 import { getEquippedItem, getEquipmentBonuses, getEquipmentEffects } from './equipment.js';
-import { characterGrowthMultipliers, strongestCharacterInstance } from './characterProgression.js';
+import { characterGrowthMultipliers, strongestCharacterInstance, characterClassIdFor, getCharacterBreakthroughBonuses } from './characterProgression.js';
 
 export const HERO_MAP = Object.fromEntries(HEROES.map((h) => [h.id, h]));
 
@@ -36,12 +36,13 @@ export function cardStats(state, id) {
   const base = def.stats;
   const progression = strongestCharacterInstance(state, id)?.[1];
   const career = characterGrowthMultipliers(def.classId, progression?.level || 1);
+  const breakthrough = getCharacterBreakthroughBonuses(progression, characterClassIdFor(state, id) || def.classId);
   return {
-    hp: Math.round(base.hp * career.hp * lm * (1 + equipment.hpPct)),
-    atk: Math.round(base.atk * career.atk * lm * (1 + equipment.atkPct)),
-    def: Math.round(base.def * career.def * lm * (1 + equipment.defPct)),
+    hp: Math.round(base.hp * career.hp * lm * (1 + equipment.hpPct)) + breakthrough.hp,
+    atk: Math.round(base.atk * career.atk * lm * (1 + equipment.atkPct)) + breakthrough.atk,
+    def: Math.round(base.def * career.def * lm * (1 + equipment.defPct)) + breakthrough.def,
     spd: Math.round(base.spd * (1 + equipment.spdPct)),
-    mp: Math.round((base.mp || 100) * career.mp),
+    mp: Math.round((base.mp || 100) * career.mp) + breakthrough.mp,
     crit: Math.min(0.75, (base.crit || 0.08) + equipment.crit),
     critDamagePct: equipment.critDamagePct,
     damageDealtPct: equipment.damageDealtPct,
