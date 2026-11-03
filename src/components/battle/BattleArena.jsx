@@ -143,6 +143,8 @@ export default function BattleArena({ mode, n }) {
         : `${t('stages.title')} ? ${t(`stages.${mode}`)} ${n}`;
 
   const backTo = mode === 'tower' || mode === 'event' ? '/' : '/stages';
+  const nextIsBoss = result === 'win' && mode === 'normal' && stage.boss && n < 100;
+  const nextStageNumber = nextIsBoss ? Math.min(100, n + 5) : n + 1;
 
   if (paid === false) {
     return (
@@ -273,10 +275,10 @@ export default function BattleArena({ mode, n }) {
               </GhostButton>
               {result === 'win' && mode !== 'tower' && mode !== 'event' && n < 100 ? (
                 <GoldButton
-                  onClick={() => navigate(`/battle?mode=${mode}&stage=${n + 1}&r=${Date.now()}`)}
+                  onClick={() => navigate(`/battle?mode=${mode}&stage=${nextStageNumber}&r=${Date.now()}`)}
                   className="py-2.5"
                 >
-                  {t('battle.next')}
+                  {nextIsBoss ? t('battle.nextBoss') : t('battle.next')}
                 </GoldButton>
               ) : (
                 <GoldButton onClick={() => navigate(backTo)} className="py-2.5">
