@@ -60,3 +60,13 @@ GitHub integration: [https://docs.base44.com/developers/app-code/local-developme
 Local development: [https://docs.base44.com/developers/backend/overview/local-dev/local-development-overview](https://docs.base44.com/developers/backend/overview/local-dev/local-development-overview)
 
 Support: [https://app.base44.com/support](https://app.base44.com/support)
+
+
+## Development Changelog
+
+### V1.0 — Saga Execution Logger
+- Added unified execution logs with START, END, RETURN, ASYNC, WARN, ERROR, and slow-execution events.
+- Added Trace ID correlation, execution timing, browser Console output, and independent local storage capped at 2,000 records.
+- Added a Debug Console page with filtering, search, details, clear, and JSON/TXT export.
+- Added tracing to save operations, battle simulation entry points, game action dispatch, and battle lifecycle milestones.
+- Added a GitHub Pages workflow for static frontend build and deployment.

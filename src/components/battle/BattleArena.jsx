@@ -11,6 +11,7 @@ import { ENEMY_MAP, EVENT_STAGE, MODE_MAP, TOWER_STAGE, TYPE_MAP, enemyStats, ge
 import { partyUnits } from '@/lib/cards';
 import { applyEvent, initialLive, simulateBattle } from '@/lib/battle';
 import { fmt } from '@/lib/format';
+import { logInfo } from '@/lib/logger';
 
 const STAMINA_COST = 6;
 
@@ -32,6 +33,7 @@ export default function BattleArena({ mode, n }) {
 
   useEffect(() => {
     if (paidRef.current) return;
+    logInfo('BattleArena', 'start', { mode, stage: n, locked });
     paidRef.current = true;
     if (locked) {
       setPaid(true);
@@ -90,6 +92,7 @@ export default function BattleArena({ mode, n }) {
     if (!ev) return;
     setLive((prev) => applyEvent(prev, ev));
     if (ev.kind === 'end') {
+      logInfo('BattleArena', 'finish', { mode, stage: n, result: ev.result });
       setFinished(true);
       setResult(ev.result);
       const r = actions.finishBattle({ mode, n, stage, win: ev.result === 'win' });
@@ -165,11 +168,12 @@ export default function BattleArena({ mode, n }) {
             onClick={() => setSpeed(speed === 1 ? 2 : speed === 2 ? 3 : 1)}
             className="tap rounded-lg border border-white/10 bg-white/[0.04] px-2 py-1 text-[9px] tabular-nums text-foreground/80"
           >
-            ~{speed}
+            Â~{speed}
           </button>
           <button
             type="button"
             onClick={() => {
+              logInfo('BattleArena', 'skipAnimation', { mode, stage: n, remainingEvents: sim.events.length - step });
               setLive(sim.final);
               setStep(sim.events.length - 1);
             }}
