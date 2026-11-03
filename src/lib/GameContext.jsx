@@ -36,6 +36,7 @@ import {
   todayKey,
 } from './save';
 import { cardPower, copiesOf, getCardDef, partyPower, strongestParty, teamTotals } from './cards';
+import { equipItem } from './equipment';
 
 const GameCtx = createContext(null);
 const traceAction = (name, fn) => (...args) => traceSync('GameContext.' + name, () => fn(...args));
@@ -650,16 +651,21 @@ export function GameProvider({ children }) {
     [commit, notify, t],
   );
 
-  const equipRelic = useCallback(
-    (cardId, relicId) => {
+  const equipEquipment = useCallback(
+    (cardId, slot, itemId) => {
+      let result = null;
       commit((s) => {
-        const equipped = { ...s.equipped };
-        if (relicId) equipped[cardId] = relicId;
-        else delete equipped[cardId];
-        return { ...s, equipped };
+        result = equipItem(s, cardId, slot, itemId);
+        return result.state;
       });
+      return Boolean(result?.ok);
     },
     [commit],
+  );
+
+  const equipRelic = useCallback(
+    (cardId, relicId) => equipEquipment(cardId, 'relic', relicId),
+    [equipEquipment],
   );
 
   const meltShards = useCallback(
@@ -840,6 +846,7 @@ export function GameProvider({ children }) {
         rebirth: traceAction('rebirth', rebirth),
         craftRelic: traceAction('craftRelic', craftRelic),
         equipRelic: traceAction('equipRelic', equipRelic),
+        equipEquipment: traceAction('equipEquipment', equipEquipment),
         meltShards: traceAction('meltShards', meltShards),
         buyShop: traceAction('buyShop', buyShop),
         refillTestStamina: traceAction('refillTestStamina', refillTestStamina),
@@ -878,6 +885,7 @@ export function GameProvider({ children }) {
     rebirth,
     craftRelic,
     equipRelic,
+    equipEquipment,
     meltShards,
     buyShop,
     refillTestStamina,
