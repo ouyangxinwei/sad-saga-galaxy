@@ -1,5 +1,5 @@
 // Single source of truth for in-app, package, and release-document version.
-export const APP_VERSION = 'v0.38';
+export const APP_VERSION = 'v0.39';
 export const RELEASE_DATE = '2026-11-03';
 
 export const CHANGELOG = [
