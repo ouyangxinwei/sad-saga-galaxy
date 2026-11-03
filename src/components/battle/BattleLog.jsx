@@ -9,12 +9,12 @@ function lineOf(ev, lang, t) {
     case 'damage':
       return {
         tone: ev.crit ? 'crit' : 'damage',
-        text: `${ev.actor} Å® ${ev.target}  ${ev.amount.toLocaleString('en-US')}${ev.crit ? ' ?' : ''}`,
+        text: `${ev.actor} ‚Üí ${ev.target}  ${ev.amount.toLocaleString('en-US')}${ev.crit ? ' ?' : ''}`,
       };
     case 'heal':
       return { tone: 'heal', text: `${ev.actor} ? ${ev.target}  ${ev.amount.toLocaleString('en-US')}` };
     case 'shield':
-      return { tone: 'shield', text: `${ev.target} Åü ${ev.amount.toLocaleString('en-US')}` };
+      return { tone: 'shield', text: `${ev.target} üõ° ${ev.amount.toLocaleString('en-US')}` };
     case 'ward':
       return { tone: 'shield', text: `${ev.name} ? ${Math.round(ev.value * 100)}%` };
     case 'taunt':
