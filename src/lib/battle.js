@@ -1,4 +1,4 @@
-import { SKILLS } from './gameData';
+import { SKILLS } from './gameData.js';
 import { traceSync } from './logger';
 
 const rnd = (min, max) => min + Math.random() * (max - min);
@@ -25,10 +25,20 @@ function makeUnitImpl(cfg) {
     drTurns: 0,
     lp: cfg.lp ?? 0,
     maxLp: cfg.maxLp ?? 0,
-    crit: cfg.crit ?? 0.08,
+    crit: Math.min(0.75, cfg.crit ?? 0.08),
+    critDamagePct: cfg.critDamagePct ?? 0,
+    damageDealtPct: cfg.damageDealtPct ?? 0,
+    damageReductionPct: cfg.damageReductionPct ?? 0,
+    mpCostReductionPct: Math.min(0.5, cfg.mpCostReductionPct ?? 0),
     role: cfg.role || cfg.classId,
     skills: cfg.skills && cfg.skills.length ? cfg.skills : ['claw'],
   };
+}
+
+export function effectiveMpCost(skill, unit) {
+  const baseCost = Math.max(0, Number(skill?.mp) || 0);
+  const reduction = Math.min(0.5, Math.max(0, Number(unit?.mpCostReductionPct) || 0));
+  return Math.max(0, Math.round(baseCost * (1 - reduction)));
 }
 
 const lowestHpRatio = (list) =>
@@ -41,7 +51,7 @@ function chooseSkillImpl(unit, allies, foes, round) {
   unit.skills.forEach((id) => {
     const sk = SKILLS[id];
     if (!sk) return;
-    if ((sk.mp || 0) > unit.mp) return;
+    if (effectiveMpCost(sk, unit) > unit.mp) return;
     let score = 0;
     const wounded = allies.filter((a) => a.alive && a.hp < a.maxHp * 0.72);
     if (sk.kind === 'attack') {
@@ -65,9 +75,11 @@ function chooseSkillImpl(unit, allies, foes, round) {
 
 function damageImpl(attacker, target, sk, events, units) {
   const crit = Math.random() < attacker.crit + (sk.critBonus || 0);
-  let dmg = attacker.atk * sk.power * rnd(0.93, 1.07) * (crit ? 1.65 : 1);
+  let dmg = attacker.atk * sk.power * rnd(0.93, 1.07) * (crit ? 1.65 + (attacker.critDamagePct || 0) : 1);
   dmg = Math.max(1, dmg - target.def * (1 - (sk.pierce || 0)) * 0.45);
+  if (attacker.damageDealtPct) dmg *= 1 + Math.min(1, Math.max(0, attacker.damageDealtPct));
   if (target.dr) dmg *= 1 - target.dr;
+  if (target.damageReductionPct) dmg *= 1 - Math.min(0.75, Math.max(0, target.damageReductionPct));
   if (target.shield > 0) {
     const absorbed = Math.min(target.shield, dmg);
     target.shield -= absorbed;
@@ -144,7 +156,8 @@ function actImpl(unit, units, round, events) {
   if (!foes.length) return;
 
   const { sk, id } = chooseSkill(unit, allies, foes, round);
-  unit.mp = Math.max(0, unit.mp - (sk.mp || 0));
+  const mpCost = effectiveMpCost(sk, unit);
+  unit.mp = Math.max(0, unit.mp - mpCost);
   events.push({
     kind: 'action',
     uid: unit.uid,
@@ -153,6 +166,7 @@ function actImpl(unit, units, round, events) {
     skill: sk.name,
     skillId: id,
     mp: unit.mp,
+    mpCost,
   });
 
   if (sk.kind === 'attack') {
