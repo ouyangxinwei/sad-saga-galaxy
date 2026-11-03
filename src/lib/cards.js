@@ -1,5 +1,5 @@
-import { HEROES, RELICS, classOf, heroStats } from './gameData';
-import { getEquippedItem } from './equipment';
+import { HEROES, RELICS, classOf, heroStats } from './gameData.js';
+import { getEquippedItem, getEquipmentBonuses } from './equipment.js';
 
 export const HERO_MAP = Object.fromEntries(HEROES.map((h) => [h.id, h]));
 
@@ -31,15 +31,20 @@ export function cardStats(state, id) {
   const def = getCardDef(state, id);
   if (!def) return null;
   const lm = levelMult(state);
-  const relic = relicOf(state, id);
+  const equipment = getEquipmentBonuses(state, id);
   const base = def.stats;
   return {
-    hp: Math.round(base.hp * lm * (1 + (relic?.hp || 0))),
-    atk: Math.round(base.atk * lm * (1 + (relic?.atk || 0))),
-    def: Math.round(base.def * lm * (1 + (relic?.def || 0))),
-    spd: Math.round(base.spd * (1 + (relic?.spd || 0))),
+    hp: Math.round(base.hp * lm * (1 + equipment.hpPct)),
+    atk: Math.round(base.atk * lm * (1 + equipment.atkPct)),
+    def: Math.round(base.def * lm * (1 + equipment.defPct)),
+    spd: Math.round(base.spd * (1 + equipment.spdPct)),
     mp: base.mp || 100,
-    crit: base.crit || 0.08,
+    crit: Math.min(0.75, (base.crit || 0.08) + equipment.crit),
+    critDamagePct: equipment.critDamagePct,
+    damageDealtPct: equipment.damageDealtPct,
+    damageReductionPct: equipment.damageReductionPct,
+    healBonus: equipment.healPct,
+    mpCostReductionPct: equipment.mpCostReductionPct,
   };
 }
 
@@ -88,12 +93,16 @@ export function partyUnits(state, fortune = null) {
         atk: Math.round(st.atk * (1 + (f.atk || 0))),
         def: Math.round(st.def * (1 + (f.def || 0))),
         spd: Math.round(st.spd * (1 + (f.spd || 0))),
-        crit: st.crit + (f.crit || 0),
+        crit: Math.min(0.75, st.crit + (f.crit || 0)),
+        critDamagePct: st.critDamagePct,
+        damageDealtPct: st.damageDealtPct,
+        damageReductionPct: st.damageReductionPct,
         mp: st.mp,
         maxMp: st.mp,
         lp: 6,
         maxLp: 6,
-        healBonus: f.heal || 0,
+        healBonus: st.healBonus + (f.heal || 0),
+        mpCostReductionPct: st.mpCostReductionPct,
         skills: def.skills,
       };
     })
