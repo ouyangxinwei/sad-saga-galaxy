@@ -262,8 +262,10 @@ test('fusion compares breakthrough progress and preserves the strongest remainin
   const fused = fuseCharacterProgressionInstances(state, 'lise', 'lise_S', 3);
   assert.equal(fused.characterProgression.instances.strongest.cardId, 'lise');
   assert.equal(fused.characterProgression.instances.strongest.level, 60);
-  assert.equal(fused.characterProgression.instances.strong.cardId, 'lise');
-  assert.equal(Object.values(fused.characterProgression.instances).filter((record) => record.cardId === 'lise_S').length, 0);
+  assert.equal(fused.characterProgression.instances.strong, undefined);
+  const inherited = Object.values(fused.characterProgression.instances).find((record) => record.cardId === 'lise_S');
+  assert.equal(inherited.level, 50);
+  assert.equal(inherited.exp, 300);
 });
 
 test('breakthrough applies all stored EXP after raising the cap without discarding remainder', () => {
