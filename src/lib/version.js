@@ -1,8 +1,18 @@
 // Single source of truth for in-app, package, and release-document version.
-export const APP_VERSION = 'v0.40';
+export const APP_VERSION = 'v0.41';
 export const RELEASE_DATE = '2026-11-04';
 
 export const CHANGELOG = [
+  {
+    version: 'v0.41', date: RELEASE_DATE,
+    title: { zh: '角色独立成长存档结构（Phase 1）', ja: 'キャラクター個別育成セーブ構造（Phase 1）', en: 'Independent character progression save schema (Phase 1)' },
+    items: {
+      zh: ['新增独立角色成长存档结构，每张卡片副本拥有唯一实例 ID、等级、经验、突破次数和等级上限字段', '旧存档自动迁移：按现有卡片持有数量初始化 Lv.1、0 EXP 的独立成长记录', '新获得角色及重复卡片在游戏状态提交时自动补建成长记录', '存档迁移保持幂等，保留已有成长数据、玩家等级经验、装备、资源和 V13 测试标记', '本阶段只建立数据结构，不改变战斗属性、经验发放、合成规则或角色界面；保留 V0.40 及以前完整版本履历'],
+      ja: ['カード複製ごとに一意のインスタンス ID、レベル、経験値、突破回数、レベル上限を持つ個別育成セーブ構造を追加', '旧セーブは所持カード数に応じて Lv.1・0 EXP の個別育成レコードへ自動移行', '新規入手カードと重複カードの育成レコードをゲーム状態の確定時に自動作成', '移行は冪等で、既存育成データ、プレイヤーレベル、経験値、装備、資源、V13 テストマーカーを保持', '本フェーズではデータ構造のみを追加し、戦闘能力・経験値配布・合成ルール・キャラクター UI は変更しない。V0.40 以前の履歴を保持'],
+      en: ['Adds an independent progression save record for every card copy, with a unique instance ID, level, EXP, breakthrough count, and level cap', 'Migrates legacy saves by creating level-1, zero-EXP records for each currently owned card copy', 'Automatically creates progression records for newly acquired cards and duplicate copies when game state is committed', 'Migration is idempotent and preserves existing progression data, player level/EXP, equipment, resources, and the V13 test-support marker', 'This phase adds data structure only; battle stats, EXP rewards, fusion rules, and character UI remain unchanged. Preserves the complete V0.40 and earlier changelog'],
+    }
+  },
+
   {
     version: 'v0.40', date: RELEASE_DATE,
     title: { zh: '重置时同时补满抽奖宝石与抽奖券', ja: 'リセット時に召喚ジェムと召喚券を補充', en: 'Reset summon gems and tickets together' },
