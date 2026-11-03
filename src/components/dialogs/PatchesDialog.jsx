@@ -40,7 +40,7 @@ export default function PatchesDialog({ open, onClose }) {
       <div className="space-y-4">
         <section className="rounded-2xl border border-primary/20 bg-primary/[0.04] p-3.5">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center gap-2"><GameIcon name="Github" className="h-4 w-4 text-foreground/80" /><h4 className="text-sm font-semibold text-foreground">{t('deployment.title')}</h4></div>
+            <div className="flex items-center gap-2"><span className="rounded-md border border-white/15 px-1.5 py-0.5 text-[9px] font-bold tracking-wider text-muted-foreground">GH</span><h4 className="text-sm font-semibold text-foreground">{t('deployment.title')}</h4></div>
             <span className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold tracking-wide ${STATUS_STYLES[status] || STATUS_STYLES.unknown}`}>{t(`deployment.status.${status}`)}</span>
           </div>
           <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -53,7 +53,7 @@ export default function PatchesDialog({ open, onClose }) {
           <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-white/[0.08] pt-3">
             <div className="text-[10px] text-muted-foreground">{t('deployment.lastChecked')}: {lastChecked ? lastChecked.toLocaleString() : '—'}{refreshError && <div className="mt-1 text-amber-300">{t('deployment.refreshFailed')}</div>}{loading && <div className="mt-1 text-sky-300">{t('deployment.checking')}</div>}</div>
             <div className="flex items-center gap-2">
-              {deployment?.runUrl && <a href={deployment.runUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-2.5 py-2 text-[10px] text-muted-foreground hover:text-foreground"><GameIcon name="ExternalLink" className="h-3 w-3" />{t('deployment.actions')}</a>}
+              {deployment?.runUrl && <a href={deployment.runUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-2.5 py-2 text-[10px] text-muted-foreground hover:text-foreground"><GameIcon name="ArrowRight" className="h-3 w-3" />{t('deployment.actions')}</a>}
               <button type="button" onClick={refresh} disabled={loading} className="inline-flex items-center gap-1.5 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-[10px] font-semibold text-primary transition hover:bg-primary/15 disabled:cursor-wait disabled:opacity-50"><GameIcon name="RefreshCw" className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />{loading ? t('deployment.checking') : t('deployment.refresh')}</button>
             </div>
           </div>
