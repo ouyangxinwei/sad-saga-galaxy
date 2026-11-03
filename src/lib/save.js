@@ -70,6 +70,8 @@ function defaultStateImpl() {
     idle: { active: true, at: Date.now(), elapsedSeconds: 0 },
     bounties: { slot: bountySlot(), list: generateBounties() },
     relics: {},
+    equipmentSchemaVersion: 1,
+    equipmentInventory: { weapon: {}, armor: {} },
     equipped: {},
     shopBought: {},
     settings: { speed: 1 },
