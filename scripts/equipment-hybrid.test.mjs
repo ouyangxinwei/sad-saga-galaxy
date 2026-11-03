@@ -53,7 +53,7 @@ test('passes hybrid modifiers into ally battle units', () => {
 
 test('applies bounded damage, critical, healing, and MP-cost modifiers', () => {
   assert.equal(applyEquipmentDamageModifiers(100, { damageDealtPct: 0.2 }, { damageReductionPct: 0.1 }), 108);
-  assert.equal(criticalDamageMultiplier({ critDamagePct: 0.15 }), 1.8);
+  assert.ok(Math.abs(criticalDamageMultiplier({ critDamagePct: 0.15 }) - 1.8) < 1e-10);
   assert.equal(healingMultiplier({ healBonus: 0.2 }), 1.2);
   assert.equal(effectiveMpCost({ mp: 30 }, { mpCostReductionPct: 0.2 }), 24);
   assert.equal(effectiveMpCost({ mp: 30 }, { mpCostReductionPct: 0.9 }), 15);
