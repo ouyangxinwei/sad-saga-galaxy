@@ -5,18 +5,19 @@ import { GoldButton, GhostButton } from '@/components/common/Bits';
 import { useGame } from '@/lib/GameContext';
 import { SKILLS, classOf } from '@/lib/gameData';
 import { cardStats, relicOf } from '@/lib/cards';
+import { characterBreakthroughCost, strongestCharacterInstance } from '@/lib/characterProgression';
 import { fmt } from '@/lib/format';
 
 const LABELS = {
-  zh: { level: '等级', power: '战力', hp: '最大 HP', mp: '最大 MP', stats: '基础属性', atk: '攻击', def: '防御', spd: '速度', crit: '暴击率', equipment: '装备', none: '尚未装备遗物', skills: '主动技能', passive: '职业被动', target: '目标', cost: 'MP 消耗', attack: '攻击', support: '辅助', defense: '防御', single: '单体', all: '全体', self: '自身', ally: '友方', random: '随机', note: 'HP / MP 显示角色最大值；战斗中的实时值仅在战斗界面变化。', effectPower: '倍率', effectHeal: '治疗', effectShield: '护盾', effectMitigate: '减伤', effectPierce: '无视防御', effectCrit: '暴击加成', effectHits: '连击', effectTargets: '目标数', effectTaunt: '嘲讽', turns: '回合', place: '编入当前选中位置', openForge: '前往装备管理', equipped: '装备中' },
-  ja: { level: 'レベル', power: '戦力', hp: '最大 HP', mp: '最大 MP', stats: '基本ステータス', atk: '攻撃', def: '防御', spd: '速度', crit: '会心率', equipment: '装備', none: '遺物未装備', skills: 'アクティブスキル', passive: '職業パッシブ', target: '対象', cost: 'MP 消費', attack: '攻撃', support: '支援', defense: '防御', single: '単体', all: '全体', self: '自身', ally: '味方', random: 'ランダム', note: 'HP / MP はキャラクターの最大値です。戦闘中の現在値は戦闘画面に表示されます。', effectPower: '倍率', effectHeal: '回復', effectShield: 'シールド', effectMitigate: 'ダメージ軽減', effectPierce: '防御無視', effectCrit: '会心補正', effectHits: '連撃', effectTargets: '対象数', effectTaunt: '挑発', turns: 'ターン', place: '選択中の枠に編成', openForge: '装備管理へ', equipped: '装備中' },
-  en: { level: 'Level', power: 'Power', hp: 'Max HP', mp: 'Max MP', stats: 'Attributes', atk: 'ATK', def: 'DEF', spd: 'SPD', crit: 'Crit Rate', equipment: 'Equipment', none: 'No relic equipped', skills: 'Active Skills', passive: 'Class Passive', target: 'Target', cost: 'MP cost', attack: 'Attack', support: 'Support', defense: 'Defense', single: 'Single', all: 'All', self: 'Self', ally: 'Ally', random: 'Random', note: 'HP / MP show maximum values; live values change only in battle.', effectPower: 'Power', effectHeal: 'Heal', effectShield: 'Shield', effectMitigate: 'Mitigation', effectPierce: 'DEF ignore', effectCrit: 'Crit bonus', effectHits: 'Hits', effectTargets: 'Targets', effectTaunt: 'Taunt', turns: 'turns', place: 'Place in selected slot', openForge: 'Open equipment manager', equipped: 'Equipped' },
+  zh: { breakthrough: '角色突破', breakthroughCount: '突破次数', exp: '经验', expStored: '已储存经验', shards: '角色碎片', gold: '金币', breakthroughNeedMax: '角色达到当前等级上限后才能突破', breakthroughNeedMaterials: '突破材料不足', breakthroughSuccess: '角色突破成功', doBreakthrough: '突破（等级上限 +10）', level: '等级', power: '战力', hp: '最大 HP', mp: '最大 MP', stats: '基础属性', atk: '攻击', def: '防御', spd: '速度', crit: '暴击率', equipment: '装备', none: '尚未装备遗物', skills: '主动技能', passive: '职业被动', target: '目标', cost: 'MP 消耗', attack: '攻击', support: '辅助', defense: '防御', single: '单体', all: '全体', self: '自身', ally: '友方', random: '随机', note: 'HP / MP 显示角色最大值；战斗中的实时值仅在战斗界面变化。', effectPower: '倍率', effectHeal: '治疗', effectShield: '护盾', effectMitigate: '减伤', effectPierce: '无视防御', effectCrit: '暴击加成', effectHits: '连击', effectTargets: '目标数', effectTaunt: '嘲讽', turns: '回合', place: '编入当前选中位置', openForge: '前往装备管理', equipped: '装备中' },
+  ja: { breakthrough: 'キャラクター突破', breakthroughCount: '突破回数', exp: '経験値', expStored: '保存経験値', shards: 'キャラの欠片', gold: 'ゴールド', breakthroughNeedMax: '現在のレベル上限に到達すると突破できます', breakthroughNeedMaterials: '突破素材が不足しています', breakthroughSuccess: 'キャラクター突破成功', doBreakthrough: '突破（上限 +10）', level: 'レベル', power: '戦力', hp: '最大 HP', mp: '最大 MP', stats: '基本ステータス', atk: '攻撃', def: '防御', spd: '速度', crit: '会心率', equipment: '装備', none: '遺物未装備', skills: 'アクティブスキル', passive: '職業パッシブ', target: '対象', cost: 'MP 消費', attack: '攻撃', support: '支援', defense: '防御', single: '単体', all: '全体', self: '自身', ally: '味方', random: 'ランダム', note: 'HP / MP はキャラクターの最大値です。戦闘中の現在値は戦闘画面に表示されます。', effectPower: '倍率', effectHeal: '回復', effectShield: 'シールド', effectMitigate: 'ダメージ軽減', effectPierce: '防御無視', effectCrit: '会心補正', effectHits: '連撃', effectTargets: '対象数', effectTaunt: '挑発', turns: 'ターン', place: '選択中の枠に編成', openForge: '装備管理へ', equipped: '装備中' },
+  en: { breakthrough: 'Character Breakthrough', breakthroughCount: 'Breakthroughs', exp: 'EXP', expStored: 'Stored EXP', shards: 'Character shards', gold: 'Gold', breakthroughNeedMax: 'Reach the current level cap to break through', breakthroughNeedMaterials: 'Not enough breakthrough materials', breakthroughSuccess: 'Character breakthrough complete', doBreakthrough: 'Break through (+10 cap)', level: 'Level', power: 'Power', hp: 'Max HP', mp: 'Max MP', stats: 'Attributes', atk: 'ATK', def: 'DEF', spd: 'SPD', crit: 'Crit Rate', equipment: 'Equipment', none: 'No relic equipped', skills: 'Active Skills', passive: 'Class Passive', target: 'Target', cost: 'MP cost', attack: 'Attack', support: 'Support', defense: 'Defense', single: 'Single', all: 'All', self: 'Self', ally: 'Ally', random: 'Random', note: 'HP / MP show maximum values; live values change only in battle.', effectPower: 'Power', effectHeal: 'Heal', effectShield: 'Shield', effectMitigate: 'Mitigation', effectPierce: 'DEF ignore', effectCrit: 'Crit bonus', effectHits: 'Hits', effectTargets: 'Targets', effectTaunt: 'Taunt', turns: 'turns', place: 'Place in selected slot', openForge: 'Open equipment manager', equipped: 'Equipped' },
 };
 const percent = (value) => `${Math.round(value * 100)}%`;
 
 export default function CharacterDetailDialog({ cardId, open, onClose, onPlace, onOpenForge }) {
   const game = useGame();
-  const { lang, defOf, powerOf, level, rebirth } = game;
+  const { lang, defOf, powerOf, level, rebirth, actions } = game;
   const L = LABELS[lang] || LABELS.zh;
   const def = cardId ? defOf(cardId) : null;
   if (!def) return null;
@@ -25,6 +26,10 @@ export default function CharacterDetailDialog({ cardId, open, onClose, onPlace, 
   const stats = cardStats(game, cardId);
   const relic = relicOf(game, cardId);
   const skills = (def.skills || cls.skills || []).map((id) => ({ id, skill: SKILLS[id] })).filter((x) => x.skill);
+  const progressionEntry = strongestCharacterInstance(game, cardId);
+  const progression = progressionEntry?.[1] || null;
+  const breakthroughCost = characterBreakthroughCost(progression?.breakthroughCount || 0);
+  const canBreakthrough = Boolean(progression && progression.level >= progression.levelCap && (game.cardShards?.[cardId] || 0) >= breakthroughCost.shards && (game.gold || 0) >= breakthroughCost.gold);
   const name = def.name?.[lang] || def.name?.zh || cardId;
   const className = cls.name?.[lang] || cls.name?.zh || '';
   const relicName = relic?.name?.[lang] || relic?.name?.zh;
@@ -58,6 +63,23 @@ export default function CharacterDetailDialog({ cardId, open, onClose, onPlace, 
             <p className="text-[9px] text-muted-foreground">{L.note}</p>
           </div>
         </div>
+
+        {progression ? (
+          <section className="rounded-2xl border border-primary/20 bg-primary/[0.04] p-3">
+            <h4 className="mb-2 flex items-center gap-1.5 text-[10px] tracking-wider text-primary"><GameIcon name="TrendingUp" className="h-3 w-3" />{L.breakthrough}</h4>
+            <div className="grid grid-cols-2 gap-2 text-[10px]">
+              <div className="rounded-lg bg-black/20 p-2"><p className="text-muted-foreground">{L.level}</p><p className="text-foreground">{progression.level} / {progression.levelCap}</p></div>
+              <div className="rounded-lg bg-black/20 p-2"><p className="text-muted-foreground">{L.breakthroughCount}</p><p className="text-foreground">{progression.breakthroughCount}</p></div>
+              <div className="rounded-lg bg-black/20 p-2 col-span-2"><p className="text-muted-foreground">{L.exp}</p><p className="text-foreground">{progression.exp} {progression.level >= progression.levelCap ? '· ' + L.expStored : ''}</p></div>
+            </div>
+            <div className="mt-2 flex flex-wrap justify-between gap-2 text-[9px] text-muted-foreground">
+              <span>{L.shards}: {game.cardShards?.[cardId] || 0} / {breakthroughCost.shards}</span>
+              <span>{L.gold}: {fmt(game.gold || 0)} / {fmt(breakthroughCost.gold)}</span>
+            </div>
+            <GoldButton onClick={() => actions.breakthroughHero(cardId)} disabled={!canBreakthrough} className="mt-3 w-full py-2">{L.doBreakthrough}</GoldButton>
+            {progression.level < progression.levelCap ? <p className="mt-2 text-center text-[9px] text-muted-foreground">{L.breakthroughNeedMax}</p> : null}
+          </section>
+        ) : null}
 
         <section className="rounded-2xl border border-white/[0.08] bg-white/[0.025] p-3">
           <h4 className="mb-2 flex items-center gap-1.5 text-[10px] tracking-wider text-primary"><GameIcon name="Activity" className="h-3 w-3" />{L.stats}</h4>
