@@ -193,7 +193,7 @@ export function fuseCharacterProgressionInstances(state, sourceCardId, resultCar
     (Number(b.record.exp) || 0) - (Number(a.record.exp) || 0) ||
     (Number(b.record.breakthroughCount) || 0) - (Number(a.record.breakthroughCount) || 0) ||
     (Number(b.record.levelCap) || INITIAL_CHARACTER_LEVEL_CAP) - (Number(a.record.levelCap) || INITIAL_CHARACTER_LEVEL_CAP) ||
-    (a.origin === 'result' ? -1 : 1);
+    ((a.origin === 'result' ? 0 : 1) - (b.origin === 'result' ? 0 : 1));
 
   const all = Object.entries(progression.instances);
   const sourceCandidates = all
