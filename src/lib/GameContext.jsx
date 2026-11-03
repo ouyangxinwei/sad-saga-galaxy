@@ -653,14 +653,15 @@ export function GameProvider({ children }) {
 
   const equipEquipment = useCallback(
     (cardId, slot, itemId) => {
-      let result = null;
-      commit((s) => {
-        result = equipItem(s, cardId, slot, itemId);
-        return result.state;
-      });
-      return Boolean(result?.ok);
+      const result = equipItem(ref.current, cardId, slot, itemId);
+      if (!result.ok) {
+        notify(result.reason === 'already_equipped' ? t('equipment.alreadyEquipped') : t('common.notEnough'));
+        return false;
+      }
+      commit(() => result.state);
+      return true;
     },
-    [commit],
+    [commit, notify, t],
   );
 
   const equipRelic = useCallback(
