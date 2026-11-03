@@ -1,4 +1,5 @@
 import { HEROES, RELICS, classOf, heroStats } from './gameData';
+import { getEquippedItem } from './equipment';
 
 export const HERO_MAP = Object.fromEntries(HEROES.map((h) => [h.id, h]));
 
@@ -22,7 +23,7 @@ export function levelMult(state) {
 }
 
 export function relicOf(state, id) {
-  const rid = state.equipped?.[id];
+  const rid = getEquippedItem(state, id, 'relic');
   return RELICS.find((r) => r.id === rid) || null;
 }
 
