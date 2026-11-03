@@ -15,7 +15,7 @@ export const CHANGELOG = [
   },
 
   {
-    version: APP_VERSION,
+    version: 'v0.27',
     date: RELEASE_DATE,
     title: { zh: '图鉴角色详情', ja: '図鑑キャラクター詳細', en: 'Gallery character details' },
     items: {
