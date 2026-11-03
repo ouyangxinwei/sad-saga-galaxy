@@ -36,3 +36,10 @@ The `standalone-migration` branch is deployed to GitHub Pages by the workflow in
 ## Project documentation
 
 See the `docs/` directory for migration, dependency audit, deployment history, the Idle System V1.1 documentation, and the Character Detail V1.0 specification, player guide, and developer guide, plus the Gallery Character Detail V1.0 specification, player guide, and developer guide, and the GitHub Deployment Status V1.0 specification, player guide, and developer guide.
+
+
+## v0.31 — Saga Execution Logger
+
+- Added a unified execution logger and Debug Console for important game functions.
+- Retains up to 2,000 local log records; supports Console output, Trace IDs, timing, exception details, filtering, and JSON/TXT export.
+- Added execution tracing across save, game-state, battle, and battle-settlement paths. Existing game saves and combat rules are unchanged.

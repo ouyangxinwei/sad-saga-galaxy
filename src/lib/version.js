@@ -1,10 +1,21 @@
 // Single source of truth for in-app, package, and release-document version.
-export const APP_VERSION = 'v0.30';
+export const APP_VERSION = 'v0.31';
 export const RELEASE_DATE = '2026-11-03';
 
 export const CHANGELOG = [
   {
     version: APP_VERSION,
+    date: RELEASE_DATE,
+    title: { zh: '程序执行日志系统', ja: '実行ログシステム', en: 'Execution logging system' },
+    items: {
+      zh: ['新增统一 Saga Execution Logger，记录重要业务函数的 START、END、RETURN、ASYNC、WARN 与 ERROR', '日志包含时间戳、模块、函数、Trace ID、执行耗时及异常堆栈，并输出到浏览器 Console', '新增独立 Debug Console，支持日志等级、事件、模块筛选、关键字搜索和详情查看', '支持 JSON/TXT 导出、手动清空及最近 2,000 条日志本地保存，不影响游戏存档', '对存档、战斗模拟、技能选择、伤害、治疗、死亡处理、游戏状态操作和战斗结算增加追踪', '下次启动时检测上次运行未完成的函数，并标记为疑似中断；不改变战斗规则和资源数值'],
+      ja: ['重要な業務関数の START・END・RETURN・ASYNC・WARN・ERROR を記録する共通 Saga Execution Logger を追加', 'タイムスタンプ、モジュール、関数、Trace ID、実行時間、例外スタックを記録し、ブラウザー Console に出力', 'ログレベル・イベント・モジュールの絞り込み、キーワード検索、詳細表示に対応した Debug Console を追加', 'JSON/TXT エクスポート、手動削除、最新 2,000 件のローカル保存に対応。ゲームセーブには影響しない', 'セーブ、バトル計算、スキル選択、ダメージ、回復、死亡処理、ゲーム状態操作、バトル精算を追跡', '次回起動時に前回未完了の関数を検出して中断の可能性として表示。戦闘ルールや数値は変更しない'],
+      en: ['Added a shared Saga Execution Logger for START, END, RETURN, ASYNC, WARN, and ERROR events in important business functions', 'Records timestamps, modules, functions, Trace IDs, execution duration, and exception stacks in the browser Console', 'Added a Debug Console with level, event, and module filters, keyword search, and expandable details', 'Supports JSON/TXT export, manual clearing, and local retention of the newest 2,000 records without touching game saves', 'Added tracing to save operations, battle simulation, skill selection, damage, healing, death handling, game actions, and battle settlement', 'Detects functions left without completion records on the next launch and marks possible interruption; combat rules and values remain unchanged'],
+    },
+  },
+
+  {
+    version: 'v0.30',
     date: RELEASE_DATE,
     title: { zh: 'GitHub 部署状态监控', ja: 'GitHub デプロイ状態の確認', en: 'GitHub deployment status monitor' },
     items: {

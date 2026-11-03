@@ -1,3 +1,4 @@
+import { logWarn, traceSync } from './logger';
 import {
   DEFAULT_UNLOCKED,
   STAGES_PER_MODE,
@@ -26,7 +27,7 @@ export function generateBounties(slot = bountySlot()) {
   return list;
 }
 
-export function defaultState() {
+function defaultStateImpl() {
   const cards = {};
   const cardCounts = {};
   DEFAULT_UNLOCKED.forEach((id) => {
@@ -72,7 +73,7 @@ export function defaultState() {
   };
 }
 
-export function loadState() {
+function loadStateImpl() {
   try {
     const raw = localStorage.getItem(SAVE_KEY);
     if (!raw) return defaultState();
@@ -102,7 +103,7 @@ export function loadState() {
   }
 }
 
-export function persist(state) {
+function persistImpl(state) {
   try {
     localStorage.setItem(SAVE_KEY, JSON.stringify(state));
     return true;
@@ -111,13 +112,18 @@ export function persist(state) {
   }
 }
 
-export function clearSave() {
+function clearSaveImpl() {
   try {
     localStorage.removeItem(SAVE_KEY);
   } catch (e) {
     /* noop */
   }
 }
+
+export function defaultState() { return traceSync('Save.defaultState', () => defaultStateImpl()); }
+export function loadState() { return traceSync('Save.loadState', () => loadStateImpl()); }
+export function persist(state) { return traceSync('Save.persist', () => persistImpl(state), { hasState: Boolean(state) }); }
+export function clearSave() { return traceSync('Save.clearSave', () => clearSaveImpl()); }
 
 export function currentStamina(state, now = Date.now()) {
   const elapsed = Math.max(0, now - (state.staminaAt || now));

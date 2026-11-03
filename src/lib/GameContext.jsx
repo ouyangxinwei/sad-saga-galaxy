@@ -1,3 +1,4 @@
+import { traceSync } from './logger';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { translate } from './i18n';
 import {
@@ -37,6 +38,7 @@ import {
 import { cardPower, copiesOf, getCardDef, partyPower, strongestParty, teamTotals } from './cards';
 
 const GameCtx = createContext(null);
+const traceAction = (name, fn) => (...args) => traceSync('GameContext.' + name, () => fn(...args));
 
 const IDLE_CAP_MIN = 720;
 
@@ -159,12 +161,12 @@ export function GameProvider({ children }) {
     setTimeout(() => setToasts((prev) => prev.filter((x) => x.id !== id)), 2800);
   }, []);
 
-  const commit = useCallback((fn) => {
+  const commit = useCallback((fn) => traceSync('GameContext.commit', () => {
     const next = fn({ ...ref.current });
     ref.current = next;
     setState(next);
     return next;
-  }, []);
+  }), []);
 
   const setLang = useCallback(
     (lang) => {
@@ -815,35 +817,35 @@ export function GameProvider({ children }) {
       defOf: (id) => getCardDef(state, id),
       powerOf: (id) => cardPower(state, id),
       actions: {
-        claimCheckin,
-        rollFortune,
-        summon,
-        exchangeSS,
-        setPartySlot,
-        setParty,
-        autoBest,
-        savePreset,
-        loadPreset,
-        spendStamina,
-        finishBattle,
-        idlePreview,
-        claimIdle,
-        toggleIdle,
-        refreshBounties,
-        dispatchBounty,
-        claimBounty,
-        synthesize,
-        fuseCards,
-        convertEnemy,
-        rebirth,
-        craftRelic,
-        equipRelic,
-        meltShards,
-        buyShop,
-        refillTestStamina,
-        exchangeMedals,
-        claimMilestone,
-        resetSave,
+        claimCheckin: traceAction('claimCheckin', claimCheckin),
+        rollFortune: traceAction('rollFortune', rollFortune),
+        summon: traceAction('summon', summon),
+        exchangeSS: traceAction('exchangeSS', exchangeSS),
+        setPartySlot: traceAction('setPartySlot', setPartySlot),
+        setParty: traceAction('setParty', setParty),
+        autoBest: traceAction('autoBest', autoBest),
+        savePreset: traceAction('savePreset', savePreset),
+        loadPreset: traceAction('loadPreset', loadPreset),
+        spendStamina: traceAction('spendStamina', spendStamina),
+        finishBattle: traceAction('finishBattle', finishBattle),
+        idlePreview: traceAction('idlePreview', idlePreview),
+        claimIdle: traceAction('claimIdle', claimIdle),
+        toggleIdle: traceAction('toggleIdle', toggleIdle),
+        refreshBounties: traceAction('refreshBounties', refreshBounties),
+        dispatchBounty: traceAction('dispatchBounty', dispatchBounty),
+        claimBounty: traceAction('claimBounty', claimBounty),
+        synthesize: traceAction('synthesize', synthesize),
+        fuseCards: traceAction('fuseCards', fuseCards),
+        convertEnemy: traceAction('convertEnemy', convertEnemy),
+        rebirth: traceAction('rebirth', rebirth),
+        craftRelic: traceAction('craftRelic', craftRelic),
+        equipRelic: traceAction('equipRelic', equipRelic),
+        meltShards: traceAction('meltShards', meltShards),
+        buyShop: traceAction('buyShop', buyShop),
+        refillTestStamina: traceAction('refillTestStamina', refillTestStamina),
+        exchangeMedals: traceAction('exchangeMedals', exchangeMedals),
+        claimMilestone: traceAction('claimMilestone', claimMilestone),
+        resetSave: traceAction('resetSave', resetSave),
       },
     };
   }, [
