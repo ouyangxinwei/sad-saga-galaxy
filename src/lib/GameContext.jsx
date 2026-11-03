@@ -38,7 +38,7 @@ import {
 } from './save';
 import { cardPower, copiesOf, getCardDef, partyPower, strongestParty, teamTotals } from './cards';
 import { equipItem, getEquipmentDefinition, getEquippedItem } from './equipment';
-import { normalizeCharacterProgressionState } from './characterProgression';
+import { normalizeCharacterProgressionState, grantPartyCharacterExperience } from './characterProgression';
 
 const GameCtx = createContext(null);
 const traceAction = (name, fn) => (...args) => traceSync('GameContext.' + name, () => fn(...args));
@@ -207,6 +207,13 @@ export function GameProvider({ children }) {
         levels += 1;
       }
       if (s.level >= cap) s.exp = 0;
+
+      // Character EXP is awarded independently to deployed characters.
+      // The player-level EXP system above remains unchanged.
+      const characterProgression = grantPartyCharacterExperience(s, r.exp);
+      if (characterProgression.state?.characterProgression) {
+        s.characterProgression = characterProgression.state.characterProgression;
+      }
     }
     return levels;
   };
