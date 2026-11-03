@@ -33,7 +33,7 @@ export default function GalleryDialog({ open, onClose }) {
 
   return (
     <>
-    <GameModal open={open} onClose={onClose} title={t('gallery.title')} width="max-w-3xl">
+    <GameModal open={open && !selectedHeroId} onClose={onClose} title={t('gallery.title')} width="max-w-3xl">
       <div className="flex items-center gap-1.5">
         {[
           { id: 'heroes', label: t('gallery.heroes'), count: ownedHeroCount, max: HEROES.length },
