@@ -1,5 +1,5 @@
 import { SKILLS } from './gameData.js';
-import { traceSync } from './logger';
+import { traceSync } from './logger.js';
 
 const rnd = (min, max) => min + Math.random() * (max - min);
 
