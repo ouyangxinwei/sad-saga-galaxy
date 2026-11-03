@@ -4,6 +4,16 @@ export const RELEASE_DATE = '2026-11-03';
 
 export const CHANGELOG = [
   {
+    version: 'v0.39', date: RELEASE_DATE,
+    title: { zh: '重置游戏时固定抽奖宝石数量', ja: 'ゲームリセット時の召喚ジェム初期化', en: 'Reset summon gems on game restart' },
+    items: {
+      zh: ['每次执行 Reset Game，抽奖宝石固定重置为 9999，方便重复测试抽卡', '重置时其他游戏数据仍按原有初始状态初始化；不保留重置前的宝石余额', '重置数据先写入本地存档，写入失败时保留原有数据并提示，不会出现界面已重置但存档未成功的假成功', '保留 V0.38 Warning Diagnosis、装备系统、测试支持有效期标记及完整历史版本履历'],
+      ja: ['Reset Game のたびに召喚ジェムを 9999 に初期化し、召喚テストを繰り返し実行可能にする', 'その他のゲームデータは従来どおり初期状態に戻し、リセット前のジェム残高は引き継がない', 'リセットデータを先にローカル保存し、保存失敗時は既存データを維持して通知する。画面だけがリセットされる誤成功を防止', 'V0.38 Warning Diagnosis、装備システム、テストサポート有効期限マーカー、全履歴を保持'],
+      en: ['Every Reset Game action initializes summon gems to exactly 9999 for repeatable gacha testing', 'All other game data follows the existing fresh-game defaults; the pre-reset gem balance is not carried over', 'Writes the reset state before updating the UI; on storage failure, existing data is preserved and the user is notified', 'Preserves V0.38 Warning Diagnosis, equipment systems, the test-support expiry marker, and the complete release history'],
+    }
+  },
+
+  {
     version: 'v0.38', date: RELEASE_DATE,
     title: { zh: '自动 Warning 诊断与模拟测试', ja: 'Warning 自動診断とシミュレーションテスト', en: 'Automated warning diagnosis and simulation tests' },
     items: {
