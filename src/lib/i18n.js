@@ -283,6 +283,18 @@ export const S = {
   'notif.levelup': { zh: '等级提升至 Lv.{n}', ja: 'Lv.{n} に上昇', en: 'Level up → Lv.{n}' },
   'notif.stageClear': { zh: '通关 {n}', ja: '{n} クリア', en: 'Cleared {n}' },
   'notif.locked': { zh: '尚未解锁', ja: 'まだ解放されていません', en: 'Not unlocked yet' },
+  'character.detail': { zh: '角色详情', ja: 'キャラクター詳細', en: 'Character details' },
+  'character.maxHp': { zh: '最大 HP', ja: '最大 HP', en: 'Max HP' },
+  'character.maxMp': { zh: '最大 MP', ja: '最大 MP', en: 'Max MP' },
+  'character.attributes': { zh: '角色属性', ja: 'ステータス', en: 'Attributes' },
+  'character.equipment': { zh: '装备', ja: '装備', en: 'Equipment' },
+  'character.noRelic': { zh: '尚未装备遗物', ja: '遺物未装備', en: 'No relic equipped' },
+  'character.skills': { zh: '主动技能', ja: 'アクティブスキル', en: 'Active skills' },
+  'character.passive': { zh: '职业被动', ja: '職業パッシブ', en: 'Class passive' },
+  'character.place': { zh: '编入当前选中位置', ja: '選択中の枠に編成', en: 'Place in selected slot' },
+  'character.forge': { zh: '前往装备管理', ja: '装備管理へ', en: 'Open equipment manager' },
+  'character.equipped': { zh: '装备中', ja: '装備中', en: 'Equipped' },
+  'character.note': { zh: 'HP / MP 显示角色最大值；战斗中的实时值仅在战斗界面变化。', ja: 'HP / MP はキャラクターの最大値です。戦闘中の現在値は戦闘画面に表示されます。', en: 'HP / MP show maximum values; live values change only in battle.' },
 };
 
 export function translate(key, lang, vars) {
