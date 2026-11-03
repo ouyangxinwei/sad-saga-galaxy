@@ -78,9 +78,9 @@ export default function Formation() {
                       {t('formation.slot', { n: i + 1 })}
                     </button>
                   )}
-                  <p className={`mt-0.5 text-center text-[8px] ${slot === i ? 'text-primary' : 'text-muted-foreground/60'}`}>
+                  <button type="button" onClick={() => setSlot(i)} className={`mt-0.5 w-full text-center text-[8px] ${slot === i ? 'text-primary' : 'text-muted-foreground/60'}`} aria-label={`Select formation slot ${i + 1}`}>
                     {i + 1}
-                  </p>
+                  </button>
                 </div>
               );
             })}
