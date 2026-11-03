@@ -38,7 +38,7 @@ import {
 } from './save';
 import { cardPower, copiesOf, getCardDef, partyPower, strongestParty, teamTotals } from './cards';
 import { equipItem, getEquipmentDefinition, getEquippedItem } from './equipment';
-import { normalizeCharacterProgressionState, grantPartyCharacterExperience } from './characterProgression';
+import { normalizeCharacterProgressionState, grantPartyCharacterExperience, breakthroughCharacter } from './characterProgression';
 
 const GameCtx = createContext(null);
 const traceAction = (name, fn) => (...args) => traceSync('GameContext.' + name, () => fn(...args));
@@ -543,6 +543,25 @@ export function GameProvider({ children }) {
     [commit],
   );
 
+  const breakthroughHero = useCallback(
+    (cardId) => {
+      const result = breakthroughCharacter(ref.current, cardId);
+      if (!result.success) {
+        const messages = {
+          'missing-character': t('common.notEnough'),
+          'level-cap-not-reached': t('progression.breakthroughNeedMax'),
+          'insufficient-materials': t('progression.breakthroughNeedMaterials'),
+        };
+        notify(messages[result.reason] || t('common.notEnough'));
+        return result;
+      }
+      commit(() => result.state);
+      notify(t('progression.breakthroughSuccess'));
+      return result;
+    },
+    [commit, notify, t],
+  );
+
   // same-type fusion: 3 × A → 1 × S, 3 × S → 1 × SS
   const fuseCards = useCallback(
     (cardId) => {
@@ -864,6 +883,7 @@ export function GameProvider({ children }) {
         dispatchBounty: traceAction('dispatchBounty', dispatchBounty),
         claimBounty: traceAction('claimBounty', claimBounty),
         synthesize: traceAction('synthesize', synthesize),
+        breakthroughHero: traceAction('breakthroughHero', breakthroughHero),
         fuseCards: traceAction('fuseCards', fuseCards),
         convertEnemy: traceAction('convertEnemy', convertEnemy),
         rebirth: traceAction('rebirth', rebirth),
@@ -903,6 +923,7 @@ export function GameProvider({ children }) {
     dispatchBounty,
     claimBounty,
     synthesize,
+    breakthroughHero,
     fuseCards,
     convertEnemy,
     rebirth,
