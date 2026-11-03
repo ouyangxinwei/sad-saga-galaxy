@@ -381,8 +381,14 @@ export function GameProvider({ children }) {
         s.eventClears += 1;
         s.medals += stage.medal || 0;
         rewards.medals = stage.medal || 0;
-      } else if ((s.progress[mode] || 0) === n - 1) {
-        s.progress[mode] = n;
+      } else {
+        const currentProgress = s.progress[mode] || 0;
+        if (currentProgress === n - 1) s.progress[mode] = n;
+        // In Normal mode, clearing a chapter boss also unlocks the next boss.
+        // The four skipped minion stages grant no rewards.
+        if (mode === 'normal' && stage.boss && n < 100 && s.progress.normal === n) {
+          s.progress.normal = Math.min(100, n + 4);
+        }
       }
       const first = stage.enemies?.[0]?.enemyId;
       if (first) {
