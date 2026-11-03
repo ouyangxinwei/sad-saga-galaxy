@@ -8,6 +8,8 @@ import {
   characterExpNeed,
   addCharacterExperience,
   grantPartyCharacterExperience,
+  characterBreakthroughCost,
+  breakthroughCharacter,
 } from '../src/lib/characterProgression.js';
 
 test('confirmed character growth policies are represented exactly in Phase 1', () => {
@@ -153,4 +155,55 @@ test('invalid or non-positive character EXP does not mutate progression', () => 
   const result = grantPartyCharacterExperience(state, -10);
   assert.equal(result.state, state);
   assert.equal(result.recipients.length, 0);
+});
+
+
+test('breakthrough material cost increases with every breakthrough', () => {
+  assert.deepEqual(characterBreakthroughCost(0), { shards: 3, gold: 1000 });
+  assert.deepEqual(characterBreakthroughCost(1), { shards: 5, gold: 2000 });
+  assert.deepEqual(characterBreakthroughCost(5), { shards: 13, gold: 6000 });
+});
+
+test('breakthrough preserves level, raises cap, consumes materials, and applies stored EXP', () => {
+  const record = { ...createCharacterProgressionRecord('lise', 'lise-main'), level: 60, levelCap: 60, exp: characterExpNeed(60) + 25 };
+  const state = { gold: 5000, cardShards: { lise: 8 }, characterProgression: { schemaVersion: 1, instances: { 'lise-main': record } } };
+  const result = breakthroughCharacter(state, 'lise');
+  assert.equal(result.success, true);
+  assert.equal(result.record.breakthroughCount, 1);
+  assert.equal(result.record.levelCap, 70);
+  assert.equal(result.record.level, 61);
+  assert.equal(result.state.gold, 4000);
+  assert.equal(result.state.cardShards.lise, 5);
+  assert.equal(result.record.exp, 25);
+});
+
+test('breakthrough requires max level and sufficient character shards and gold', () => {
+  const belowCap = {
+    gold: 999, cardShards: { lise: 2 },
+    characterProgression: { instances: { 'lise-main': { ...createCharacterProgressionRecord('lise', 'lise-main'), level: 59 } } },
+  };
+  assert.equal(breakthroughCharacter(belowCap, 'lise').reason, 'level-cap-not-reached');
+  const insufficient = {
+    ...belowCap, gold: 5000,
+    characterProgression: { instances: { 'lise-main': { ...belowCap.characterProgression.instances['lise-main'], level: 60 } } },
+  };
+  assert.equal(breakthroughCharacter(insufficient, 'lise').reason, 'insufficient-materials');
+  assert.equal(insufficient.gold, 5000);
+  assert.equal(insufficient.cardShards.lise, 2);
+});
+
+test('breakthrough has no fixed count limit', () => {
+  let state = {
+    gold: 100000, cardShards: { lise: 100 },
+    characterProgression: { instances: { 'lise-main': { ...createCharacterProgressionRecord('lise', 'lise-main'), level: 60 } } },
+  };
+  for (let i = 0; i < 4; i += 1) {
+    const result = breakthroughCharacter(state, 'lise');
+    assert.equal(result.success, true);
+    state = result.state;
+    const record = state.characterProgression.instances['lise-main'];
+    record.level = record.levelCap;
+  }
+  assert.equal(state.characterProgression.instances['lise-main'].breakthroughCount, 4);
+  assert.equal(state.characterProgression.instances['lise-main'].levelCap, 100);
 });
