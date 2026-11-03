@@ -1,10 +1,20 @@
 // Single source of truth for in-app, package, and release-document version.
-export const APP_VERSION = 'v0.32';
+export const APP_VERSION = 'v0.33';
 export const RELEASE_DATE = '2026-11-03';
 
 export const CHANGELOG = [
   {
     version: APP_VERSION,
+    date: RELEASE_DATE,
+    title: { zh: 'Hybrid 装备属性与战斗修正', ja: 'Hybrid 装備ステータスと戦闘補正', en: 'Hybrid equipment stats and combat modifiers' },
+    items: {
+      zh: ['建立武器、防具、遗物统一装备目录，支持 HP、ATK、DEF、SPD、暴击率、暴击伤害、治疗加成与 MP 消耗减免', '所有装备槽位的基础属性与战斗修正按加法统一叠加，并设置合理上限，避免极端数值', '现有六件遗物保留原有 HP/ATK/DEF/SPD 数值，同时加入轻量 Hybrid 战斗特性', '新增武器与防具的静态装备定义，当前不自动发放库存，也不改变现有 Forge 获取流程', '战斗计算接入伤害提升、受到伤害降低、暴击伤害、治疗强化和 MP 消耗减免', '自动技能选择按装备后的实际 MP 消耗判断可用性；MP 每回合恢复规则保持不变', '新增装备属性与战斗修正测试，保留旧存档结构、角色养成和既有战斗机制'],
+      ja: ['武器・防具・遺物を統一装備カタログにまとめ、HP・ATK・DEF・SPD・会心率・会心ダメージ・回復補正・MP 消費軽減に対応', '全装備スロットの基礎能力と戦闘補正を加算方式で統合し、極端な数値を防ぐ上限を設定', '既存 6 種の遺物の HP/ATK/DEF/SPD 補正を維持しながら、軽量な Hybrid 戦闘特性を追加', '武器・防具の静的定義を追加。所持数は自動付与せず、既存 Forge の入手フローも変更しない', 'ダメージ増加、被ダメージ軽減、会心ダメージ、回復強化、MP 消費軽減を戦闘計算へ反映', '自動スキル選択は装備適用後の実際の MP 消費で使用可否を判定。毎ターンの MP 回復ルールは維持', '装備能力・戦闘補正のテストを追加し、旧セーブ構造・育成・既存戦闘仕様を維持'],
+      en: ['Added a unified weapon, armor, and relic catalog supporting HP, ATK, DEF, SPD, crit rate, crit damage, healing bonus, and MP cost reduction', 'Aggregates base stats and combat modifiers additively across all equipment slots with safety caps', 'Preserved all six existing relic stat bonuses while adding modest Hybrid combat traits', 'Added static weapon and armor definitions without granting inventory or changing the current Forge acquisition flow', 'Integrated damage dealt, damage reduction, critical damage, healing, and MP-cost modifiers into battle calculations', 'Automatic skill selection now checks the actual MP cost after equipment reduction; per-turn MP recovery remains unchanged', 'Added equipment stat and combat-modifier tests while preserving old saves, character progression, and existing battle mechanics'],
+    },
+  },
+  {
+    version: 'v0.32',
     date: RELEASE_DATE,
     title: { zh: '三槽位装备底层系统', ja: '3 スロット装備基盤', en: 'Three-slot equipment foundation' },
     items: {
