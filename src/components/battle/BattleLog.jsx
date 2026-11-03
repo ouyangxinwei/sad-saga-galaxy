@@ -11,6 +11,10 @@ function lineOf(ev, lang, t) {
         tone: ev.crit ? 'crit' : 'damage',
         text: `${ev.actor} → ${ev.target}  ${ev.amount.toLocaleString('en-US')}${ev.crit ? ' ✦' : ''}`,
       };
+    case 'equipment':
+      return { tone: 'action', text: `${ev.actor} ✦ ${ev.label?.[lang] || ev.label?.zh || ev.itemName?.[lang] || 'Equipment effect'}` };
+    case 'mp':
+      return { tone: 'heal', text: `${ev.name} +${ev.amount} MP` };
     case 'heal':
       return { tone: 'heal', text: `${ev.actor} → ${ev.target}  ${ev.amount.toLocaleString('en-US')}` };
     case 'shield':

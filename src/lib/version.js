@@ -4,6 +4,16 @@ export const RELEASE_DATE = '2026-11-03';
 
 export const CHANGELOG = [
   {
+    version: 'v0.34', date: RELEASE_DATE,
+    title: { zh: '战斗事件与装备特殊触发', ja: '戦闘イベントと装備特殊効果', en: 'Battle events and equipment triggers' },
+    items: {
+      zh: ['新增战斗开始、回合开始、攻击、暴击、受到伤害、治疗、击杀、技能使用、回合结束和战斗结束十类事件', '武器、防具与遗物加入追加伤害、暴击追击、反击、护盾、治疗和 MP 恢复等数据驱动效果', '特殊效果支持触发概率、回合冷却和每回合次数上限；未触发原因记录到 Debug Logger', '死亡角色不能触发装备效果；反击伤害不会再次触发反击，防止无限循环', '战斗结束清理本场冷却和触发次数，不改变主动技能 MP 消耗与每回合 MP 恢复', '战斗日志显示装备触发，新增事件、概率、冷却、次数上限和安全保护测试', '保留既有装备属性、三槽位、旧存档与完整历史更新记录'],
+      ja: ['戦闘開始・ターン開始・攻撃・会心・被ダメージ・回復・撃破・スキル使用・ターン終了・戦闘終了の 10 種イベントを追加', '武器・防具・遺物に追加ダメージ、会心追撃、反撃、シールド、回復、MP 回復のデータ駆動効果を追加', '発動確率・ターン単位クールダウン・ターンごとの発動上限に対応。不発理由は Debug Logger に記録', '戦闘不能キャラクターは発動不可。反撃ダメージから反撃を再発動しない無限ループ防止を実装', '戦闘終了時に戦闘内状態を消去。アクティブスキル MP 消費と毎ターン MP 回復は維持', '戦闘ログに発動を表示し、イベント・確率・クールダウン・上限・安全制御のテストを追加', '既存装備能力、3 スロット、旧セーブ、全更新履歴を維持'],
+      en: ['Added ten battle events: battle start, turn start, attack, critical, damage taken, heal, kill, skill used, turn end, and battle end', 'Added data-driven weapon, armor, and relic effects for bonus damage, critical follow-ups, counters, shields, healing, and MP recovery', 'Triggers support chance, round cooldown, and per-turn caps; skipped-trigger reasons are recorded in Debug Logger', 'Dead characters cannot trigger effects, and counter damage cannot recursively trigger another counter', 'Clears battle-local cooldowns and counters at battle end without changing active-skill MP costs or normal MP regeneration', 'Shows activations in the battle log and adds tests for dispatch, chance, cooldown, caps, and safety guards', 'Preserves existing equipment stats, three slots, old saves, and complete release history']
+    }
+  },
+
+  {
     version: APP_VERSION,
     date: RELEASE_DATE,
     title: { zh: 'Hybrid 装备属性与战斗修正', ja: 'Hybrid 装備ステータスと戦闘補正', en: 'Hybrid equipment stats and combat modifiers' },

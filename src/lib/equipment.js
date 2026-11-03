@@ -125,3 +125,15 @@ export function equipItem(state, cardId, slot, itemId) {
   nextLoadout[slot] = itemId;
   return { ok: true, reason: null, state: { ...normalized, equipped: { ...normalized.equipped, [cardId]: nextLoadout } } };
 }
+
+export function getEquipmentEffects(state, cardId) {
+  const effects = [];
+  EQUIPMENT_SLOTS.forEach((slot) => {
+    const itemId = getEquippedItem(state, cardId, slot);
+    const item = getEquipmentDefinition(slot, itemId);
+    (item?.effects || []).forEach((effect) => {
+      if (effect?.event && effect?.effect?.type) effects.push({ ...effect, itemId, itemName: item.name });
+    });
+  });
+  return effects;
+}

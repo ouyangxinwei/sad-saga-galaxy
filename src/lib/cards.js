@@ -1,5 +1,5 @@
 import { HEROES, RELICS, classOf, heroStats } from './gameData.js';
-import { getEquippedItem, getEquipmentBonuses } from './equipment.js';
+import { getEquippedItem, getEquipmentBonuses, getEquipmentEffects } from './equipment.js';
 
 export const HERO_MAP = Object.fromEntries(HEROES.map((h) => [h.id, h]));
 
@@ -102,6 +102,7 @@ export function partyUnits(state, fortune = null) {
         lp: 6,
         maxLp: 6,
         healBonus: st.healBonus + (f.heal || 0),
+        equipmentEffects: getEquipmentEffects(state, id),
         mpCostReductionPct: st.mpCostReductionPct,
         skills: def.skills,
       };
