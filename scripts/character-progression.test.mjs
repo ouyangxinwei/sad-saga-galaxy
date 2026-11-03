@@ -5,6 +5,9 @@ import {
   CHARACTER_PROGRESSION_SCHEMA_VERSION,
   createCharacterProgressionRecord,
   normalizeCharacterProgressionState,
+  characterExpNeed,
+  addCharacterExperience,
+  grantPartyCharacterExperience,
 } from '../src/lib/characterProgression.js';
 
 test('confirmed character growth policies are represented exactly in Phase 1', () => {
@@ -94,4 +97,60 @@ test('unowned card progression is not fabricated and existing orphan records are
   });
   assert.equal(Object.values(state.characterProgression.instances).filter((x) => x.cardId === 'lise').length, 1);
   assert.equal(Boolean(state.characterProgression.instances['old-kain-copy']), true);
+});
+
+
+test('character EXP raises levels using the shared game EXP curve', () => {
+  const record = createCharacterProgressionRecord('lise', 'lise-main');
+  const result = addCharacterExperience(record, characterExpNeed(1) + 12);
+  assert.equal(result.record.level, 2);
+  assert.equal(result.record.exp, 12);
+  assert.equal(result.levelsGained, 1);
+  assert.equal(result.expGained, characterExpNeed(1) + 12);
+});
+
+test('character EXP remains stored after reaching the current level cap', () => {
+  const record = {
+    ...createCharacterProgressionRecord('lise', 'lise-main'),
+    level: 60,
+    levelCap: 60,
+    exp: 25,
+  };
+  const result = addCharacterExperience(record, 500);
+  assert.equal(result.record.level, 60);
+  assert.equal(result.record.exp, 525);
+  assert.equal(result.levelsGained, 0);
+});
+
+test('deployed characters receive EXP while reserve characters do not', () => {
+  const state = {
+    party: ['lise', 'kain', null, 'lise'],
+    characterProgression: {
+      schemaVersion: 1,
+      instances: {
+        'lise-a': { ...createCharacterProgressionRecord('lise', 'lise-a', 1), level: 4, exp: 20 },
+        'lise-b': { ...createCharacterProgressionRecord('lise', 'lise-b', 2), level: 8, exp: 10 },
+        'kain-a': createCharacterProgressionRecord('kain', 'kain-a', 1),
+        'reserve-a': createCharacterProgressionRecord('reserve', 'reserve-a', 1),
+      },
+    },
+  };
+  const result = grantPartyCharacterExperience(state, 50);
+  assert.equal(result.recipients.length, 2);
+  assert.equal(result.state.characterProgression.instances['lise-b'].exp, 60);
+  assert.equal(result.state.characterProgression.instances['lise-a'].exp, 20);
+  assert.equal(result.state.characterProgression.instances['kain-a'].exp, 50);
+  assert.equal(result.state.characterProgression.instances['reserve-a'].exp, 0);
+});
+
+test('invalid or non-positive character EXP does not mutate progression', () => {
+  const record = createCharacterProgressionRecord('lise', 'lise-main');
+  assert.equal(addCharacterExperience(record, 0).record, record);
+  const state = {
+    party: ['lise'],
+    characterProgression: { instances: { 'lise-main': record } },
+  };
+  const result = grantPartyCharacterExperience(state, -10);
+  assert.equal(result.state, state);
+  assert.equal(result.recipients.length, 0);
 });
