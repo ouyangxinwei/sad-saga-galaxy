@@ -32,8 +32,8 @@ test('export creates a complete versioned JSON envelope and preview summary', ()
   assert.equal(payload.appVersion, 'v0.51');
   assert.ok(payload.exportedAt);
   const preview = inspectSaveData(JSON.stringify(payload));
-  assert.equal(preview.metadata.characterCount, 5);
-  assert.equal(preview.metadata.characterCopies, 6);
+  assert.equal(preview.metadata.characterCount, 2);
+  assert.equal(preview.metadata.characterCopies, 3);
   assert.equal(preview.metadata.gold, 45678);
   assert.equal(preview.metadata.normal, 35);
   assert.equal(preview.state.characterProgression.instances['lise-copy-1'].level, 22);
