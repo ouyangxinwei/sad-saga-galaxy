@@ -1,13 +1,13 @@
-import { logWarn, traceSync } from './logger.js';
-import { normalizeEquipmentState } from './equipment.js';
-import { RESET_GEMS, createResetState, persistResetState } from './resetState.js';
-import { normalizeCharacterProgressionState } from './characterProgression.js';
+import { logWarn, traceSync } from './logger';
+import { normalizeEquipmentState } from './equipment';
+import { RESET_GEMS, createResetState, persistResetState } from './resetState';
+import { normalizeCharacterProgressionState } from './characterProgression';
 import {
   DEFAULT_UNLOCKED,
   STAGES_PER_MODE,
   MODES,
   BOUNTY_TEMPLATES,
-} from './gameData.js';
+} from './gameData';
 
 export const SAVE_KEY = 'saga_galaxy_save_v20';
 export const EQUIPMENT_BACKUP_KEY = 'saga_galaxy_save_v20_equipment_backup_v1';
