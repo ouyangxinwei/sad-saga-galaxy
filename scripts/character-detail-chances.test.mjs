@@ -58,6 +58,7 @@ test('respects combat probability caps', () => {
     fortuneCrit: 0.2,
     desperateRates: { desperateCritRate: 0.3, desperateDodgeRate: 0.3 },
     formationBonus: { criticalPp: 0.2, desperateCritPp: 0.1, dodgePp: 0.1, highSpeedDodgePp: 0.1 },
+    battleUnit: { isHighSpeed: true },
   });
   assert.equal(result.critical.rate, 0.75);
   assert.equal(result.desperateCritical.rate, 0.35);
