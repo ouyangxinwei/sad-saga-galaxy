@@ -2,7 +2,7 @@ import { HEROES, RELICS, classOf, heroStats } from './gameData.js';
 import { getEquippedItem, getEquipmentBonuses, getEquipmentEffects } from './equipment.js';
 import { characterGrowthMultipliers, strongestCharacterInstance, characterClassIdFor, getCharacterBreakthroughBonuses } from './characterProgression.js';
 import { getDesperateCombatRates } from './desperateCombat.js';
-import { getFormationCombatBonuses } from './formationSystem.js';
+import { getFormationCombatBonuses, getFormationStatBonuses } from './formationSystem.js';
 
 export const HERO_MAP = Object.fromEntries(HEROES.map((h) => [h.id, h]));
 
@@ -123,7 +123,9 @@ export function partyUnits(state, fortune = null) {
       if (!def || !st) return null;
       const desperateRates = getDesperateCombatRates(id, def);
       const formationBonus = getFormationCombatBonuses(state.formation, id, state.party);
-      const hp = Math.round(st.hp * teamBonus * (1 + (f.hp || 0)));
+      const formationStats = getFormationStatBonuses(state.formation, id, state.party);
+      const formationStatPct = formationStats.statPct;
+      const hp = Math.max(1, Math.round(st.hp * teamBonus * (1 + (f.hp || 0)) * (1 + formationStatPct.hp)));
       return {
         uid: `a_${id}`,
         cardId: id,
@@ -134,18 +136,19 @@ export function partyUnits(state, fortune = null) {
         gender: def.gender,
         hp,
         maxHp: hp,
-        atk: Math.round(st.atk * teamBonus * (1 + (f.atk || 0))),
-        def: Math.round(st.def * teamBonus * (1 + (f.def || 0))),
-        spd: Math.round(st.spd * (1 + (f.spd || 0))),
+        atk: Math.max(1, Math.round(st.atk * teamBonus * (1 + (f.atk || 0)) * (1 + formationStatPct.atk))),
+        def: Math.max(0, Math.round(st.def * teamBonus * (1 + (f.def || 0)) * (1 + formationStatPct.def))),
+        spd: Math.max(1, Math.round(st.spd * (1 + (f.spd || 0)) * (1 + formationStatPct.spd))),
         crit: Math.min(0.75, st.crit + (f.crit || 0) + formationBonus.criticalPp),
         desperateCritRate: Math.min(0.3, desperateRates.desperateCritRate + formationBonus.desperateCritPp),
         desperateDodgeRate: Math.min(0.3, desperateRates.desperateDodgeRate + formationBonus.dodgePp),
         formationBonus,
+        formationStats,
         critDamagePct: st.critDamagePct,
         damageDealtPct: st.damageDealtPct,
         damageReductionPct: st.damageReductionPct,
-        mp: Math.round(st.mp * teamBonus),
-        maxMp: Math.round(st.mp * teamBonus),
+        mp: Math.max(1, Math.round(st.mp * teamBonus * (1 + formationStatPct.mp))),
+        maxMp: Math.max(1, Math.round(st.mp * teamBonus * (1 + formationStatPct.mp))),
         lp: 6,
         maxLp: 6,
         healBonus: st.healBonus + (f.heal || 0),
