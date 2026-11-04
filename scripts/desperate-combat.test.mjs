@@ -19,7 +19,11 @@ test('all 20 base heroes receive stable rates within the approved range', () => 
   assert.ok(new Set(allRates).size>1);
 });
 test('higher initial ability lowers the base desperate-combat rate',()=>{
- const weak={hp:500,atk:500,def:500,spd:500,mp:500},strong={hp:1500,atk:1500,def:1500,spd:1500,mp:1500};
+ const keys=['hp','atk','def','spd','mp'];
+ const roster=HEROES.map(hero=>heroStats(hero));
+ const average=Object.fromEntries(keys.map(key=>[key,roster.reduce((sum,stats)=>sum+stats[key],0)/roster.length]));
+ const weak=Object.fromEntries(keys.map(key=>[key,average[key]*.5]));
+ const strong=Object.fromEntries(keys.map(key=>[key,average[key]*1.5]));
  const weakRate=getDesperateCombatRates('weak-test',{stats:weak}),strongRate=getDesperateCombatRates('strong-test',{stats:strong});
  assert.equal(weakRate.baseRate,.3);assert.equal(strongRate.baseRate,.1);assert.ok(weakRate.baseRate>strongRate.baseRate);
  assert.equal(DESPERATE_COMBAT_RULES.randomAdjustment,.02);
