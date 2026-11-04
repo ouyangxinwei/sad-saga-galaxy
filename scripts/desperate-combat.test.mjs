@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { HEROES, heroStats } from '../src/lib/gameData.js';
-import { applyEquipmentDamageModifiers, applyFormationSkillModifiers, effectiveMpCost, makeUnit, simulateBattle } from '../src/lib/battle.js';
+import { applyEquipmentDamageModifiers, applyFormationSkillModifiers, effectiveMpCost, makeUnit, orderBattleUnits, simulateBattle } from '../src/lib/battle.js';
 import {
   DESPERATE_COMBAT_RULES,
   getDesperateCombatRates,
@@ -209,4 +209,28 @@ test('formation skill damage and skill-effect bonuses scale the correct skill ou
 test('formation MP-cost reduction applies after skill selection and respects the shared cap', () => {
   assert.equal(effectiveMpCost({ mp: 20 }, { mpCostReductionPct: 0.10 }), 18);
   assert.equal(effectiveMpCost({ mp: 20 }, { mpCostReductionPct: 0.80 }), 10);
+});
+
+
+test('Long Serpent orders allied action slots by configured formation position', () => {
+  const ordered = orderBattleUnits([
+    { uid: 'a_pos0', side: 'ally', spd: 50, formationActionOrder: 'formation-order', formationPositionIndex: 0 },
+    { uid: 'a_pos1', side: 'ally', spd: 100, formationActionOrder: 'formation-order', formationPositionIndex: 1 },
+    { uid: 'a_pos2', side: 'ally', spd: 75, formationActionOrder: 'formation-order', formationPositionIndex: 2 },
+    { uid: 'e_fast', side: 'enemy', spd: 90 },
+    { uid: 'e_slow', side: 'enemy', spd: 60 },
+  ]);
+  assert.deepEqual(ordered.filter(unit => unit.side === 'ally').map(unit => unit.uid), ['a_pos0', 'a_pos1', 'a_pos2']);
+  assert.deepEqual(ordered.map(unit => unit.uid), ['a_pos0', 'e_fast', 'a_pos1', 'e_slow', 'a_pos2']);
+});
+
+test('Four-Corner Core schedules its center carry after all other allies', () => {
+  const ordered = orderBattleUnits([
+    { uid: 'a_corner1', side: 'ally', spd: 50, formationPositionIndex: 0 },
+    { uid: 'a_core', side: 'ally', spd: 120, formationActionOrder: 'ally-last', formationPositionIndex: 2 },
+    { uid: 'a_corner2', side: 'ally', spd: 80, formationPositionIndex: 3 },
+    { uid: 'e_fast', side: 'enemy', spd: 100 },
+  ]);
+  assert.deepEqual(ordered.filter(unit => unit.side === 'ally').map(unit => unit.uid), ['a_corner2', 'a_corner1', 'a_core']);
+  assert.equal(ordered.filter(unit => unit.side === 'ally').at(-1).uid, 'a_core');
 });
