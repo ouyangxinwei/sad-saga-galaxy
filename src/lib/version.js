@@ -1,8 +1,18 @@
 // Single source of truth for in-app, package, and release-document version.
-export const APP_VERSION = 'v0.49';
+export const APP_VERSION = 'v0.50';
 export const RELEASE_DATE = '2026-11-04';
 
 export const CHANGELOG = [
+  {
+    version: 'v0.50', date: '2026-11-04',
+    title: { zh: '角色属性来源、突破与融合预览（V7 Phase 4）', ja: 'キャラクター能力値の内訳・突破・融合プレビュー（V7 Phase 4）', en: 'Character stat sources, breakthrough and fusion previews (V7 Phase 4)' },
+    items: {
+      zh: ['角色详情新增属性来源拆分：主角等级、全队等级加成、职业成长、累计突破奖励、装备加成分别显示', '阵容页面独立显示主角等级与全队战斗加成；全队加成仍按主角等级每级 3% 计算', '角色突破界面预览突破后的等级上限 +10、下一次固定属性奖励及累计突破奖励，并保留原有材料消耗和突破条件', '卡牌融合页面新增成长继承预览，准确展示本次消耗的 3 张卡与已有结果卡比较后的最强成长记录', '若已有结果卡成长记录最强，则保留该结果卡，新增融合卡从 Lv1 开始；若来源卡最强，则将其完整成长记录继承到新卡', '详情、突破和融合预览支持中文、日文、英文；不修改存档结构和既有成长、战斗、融合规则'],
+      ja: ['キャラクター詳細に能力値の内訳を追加。主人公レベル、全体レベル補正、職業成長、累計突破報酬、装備補正を個別表示', '編成画面に主人公レベルと全体戦闘ボーナスを独立表示。全体補正は従来どおり主人公 1 レベルごとに 3%', '突破画面で上限 +10、次回の固定能力値報酬、累計突破報酬を事前表示。既存の素材消費と突破条件は維持', 'カード融合画面に成長引き継ぎプレビューを追加。消費する 3 枚と既存の結果カードを比較し、最も強い成長記録を表示', '既存の結果カードが最強の場合はそのカードを保持し、新しい融合カードは Lv1 から開始。素材カードが最強の場合は成長記録全体を新カードへ引き継ぐ', '詳細・突破・融合プレビューは中国語・日本語・英語に対応。セーブ構造と既存の成長・戦闘・融合ルールは変更しない'],
+      en: ['Character details now separate stat sources: main character level, teamwide level bonus, career growth, cumulative breakthrough rewards, and equipment bonuses', 'Formation independently displays main character level and the teamwide battle bonus, still calculated at 3% per main-character level', 'Breakthrough UI previews the +10 level-cap increase, next fixed stat reward, and cumulative breakthrough rewards while preserving existing costs and requirements', 'Card fusion now previews progression inheritance by comparing the three consumed source copies with existing result copies', 'If an existing result copy has the strongest record, it remains intact and the newly fused copy starts at Lv 1; if a consumed source copy wins, its complete progression record transfers to the new card', 'Character details, breakthrough, and fusion previews support Chinese, Japanese, and English; save schema and existing progression, battle, and fusion rules remain unchanged'],
+    },
+  },
+
   {
     version: 'v0.49', date: '2026-11-04',
     title: { zh: '主角等级全队属性加成（V7 Phase 3）', ja: '主人公レベルによる全体ステータスボーナス（V7 Phase 3）', en: 'Main-character-level teamwide stat bonus (V7 Phase 3)' },
