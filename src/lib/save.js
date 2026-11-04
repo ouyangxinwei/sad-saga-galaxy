@@ -176,3 +176,102 @@ export function nextStageTarget(state) {
   }
   return null;
 }
+
+// V7 Phase 5: portable save backup and transactional restore.
+export const SAVE_EXPORT_FORMAT = 'sad-saga-galaxy-save';
+export const SAVE_SCHEMA_VERSION = 20;
+
+function parseSavePayload(input) {
+  let parsed;
+  try { parsed = typeof input === 'string' ? JSON.parse(input) : input; }
+  catch { throw new Error('invalid-json'); }
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('invalid-format');
+  let save = parsed, appVersion = null, exportedAt = null;
+  if (Object.prototype.hasOwnProperty.call(parsed, 'format')) {
+    if (parsed.format !== SAVE_EXPORT_FORMAT || !parsed.save || typeof parsed.save !== 'object') throw new Error('invalid-format');
+    save = parsed.save;
+    appVersion = typeof parsed.appVersion === 'string' ? parsed.appVersion : null;
+    exportedAt = typeof parsed.exportedAt === 'string' ? parsed.exportedAt : null;
+  }
+  if (!save || typeof save !== 'object' || Array.isArray(save)) throw new Error('invalid-format');
+  const schemaVersion = Number(save.version);
+  if (!Number.isFinite(schemaVersion) || schemaVersion < 1 || schemaVersion > SAVE_SCHEMA_VERSION) throw new Error(schemaVersion > SAVE_SCHEMA_VERSION ? 'unsupported-version' : 'invalid-save');
+  if (!save.cards || typeof save.cards !== 'object' || Array.isArray(save.cards)) throw new Error('invalid-save');
+  if (!save.progress || typeof save.progress !== 'object' || Array.isArray(save.progress)) throw new Error('invalid-save');
+  if (!Number.isFinite(Number(save.level)) || !Number.isFinite(Number(save.gold))) throw new Error('invalid-save');
+  return { save, appVersion, exportedAt, schemaVersion };
+}
+
+function normalizeImportedSave(parsed) {
+  const base = defaultState();
+  const cardCounts = { ...base.cardCounts, ...(parsed.cardCounts || {}) };
+  if (!parsed.cardCounts) Object.keys(parsed.cards || {}).forEach((id) => { cardCounts[id] = cardCounts[id] || 1; });
+  const merged = {
+    ...base, ...parsed,
+    equipmentSchemaVersion: Number(parsed.equipmentSchemaVersion || 0),
+    progress: { ...base.progress, ...(parsed.progress || {}) },
+    checkin: { ...base.checkin, ...(parsed.checkin || {}) },
+    fortune: { ...base.fortune, ...(parsed.fortune || {}) },
+    idle: { ...base.idle, ...(parsed.idle || {}) },
+    settings: { ...base.settings, ...(parsed.settings || {}) },
+    msClaimed: { ...base.msClaimed, ...(parsed.msClaimed || {}) },
+    bounties: { ...base.bounties, ...(parsed.bounties || {}) },
+    cards: { ...base.cards, ...(parsed.cards || {}) },
+    cardCounts,
+  };
+  return normalizeCharacterProgressionState(normalizeEquipmentState(merged));
+}
+
+export function summarizeSaveState(state) {
+  const owned = Object.keys(state?.cards || {}).filter((id) => Boolean(state.cards[id]));
+  const counts = state?.cardCounts || {};
+  const characterCopies = owned.reduce((sum, id) => sum + Math.max(1, Math.floor(Number(counts[id]) || 1)), 0);
+  const progress = state?.progress || {};
+  return {
+    characterCount: owned.length, characterCopies,
+    gold: Math.max(0, Number(state?.gold) || 0),
+    gems: Math.max(0, Number(state?.gems) || 0),
+    tickets: Math.max(0, Number(state?.tickets) || 0),
+    stamina: Math.max(0, Number(state?.stamina) || 0),
+    medals: Math.max(0, Number(state?.medals) || 0),
+    normal: Math.max(0, Number(progress.normal) || 0),
+    hard: Math.max(0, Number(progress.hard) || 0),
+    nightmare: Math.max(0, Number(progress.nightmare) || 0),
+    cleared: Object.values(progress).reduce((sum, value) => sum + Math.max(0, Number(value) || 0), 0),
+    tower: Math.max(0, Number(state?.tower) || 0),
+    eventClears: Math.max(0, Number(state?.eventClears) || 0),
+  };
+}
+
+export function exportSaveData(state, appVersion = 'unknown') {
+  return {
+    format: SAVE_EXPORT_FORMAT, formatVersion: 1, appVersion,
+    saveSchemaVersion: Number(state?.version) || SAVE_SCHEMA_VERSION,
+    exportedAt: new Date().toISOString(),
+    save: JSON.parse(JSON.stringify(state)),
+  };
+}
+
+export function inspectSaveData(input) {
+  const parsed = parseSavePayload(input);
+  const state = normalizeImportedSave(parsed.save);
+  return { success: true, state, metadata: {
+    appVersion: parsed.appVersion || 'Legacy JSON',
+    saveSchemaVersion: parsed.schemaVersion, exportedAt: parsed.exportedAt,
+    ...summarizeSaveState(state),
+  } };
+}
+
+export function restoreSaveData(input) {
+  let inspected;
+  try { inspected = inspectSaveData(input); }
+  catch (error) { return { success: false, reason: error?.message || 'invalid-save' }; }
+  try {
+    // Validate and migrate fully before touching the current local save.
+    localStorage.setItem(SAVE_KEY, JSON.stringify(inspected.state));
+    saveWritesBlocked = false;
+    return { success: true, state: inspected.state, metadata: inspected.metadata };
+  } catch (error) {
+    return { success: false, reason: 'storage-write-failed', message: error?.message || String(error) };
+  }
+}

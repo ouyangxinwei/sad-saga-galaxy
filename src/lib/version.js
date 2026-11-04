@@ -1,8 +1,18 @@
 // Single source of truth for in-app, package, and release-document version.
-export const APP_VERSION = 'v0.50';
+export const APP_VERSION = 'v0.51';
 export const RELEASE_DATE = '2026-11-04';
 
 export const CHANGELOG = [
+  {
+    version: 'v0.51', date: '2026-11-04',
+    title: { zh: '完整存档导出与安全恢复（V7 Phase 5）', ja: 'セーブデータの完全エクスポートと安全な復元（V7 Phase 5）', en: 'Full save export and safe restore (V7 Phase 5)' },
+    items: {
+      zh: ['系统设置新增完整游戏存档 JSON 导出，包含角色、成长、装备、资源、阵容、关卡及其他游戏进度', '支持从 JSON 文件恢复存档；恢复前显示应用版本、存档结构版本、角色数量、副本数量、资源与关卡进度', '恢复操作提供二次确认；校验及旧档迁移全部完成后才写入当前存档', '无效 JSON、无效存档结构、不支持的版本或本地写入失败时，不覆盖当前存档', '兼容旧版原始存档 JSON，并执行现有装备与角色成长迁移；新增导入校验、失败保护和旧版兼容测试'],
+      ja: ['設定画面からキャラクター・育成・装備・資源・編成・ステージなどを含む完全なゲームセーブ JSON をエクスポート', 'JSON ファイルから復元可能。復元前にアプリバージョン、セーブ形式、キャラクター数、コピー数、資源、ステージ進行を表示', '復元には二段階確認を追加。検証と旧セーブ移行が完了してから現在のセーブを書き換え', '不正な JSON、形式不正、未対応バージョン、ローカル保存失敗の場合は現在のセーブを上書きしない', '旧形式の生 JSON セーブに対応し、既存の装備・キャラクター育成移行を実行。検証・失敗保護・旧版互換テストを追加'],
+      en: ['Adds full game-save JSON export in Settings, including characters, progression, equipment, resources, formations, stages, and other game progress', 'Restores from JSON files and previews app version, save schema, character/copy counts, resources, and stage progress before confirmation', 'Requires a second confirmation; validation and legacy migration finish before the current save is written', 'Invalid JSON, invalid save structures, unsupported versions, and local write failures never overwrite the current save', 'Supports legacy raw save JSON and applies existing equipment and character progression migrations; adds validation, failure-safety, and legacy compatibility tests'],
+    },
+  },
+
   {
     version: 'v0.50', date: '2026-11-04',
     title: { zh: '角色属性来源、突破与融合预览（V7 Phase 4）', ja: 'キャラクター能力値の内訳・突破・融合プレビュー（V7 Phase 4）', en: 'Character stat sources, breakthrough and fusion previews (V7 Phase 4)' },

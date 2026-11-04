@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import AppShell from '@/components/common/AppShell';
 import PageHeader from '@/components/common/PageHeader';
@@ -11,6 +11,11 @@ import { APP_VERSION } from '@/lib/version';
 export default function Settings() {
   const { t, lang, setLang, actions, level, rebirth, cleared, testSupport, gems, tickets, stamina, staminaMax } = useGame();
   const [confirming, setConfirming] = useState(false);
+  const [importPreview, setImportPreview] = useState(null);
+  const [importError, setImportError] = useState('');
+  const [importText, setImportText] = useState('');
+  const [importConfirming, setImportConfirming] = useState(false);
+  const fileInputRef = useRef(null);
 
   return (
     <AppShell>
@@ -36,6 +41,70 @@ export default function Settings() {
               </button>
             ))}
           </div>
+        </section>
+
+        <section className="saga-panel mt-3 p-3.5">
+          <p className="text-[10px] tracking-wider text-primary">{t('save.title')}</p>
+          <p className="mt-1 text-[9.5px] leading-relaxed text-muted-foreground">{t('save.description')}</p>
+          <GoldButton className="mt-3 w-full py-2" onClick={() => {
+            try {
+              const payload = actions.exportSave();
+              const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+              const url = URL.createObjectURL(blob);
+              const anchor = document.createElement('a');
+              anchor.href = url;
+              anchor.download = 'sad-saga-galaxy-save-' + new Date().toISOString().slice(0, 10) + '.json';
+              document.body.appendChild(anchor); anchor.click(); anchor.remove(); URL.revokeObjectURL(url);
+            } catch { setImportError(t('save.exportFailed')); }
+          }}>{t('save.export')}</GoldButton>
+          <input ref={fileInputRef} type="file" accept=".json,application/json" className="hidden"
+            onChange={async (event) => {
+              const file = event.target.files?.[0];
+              if (!file) return;
+              setImportError(''); setImportPreview(null); setImportConfirming(false);
+              try {
+                const raw = await file.text();
+                const result = actions.inspectSave(raw);
+                setImportText(raw); setImportPreview({ ...result.metadata, fileName: file.name });
+              } catch (error) {
+                setImportError(error?.message === 'unsupported-version' ? t('save.unsupported') : t('save.invalid'));
+              } finally { event.target.value = ''; }
+            }} />
+          <GhostButton className="mt-2 w-full py-2" onClick={() => fileInputRef.current?.click()}>{t('save.chooseFile')}</GhostButton>
+          {importError ? <p className="mt-2 text-[9.5px] text-rose-300">{importError}</p> : null}
+          {importPreview ? (
+            <div className="mt-3 rounded-xl border border-primary/20 bg-white/[0.025] p-3">
+              <p className="text-[10px] text-primary">{t('save.previewTitle')}</p>
+              <p className="mt-1 break-all text-[9px] text-muted-foreground">{importPreview.fileName}</p>
+              <div className="mt-2 grid grid-cols-2 gap-2 text-[9.5px]">
+                <p>{t('save.appVersion')}: <strong>{importPreview.appVersion}</strong></p>
+                <p>{t('save.schemaVersion')}: <strong>{importPreview.saveSchemaVersion}</strong></p>
+                <p>{t('save.characters')}: <strong>{importPreview.characterCount} ({importPreview.characterCopies})</strong></p>
+                <p>{t('res.gold')}: <strong>{importPreview.gold.toLocaleString('en-US')}</strong></p>
+                <p>{t('res.gems')}: <strong>{importPreview.gems.toLocaleString('en-US')}</strong></p>
+                <p>{t('res.tickets')}: <strong>{importPreview.tickets.toLocaleString('en-US')}</strong></p>
+                <p>{t('res.stamina')}: <strong>{importPreview.stamina}</strong></p>
+                <p>{t('res.medals')}: <strong>{importPreview.medals}</strong></p>
+                <p>{t('stages.normal')}: <strong>{importPreview.normal}</strong></p>
+                <p>{t('stages.hard')}: <strong>{importPreview.hard}</strong></p>
+                <p>{t('stages.nightmare')}: <strong>{importPreview.nightmare}</strong></p>
+                <p>{t('save.totalCleared')}: <strong>{importPreview.cleared}</strong></p>
+                <p>{t('save.tower')}: <strong>{importPreview.tower}</strong></p>
+                <p>{t('save.eventClears')}: <strong>{importPreview.eventClears}</strong></p>
+              </div>
+              <p className="mt-2 text-[9px] leading-relaxed text-rose-300">{t('save.warning')}</p>
+              {importConfirming ? (
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <GhostButton className="py-2" onClick={() => setImportConfirming(false)}>{t('common.cancel')}</GhostButton>
+                  <GoldButton className="py-2" onClick={() => {
+                    const result = actions.restoreSave(importText);
+                    if (result.success) { setImportPreview(null); setImportText(''); setImportConfirming(false); setImportError(''); }
+                    else { setImportError(result.reason === 'storage-write-failed' ? t('save.storageFailed') : t('save.importFailed')); setImportConfirming(false); }
+                  }}>{t('save.confirmRestore')}</GoldButton>
+                </div>
+              ) : <GoldButton className="mt-3 w-full py-2" onClick={() => setImportConfirming(true)}>{t('save.restore')}</GoldButton>}
+            </div>
+          ) : null}
         </section>
 
         <section className="saga-panel mt-3 p-3.5">

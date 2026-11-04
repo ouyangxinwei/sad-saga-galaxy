@@ -35,7 +35,11 @@ import {
   replaceSave,
   resetState,
   todayKey,
+  exportSaveData,
+  inspectSaveData,
+  restoreSaveData,
 } from './save';
+import { APP_VERSION } from './version';
 import { cardPower, copiesOf, getCardDef, partyPower, strongestParty, teamTotals } from './cards';
 import { equipItem, getEquipmentDefinition, getEquippedItem } from './equipment';
 import { normalizeCharacterProgressionState, grantPartyCharacterExperience, breakthroughCharacter, fuseCharacterProgressionInstances } from './characterProgression';
@@ -815,6 +819,17 @@ export function GameProvider({ children }) {
     return true;
   }, [commit, notify, t]);
 
+  const exportSave = useCallback(() => exportSaveData(ref.current, APP_VERSION), []);
+  const inspectSave = useCallback((raw) => inspectSaveData(raw), []);
+  const restoreSave = useCallback((raw) => {
+    const result = restoreSaveData(raw);
+    if (!result.success) { notify(t('save.importFailed')); return result; }
+    ref.current = result.state;
+    setState(result.state);
+    notify(t('save.importSuccess'));
+    return result;
+  }, [notify, t]);
+
   const resetSave = useCallback(() => {
     const fresh = resetState();
     // Persist first: if storage fails, keep the existing in-memory and on-disk save intact.
@@ -898,6 +913,9 @@ export function GameProvider({ children }) {
         exchangeMedals: traceAction('exchangeMedals', exchangeMedals),
         claimMilestone: traceAction('claimMilestone', claimMilestone),
         resetSave: traceAction('resetSave', resetSave),
+        exportSave: traceAction('exportSave', exportSave),
+        inspectSave: traceAction('inspectSave', inspectSave),
+        restoreSave: traceAction('restoreSave', restoreSave),
       },
     };
   }, [
@@ -938,6 +956,9 @@ export function GameProvider({ children }) {
     exchangeMedals,
     claimMilestone,
     resetSave,
+    exportSave,
+    inspectSave,
+    restoreSave,
   ]);
 
   return (
