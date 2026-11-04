@@ -3,6 +3,15 @@ import { RELEASE_DATE } from './metadata.js';
 
 export const CHANGELOG = [
   {
+    version: 'v0.59', date: '2026-11-04',
+    title: { zh: '阵型系统基础数据与配置', ja: '陣形システムの基礎データと設定', en: 'Formation system foundation and configuration' },
+    items: {
+      zh: ['新增八种战术阵型的统一基础定义：五芒星阵、四方核心阵、尖锋突击阵、菱形守护阵、一字长蛇阵、十字协同阵、错位游击阵和五环均衡阵', '建立每种阵型的五个独立位置、位置坐标、职责及结构化效果配置，为后续界面与战斗接入提供统一数据接口', '新增阵型配置本地保存：记录当前启用阵型及每种阵型各自的五名角色位置安排，支持自由换位', '旧 V20 存档自动初始化默认五环均衡阵；阵型数据缺失或无效时安全修复，不改动角色成长和原有队伍预设', '本阶段仅完成阵型数据、配置校验、存档兼容及 GameContext 操作接口；尚未接入战斗数值，也未改动现有编队页面'],
+      ja: ['五芒星陣、四方コア陣、尖鋒突撃陣、菱形守護陣、一字長蛇陣、十字協同陣、錯位遊撃陣、五環均衡陣の 8 種類の基本定義を追加', '各陣形に 5 つの独立した位置、座標、役割、構造化された効果設定を定義し、後続 UI と戦闘連携の共通データ API を用意', '有効な陣形と各陣形ごとの 5 人の配置をローカル保存し、自由な入れ替えに対応', '既存 V20 セーブにはデフォルトの五環均衡陣を自動初期化。陣形データが欠落または不正な場合も安全に補正し、キャラクター育成と既存編成プリセットは変更しない', '本フェーズは基礎データ、設定検証、セーブ互換性、GameContext 操作 API のみ。戦闘数値への適用と既存編成画面の変更は未実施'],
+      en: ['Adds unified definitions for eight tactical formations: Star, Four-Corner Core, Spearhead, Diamond Guard, Long Serpent, Cross Support, Staggered Skirmish, and Balanced Ring', 'Defines five unique positions, coordinates, roles, and structured effect metadata for each formation, establishing shared data APIs for later UI and battle integration', 'Persists the active formation and five independently arranged party positions for every formation, supporting free swaps', 'Initializes existing V20 saves with the default Balanced Ring formation; missing or invalid formation data is safely normalized without changing character progression or existing squad presets', 'This phase delivers foundation data, configuration validation, save compatibility, and GameContext actions only; battle modifiers and the existing formation page are not yet changed'],
+    },
+  },
+  {
     version: 'v0.58', date: '2026-11-04',
     title: { zh: '绝境暴击与危机闪避系统', ja: '窮地クリティカル・危機回避システム', en: 'Desperate Critical and Dodge System' },
     items: {
