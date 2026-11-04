@@ -6,11 +6,14 @@ import { useGame } from '@/lib/GameContext';
 import { fmt } from '@/lib/format';
 
 export default function IdleDialog({ open, onClose }) {
-  const { t, idle, actions, cleared, lang, defOf } = useGame();
+  const { t, idle, idleGems, idleGemStats, actions, cleared, lang, defOf } = useGame();
   const preview = actions.idlePreview();
   const cap = 720;
   const partyPassives = preview.bonus.details.map((item) => ({ ...item, name: defOf(item.id)?.name?.[lang] || defOf(item.id)?.name?.zh || item.id }));
   const [, setTick] = useState(0);
+  const [batch, setBatch] = useState(10);
+  const [settlement, setSettlement] = useState(null);
+  const actualBatch = Math.min(batch, Math.max(0, Number(idleGems) || 0));
 
   useEffect(() => {
     if (!open) return undefined;
@@ -30,6 +33,18 @@ export default function IdleDialog({ open, onClose }) {
         </GhostButton>
       </div>
 
+      <div className="mt-3 rounded-2xl border border-primary/20 bg-primary/[0.04] p-3">
+        <div className="flex items-center justify-between">
+          <span className="text-[10px] text-muted-foreground">{t('idle.gemBalance')}</span>
+          <span className="flex items-center gap-1 text-sm font-semibold text-primary"><GameIcon name="Gem" className="h-3.5 w-3.5" />{fmt(idleGems || 0)}</span>
+        </div>
+        <div className="mt-2 grid grid-cols-3 gap-1 text-center text-[9px]">
+          <div><p className="text-muted-foreground">{t('idle.gemEarned')}</p><p className="tabular-nums text-emerald-300">{fmt(idleGemStats?.earnedFromWins || 0)}</p></div>
+          <div><p className="text-muted-foreground">{t('idle.gemLoss')}</p><p className="tabular-nums text-amber-300">{fmt(idleGemStats?.earnedFromLosses || 0)}</p></div>
+          <div><p className="text-muted-foreground">{t('idle.gemSpent')}</p><p className="tabular-nums">{fmt(idleGemStats?.spent || 0)}</p></div>
+        </div>
+      </div>
+
       <div className="mt-3 rounded-2xl border border-white/[0.08] bg-white/[0.025] p-3.5">
         <div className="flex items-center justify-between text-[10px] text-muted-foreground">
           <span>{t('idle.accrued')}</span>
@@ -39,6 +54,10 @@ export default function IdleDialog({ open, onClose }) {
         </div>
         <Bar value={preview.minutes} max={cap} color="#6FA8FF" className="mt-1.5" height="h-1" />
 
+        <div className="mb-3 flex items-center justify-between rounded-xl border border-white/[0.07] bg-black/20 px-3 py-2 text-[10px]">
+          <span className="text-muted-foreground">{t('idle.stage')}</span>
+          <span className="font-semibold text-primary">{t('stages.' + preview.mode)} {preview.stage}</span>
+        </div>
         <div className="mt-3 grid grid-cols-2 gap-2">
           <div className="rounded-xl border border-white/[0.07] bg-black/20 px-3 py-2">
             <p className="text-[9px] tracking-wider text-muted-foreground">{t('res.gold')}</p>
@@ -98,9 +117,36 @@ export default function IdleDialog({ open, onClose }) {
         </p>
       </div>
 
-      <GoldButton onClick={actions.claimIdle} disabled={preview.minutes < 5} className="mt-4 w-full py-2.5">
-        {preview.minutes < 5 ? t('idle.none') : t('idle.claim')}
+      <div className="mt-4 rounded-xl border border-white/[0.08] bg-white/[0.025] p-3">
+        <p className="mb-2 text-[10px] text-muted-foreground">{t('idle.settlementCount')}</p>
+        <div className="grid grid-cols-2 gap-2">
+          <GhostButton onClick={() => setBatch(10)} active={batch === 10} className="py-2">{t('idle.batch10')}</GhostButton>
+          <GhostButton onClick={() => setBatch(20)} active={batch === 20} className="py-2">{t('idle.batch20')}</GhostButton>
+        </div>
+        <p className="mt-2 text-center text-[10px] text-muted-foreground">{t('idle.batchActual', { n: actualBatch })}</p>
+      </div>
+      <GoldButton onClick={() => { const result = actions.claimIdle(batch); if (result) setSettlement(result); }}
+        disabled={preview.minutes < 5 || actualBatch < 1} className="mt-3 w-full py-2.5">
+        {preview.minutes < 5 ? t('idle.none') : actualBatch < 1 ? t('idle.noGems') : t('idle.claim')}
       </GoldButton>
+      <GameModal open={Boolean(settlement)} onClose={() => setSettlement(null)} title={t('idle.settlementTitle')} subtitle={t('idle.stage') + ' · ' + t('stages.' + (settlement?.mode || 'normal')) + ' ' + (settlement?.stage || '')} width="max-w-sm">
+        {settlement ? (
+          <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-2">
+              <div className="rounded-xl bg-white/[0.04] p-3"><p className="text-[9px] text-muted-foreground">{t('idle.settlementCount')}</p><p className="text-lg font-semibold">{fmt(settlement.settlements)}</p></div>
+              <div className="rounded-xl bg-white/[0.04] p-3"><p className="text-[9px] text-muted-foreground">{t('idle.settlementGems')}</p><p className="text-lg font-semibold text-primary">-{fmt(settlement.idleGemsSpent)}</p></div>
+              <div className="rounded-xl bg-white/[0.04] p-3"><p className="text-[9px] text-muted-foreground">{t('res.gold')}</p><p className="text-lg font-semibold text-primary">+{fmt(settlement.gold)}</p></div>
+              <div className="rounded-xl bg-white/[0.04] p-3"><p className="text-[9px] text-muted-foreground">{t('player.exp')}</p><p className="text-lg font-semibold text-accent">+{fmt(settlement.exp)}</p></div>
+            </div>
+            <div className="rounded-xl border border-white/[0.08] bg-white/[0.025] p-3">
+              <p className="mb-2 text-[10px] text-muted-foreground">{t('idle.materials')}</p>
+              {settlement.materials?.length ? settlement.materials.map((item) => <div key={item.id} className="flex justify-between text-xs"><span>{item.name}</span><span className="tabular-nums">+{fmt(item.amount)}</span></div>) : <p className="text-[10px] text-muted-foreground">{t('idle.noMaterials')}</p>}
+            </div>
+            <div className="flex items-center justify-between text-xs"><span className="text-muted-foreground">{t('idle.clears', { n: settlement.clears })}</span><span className="text-emerald-300">+{fmt(settlement.levels || 0)} Lv</span></div>
+            <GoldButton onClick={() => setSettlement(null)} className="w-full py-2">{t('common.confirm')}</GoldButton>
+          </div>
+        ) : null}
+      </GameModal>
     </GameModal>
   );
 }

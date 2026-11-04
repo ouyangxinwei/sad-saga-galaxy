@@ -21,6 +21,7 @@ import {
   levelCap,
   pickHero,
   pickRarity,
+  getStage,
 } from './gameData';
 import {
   STAMINA_MAX,
@@ -28,9 +29,7 @@ import {
   currentStamina,
   defaultState,
   generateBounties,
-  highestTier,
   loadState,
-  nextStageTarget,
   persist,
   replaceSave,
   resetState,
@@ -102,13 +101,29 @@ function idleBonusOf(s) {
 }
 
 // Base idle rates remain unchanged; current party passives are additive.
+function idleStageOf(s) {
+  const progress = s.progress || {};
+  let best = { mode: 'normal', stage: 1, tier: 1 };
+  MODES.forEach((mode, index) => {
+    if (index > 0 && (Number(progress[MODES[index - 1].id]) || 0) < STAGES_PER_MODE) return;
+    const cleared = Math.max(0, Math.min(STAGES_PER_MODE, Math.floor(Number(progress[mode.id]) || 0)));
+    const stage = cleared >= STAGES_PER_MODE
+      ? STAGES_PER_MODE
+      : cleared >= 9 ? Math.floor(cleared / 5) * 5 : Math.min(4, cleared + 1);
+    const candidate = { mode: mode.id, stage: Math.max(1, stage), tier: index * STAGES_PER_MODE + Math.max(1, stage) };
+    if (candidate.tier > best.tier) best = candidate;
+  });
+  return best;
+}
+
 function idleRatesOf(s) {
-  const tier = highestTier(s);
+  const checkpoint = idleStageOf(s);
+  const tier = checkpoint.tier;
   const bonus = idleBonusOf(s);
   const baseGold = Math.round(60 * (8 + tier * 1.1));
   const baseExp = Math.round(60 * (5 + tier * 0.8));
   return {
-    tier,
+    ...checkpoint,
     bonus,
     goldPerHour: Math.round(baseGold * (1 + bonus.gold)),
     expPerHour: Math.round(baseExp * (1 + bonus.exp)),
@@ -387,10 +402,25 @@ export function GameProvider({ children }) {
         progress: { ...ref.current.progress },
       };
       if (!win) {
+        const idleGemDrop = Math.random() < 0.15 ? 1 : 0;
+        if (idleGemDrop) {
+          s.idleGems = Math.max(0, Number(s.idleGems) || 0) + idleGemDrop;
+          s.idleGemStats = { earnedFromWins: 0, earnedFromLosses: 0, spent: 0, ...(s.idleGemStats || {}) };
+          s.idleGemStats.earnedFromLosses += idleGemDrop;
+          s.idleGemHistory = [...(s.idleGemHistory || []), { at: Date.now(), type: 'loss', amount: idleGemDrop, mode, stage: n }].slice(-30);
+        }
         commit(() => s);
-        return null;
+        return { idleGemDrop, idleGems: idleGemDrop };
       }
       const rewards = { gold: stage.gold || 0, exp: stage.exp || 0, gems: stage.gems || 0, medals: 0, shards: 0, shardId: null, levels: 0 };
+      const idleGemDrop = Math.random() < 0.30 ? 1 : 0;
+      if (idleGemDrop) {
+        s.idleGems = Math.max(0, Number(s.idleGems) || 0) + idleGemDrop;
+        s.idleGemStats = { earnedFromWins: 0, earnedFromLosses: 0, spent: 0, ...(s.idleGemStats || {}) };
+        s.idleGemStats.earnedFromWins += idleGemDrop;
+        s.idleGemHistory = [...(s.idleGemHistory || []), { at: Date.now(), type: 'win', amount: idleGemDrop, mode, stage: n }].slice(-30);
+      }
+      rewards.idleGemDrop = idleGemDrop;
       if (mode === 'tower') {
         if (n > s.tower) s.tower = n;
       } else if (mode === 'event') {
@@ -438,14 +468,27 @@ export function GameProvider({ children }) {
     };
   }, []);
 
-  const claimIdle = useCallback(() => {
+  const claimIdle = useCallback((requestedBatch = 1) => {
     const p = idlePreview();
     if (p.minutes < 5) {
       notify(t('idle.none'));
       return null;
     }
-    const s = { ...ref.current, progress: { ...ref.current.progress } };
-    // 按整秒结算：未满一秒的余数保留；触及 12 小时上限则从此刻重新计时，避免重复补发
+    const s = {
+      ...ref.current,
+      enemyShards: { ...(ref.current.enemyShards || {}) },
+      idleGemStats: { earnedFromWins: 0, earnedFromLosses: 0, spent: 0, ...(ref.current.idleGemStats || {}) },
+      idleGemHistory: [...(ref.current.idleGemHistory || [])],
+    };
+    const owned = Math.max(0, Math.floor(Number(s.idleGems) || 0));
+    const requested = [10, 20].includes(requestedBatch) ? requestedBatch : 1;
+    const settlements = Math.min(requested, owned);
+    if (settlements < 1) {
+      notify(t('idle.noGems'));
+      return null;
+    }
+    // One gem represents one settlement of the currently accrued idle interval.
+    // Batch settlement repeats the same preview reward N times, without advancing/unlocking stages.
     const now = Date.now();
     const storedSeconds = Math.max(0, Number(s.idle.elapsedSeconds) || 0);
     const hitCap = p.seconds >= IDLE_CAP_MIN * 60;
@@ -454,14 +497,31 @@ export function GameProvider({ children }) {
       at: hitCap ? now : (s.idle.active ? s.idle.at + Math.max(0, p.seconds - storedSeconds) * 1000 : now),
       elapsedSeconds: hitCap ? 0 : (s.idle.active ? 0 : Math.max(0, storedSeconds - p.seconds)),
     };
-    let clears = p.clears;
-    while (clears > 0) {
-      const target = nextStageTarget(s);
-      if (!target) break;
-      s.progress[target.mode] = target.n;
-      clears -= 1;
+    const stageDef = getStage(p.mode, p.stage);
+    const shardId = stageDef?.enemies?.[0]?.enemyId;
+    const materialCounts = {};
+    const clearCount = p.clears * settlements;
+    if (shardId && clearCount > 0) {
+      for (let i = 0; i < clearCount; i += 1) {
+        materialCounts[shardId] = (materialCounts[shardId] || 0) + 1 + Math.floor(Math.random() * 2);
+      }
+      Object.entries(materialCounts).forEach(([id, amount]) => {
+        s.enemyShards[id] = (s.enemyShards[id] || 0) + amount;
+      });
     }
-    const rewards = { gold: p.gold, exp: p.exp, clears: p.clears - clears };
+    s.idleGems = owned - settlements;
+    s.idleGemStats.spent += settlements;
+    s.idleGemHistory = [...s.idleGemHistory, { at: now, type: 'spend', amount: -settlements, mode: p.mode, stage: p.stage }].slice(-30);
+    const rewards = {
+      gold: p.gold * settlements,
+      exp: p.exp * settlements,
+      clears: clearCount,
+      settlements,
+      idleGemsSpent: settlements,
+      stage: p.stage,
+      mode: p.mode,
+      materials: Object.entries(materialCounts).map(([id, amount]) => ({ id, name: ENEMY_MAP[id]?.name?.[s.lang] || ENEMY_MAP[id]?.name?.zh || id, amount })),
+    };
     rewards.levels = grant(s, rewards);
     commit(() => s);
     return rewards;

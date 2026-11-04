@@ -3,6 +3,16 @@ import { RELEASE_DATE } from './metadata.js';
 
 export const CHANGELOG = [
   {
+    version: 'v0.54', date: '2026-11-04',
+    title: { zh: '挂机宝石与批量收益结算', ja: '放置ジェムと一括報酬精算', en: 'Idle gems and batch reward settlement' },
+    items: {
+      zh: ['新增挂机宝石：新游戏及旧存档首次升级均获得 1000 颗；通关 30% 概率、战斗失败 15% 概率获得 1 颗', '挂机宝石可选择消耗 10 或 20 颗；持有不足时自动按现有余额结算，1 颗对应 1 次挂机收益结算', '挂机位置限制在当前最高已解锁检查点：首次 Boss 前最多普通关卡 4；Boss 必须击败后才开放对应五倍数关卡挂机', '挂机收益按已解锁关卡等级成长，保留 12 小时累计上限；挂机重复刷取固定关卡，不自动推进或跳过未击败 Boss', '挂机领取新增经验、金币、敌方碎片材料和宝石消耗明细结算界面，并记录挂机宝石获得与消耗统计', 'PWA Service Worker 缓存升级至 v36；保留 V20 本地存档结构并为旧存档补齐新资源字段'],
+      ja: ['放置ジェムを追加。新規ゲームと旧セーブの初回更新に 1000 個を付与。勝利時 30%、敗北時 15% で 1 個獲得', '10 個または 20 個を選んで一括精算。所持数が不足する場合は残高分のみ消費し、1 個につき放置報酬を 1 回精算', '最高到達済みチェックポイントに放置先を制限。最初のボス前は最大通常ステージ 4、各 5 の倍数ボスは撃破後に放置解放', '解放済みステージに応じて報酬が成長し、12 時間上限を維持。放置は同じステージを周回し、未撃破ボスを自動突破しない', '経験値・ゴールド・敵の欠片素材・消費ジェム数を精算画面に表示し、ジェムの獲得/消費統計を記録', 'PWA Service Worker キャッシュを v36 に更新。V20 ローカルセーブを維持し、旧セーブに新資源フィールドを補完'],
+      en: ['Adds Idle Gems: new games and legacy saves receive 1,000 on first upgrade; wins have a 30% drop chance and losses 15%, each granting one gem', 'Players choose batch settlement of 10 or 20; insufficient balances automatically use the available amount, with one gem representing one idle settlement', 'Idle location is limited to the highest unlocked checkpoint: up to ordinary stage 4 before the first boss, and each fifth-stage boss must be defeated before idling there', 'Idle rewards scale with the unlocked stage and retain the 12-hour accrual cap; idle farms the same stage without advancing past or bypassing undefeated bosses', 'Adds a detailed settlement showing EXP, gold, enemy-shard materials, and gems spent, plus gem income/spending statistics', 'Updates the PWA Service Worker cache to v36 while preserving V20 local saves and filling new resource fields for legacy saves'],
+    },
+  },
+
+  {
     version: 'v0.53', date: '2026-11-04',
     title: { zh: '独立版本管理系统 V2.0', ja: '独立バージョン管理システム V2.0', en: 'Standalone Version Management System V2.0' },
     items: {

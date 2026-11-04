@@ -261,6 +261,12 @@ export default function BattleArena({ mode, n }) {
               {t('battle.round', { n: sim.rounds })} ? {title}
             </p>
 
+            {result === 'lose' && rewards?.idleGemDrop ? (
+              <div className="mt-4 rounded-xl border border-primary/20 bg-primary/[0.05] p-3 text-left text-[11px] text-primary">
+                <GameIcon name="Gem" className="mr-1 inline h-3.5 w-3.5" />{t('idle.battleDrop', { n: rewards.idleGemDrop })}
+              </div>
+            ) : null}
+
             {result === 'win' && rewards ? (
               <div className="mt-4 rounded-xl border border-white/[0.08] bg-white/[0.025] p-3">
                 <p className="mb-1.5 text-[9px] uppercase tracking-[0.18em] text-muted-foreground">{t('common.reward')}</p>
