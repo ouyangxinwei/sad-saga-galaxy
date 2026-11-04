@@ -69,6 +69,7 @@ test('returns active formation chance bonuses for each assigned role', () => {
   assert.equal(getFormationCombatBonuses(serpent, 'hero-b', party).followUpCriticalPp, 0.05);
   const skirmish = setActiveFormation(state, 'staggered-skirmish', party);
   assert.equal(getFormationCombatBonuses(skirmish, 'hero-a', party, { isHighSpeed: false }).highSpeedDodgePp, 0);
+  assert.equal(getFormationCombatBonuses(skirmish, 'hero-a', party, { isHighSpeed: false }).conditionalHighSpeedDodgePp, 0.05);
   assert.equal(getFormationCombatBonuses(skirmish, 'hero-a', party, { isHighSpeed: true }).highSpeedDodgePp, 0.05);
   assert.equal(getFormationCombatBonuses(skirmish, 'reserve-hero', party, { isHighSpeed: true }).highSpeedDodgePp, 0);
 });
