@@ -18,7 +18,7 @@ import {
   breakthroughCharacter,
   fuseCharacterProgressionInstances,
 } from '../src/lib/characterProgression.js';
-import { cardStats } from '../src/lib/cards.js';
+import { cardStats, partyUnits, teamTotals, mainCharacterTeamBonusMultiplier } from '../src/lib/cards.js';
 
 test('confirmed character growth policies are represented exactly in Phase 1', () => {
   assert.deepEqual(CHARACTER_GROWTH_RULES, {
@@ -477,4 +477,58 @@ test('fusion inherits the complete breakthrough bonus data from the strongest pr
   const result = Object.values(fused.characterProgression.instances).find((record) => record.cardId === 'lise_S');
   assert.equal(result.level, 60); assert.equal(result.breakthroughCount, 2);
   assert.deepEqual(result.breakthroughBonuses, { hp: 40, atk: 12, def: 4, mp: 6 });
+});
+
+
+test('main character level grants one separate 3% per-level teamwide battle bonus', () => {
+  assert.equal(mainCharacterTeamBonusMultiplier({ level: 1 }), 1);
+  assert.equal(mainCharacterTeamBonusMultiplier({ level: 10 }), 1.27);
+  assert.equal(mainCharacterTeamBonusMultiplier({ level: 0 }), 1);
+
+  const state = { level: 10, rebirth: 0, party: ['lise', 'kain'], lang: 'en' };
+  const units = partyUnits(state);
+  assert.equal(units.length, 2);
+  for (const unit of units) {
+    const original = cardStats(state, unit.cardId);
+    assert.equal(unit.maxHp, Math.round(original.hp * 1.27));
+    assert.equal(unit.atk, Math.round(original.atk * 1.27));
+    assert.equal(unit.def, Math.round(original.def * 1.27));
+    assert.equal(unit.maxMp, Math.round(original.mp * 1.27));
+    assert.equal(unit.spd, original.spd);
+    assert.equal(unit.crit, original.crit);
+  }
+});
+
+test('teamwide bonus uses only the main character level, not individual party member levels', () => {
+  const state = {
+    level: 8, rebirth: 0, party: ['lise', 'kain'], lang: 'en',
+    characterProgression: { instances: {
+      lise: { cardId: 'lise', level: 60, exp: 0, breakthroughCount: 0, levelCap: 60 },
+      kain: { cardId: 'kain', level: 1, exp: 0, breakthroughCount: 0, levelCap: 60 },
+    } },
+  };
+  const first = partyUnits(state);
+  const swappedGrowth = partyUnits({
+    ...state,
+    characterProgression: { instances: {
+      lise: { ...state.characterProgression.instances.lise, level: 1 },
+      kain: { ...state.characterProgression.instances.kain, level: 60 },
+    } },
+  });
+  assert.equal(mainCharacterTeamBonusMultiplier(state), 1.21);
+  assert.equal(first[0].maxHp / Math.round(cardStats(state, 'lise').hp), 1.21);
+  assert.equal(first[1].maxHp / Math.round(cardStats(state, 'kain').hp), 1.21);
+  assert.equal(swappedGrowth[0].maxHp / Math.round(cardStats({
+    ...state,
+    characterProgression: { instances: { ...state.characterProgression.instances, lise: { ...state.characterProgression.instances.lise, level: 1 } } },
+  }, 'lise').hp), 1.21);
+});
+
+test('team summary HP and MP totals include the same battle-only teamwide bonus once', () => {
+  const state = { level: 5, rebirth: 0, party: ['lise', 'kain'], lang: 'en' };
+  const units = partyUnits(state);
+  const totals = teamTotals(state);
+  assert.equal(totals.hp, units.reduce((sum, unit) => sum + unit.maxHp, 0));
+  assert.equal(totals.mp, units.reduce((sum, unit) => sum + unit.maxMp, 0));
+  assert.equal(totals.lp, units.reduce((sum, unit) => sum + unit.maxLp, 0));
 });
