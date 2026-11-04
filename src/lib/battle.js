@@ -3,7 +3,7 @@ import { rollDesperateCrit, rollDesperateDodge } from './desperateCombat.js';
 import { traceSync, logInfo, logWarn } from './logger.js';
 const rnd=(a,b)=>a+Math.random()*(b-a);
 const BASIC={name:{zh:'普通攻击',ja:'通常攻撃',en:'Basic Attack'},kind:'attack',target:'single',power:1,mp:0};
-function makeUnitImpl(c){return {...c,maxHp:c.maxHp||c.hp,hp:c.hp,shield:0,mp:c.maxMp??100,maxMp:c.maxMp??100,alive:true,taunt:0,dr:0,drTurns:0,lp:c.lp??0,maxLp:c.maxLp??0,crit:Math.min(.75,c.crit??.08),desperateCritRate:Math.min(.3,Math.max(0,Number(c.desperateCritRate)||0)),desperateDodgeRate:Math.min(.3,Math.max(0,Number(c.desperateDodgeRate)||0)),critDamagePct:c.critDamagePct??0,damageDealtPct:c.damageDealtPct??0,damageReductionPct:c.damageReductionPct??0,mpCostReductionPct:Math.min(.5,c.mpCostReductionPct??0),role:c.role||c.classId,skills:c.skills?.length?c.skills:['claw'],equipmentEffects:Array.isArray(c.equipmentEffects)?c.equipmentEffects:[]};}
+function makeUnitImpl(c){return {...c,maxHp:c.maxHp||c.hp,hp:c.hp,shield:0,mp:c.maxMp??100,maxMp:c.maxMp??100,alive:true,taunt:0,dr:0,drTurns:0,lp:c.lp??0,maxLp:c.maxLp??0,crit:Math.min(.75,c.crit??.08),desperateCritRate:Math.min(.35,Math.max(0,Number(c.desperateCritRate)||0)),desperateDodgeRate:Math.min(.45,Math.max(0,Number(c.desperateDodgeRate)||0)),critDamagePct:c.critDamagePct??0,damageDealtPct:c.damageDealtPct??0,damageReductionPct:c.damageReductionPct??0,mpCostReductionPct:Math.min(.5,c.mpCostReductionPct??0),role:c.role||c.classId,skills:c.skills?.length?c.skills:['claw'],equipmentEffects:Array.isArray(c.equipmentEffects)?c.equipmentEffects:[]};}
 export function applyEquipmentDamageModifiers(n,a,t){return n*(1+Math.min(1,Math.max(0,Number(a?.damageDealtPct)||0)))*(1-Math.min(.75,Math.max(0,Number(t?.damageReductionPct)||0)));}
 export function criticalDamageMultiplier(u){return 1.65+Math.min(1,Math.max(0,Number(u?.critDamagePct)||0));}
 export function healingMultiplier(u){return 1+Math.min(1.5,Math.max(0,Number(u?.healBonus)||0));}
@@ -119,7 +119,7 @@ function chooseSkillImpl(u,allies,foes,round){
 }
 function damage(a,t,s,events,units,round,rt,desperateCrit=false,hitIndex=1,hitCount=1){
  if(a?.side==='enemy'&&t?.side==='ally'&&rollDesperateDodge(t,rt.random)){events.push({kind:'dodge',sid:a.uid,tid:t.uid,actor:a.name,target:t.name,rate:t.desperateDodgeRate,hp:Math.round(t.hp),maxHp:Math.round(t.maxHp),hitIndex,hitCount});return;}
- const crit=Math.random()<a.crit+(s.critBonus||0);let d=a.atk*s.power*rnd(.93,1.07)*(crit?criticalDamageMultiplier(a):1);
+ const critChance=Math.min(.75,Math.max(0,(Number(a.crit)||0)+(Number(s.critBonus)||0)+(Number(a.formationFollowUpCriticalPp)||0)));const crit=Math.random()<critChance;let d=a.atk*s.power*rnd(.93,1.07)*(crit?criticalDamageMultiplier(a):1);
  d=Math.max(1,d-t.def*(1-(s.pierce||0))*.45);if(t.dr)d*=1-t.dr;d=Math.max(1,applyEquipmentDamageModifiers(d,a,t));if(desperateCrit)d*=3;
  const absorbed=Math.min(t.shield,d);t.shield-=absorbed;d-=absorbed;t.hp=Math.max(0,t.hp-d);
  events.push({kind:'damage',sid:a.uid,tid:t.uid,actor:a.name,target:t.name,amount:Math.round(d),crit,desperateCrit,shield:Math.round(t.shield),hp:Math.round(t.hp),maxHp:Math.round(t.maxHp),hitIndex,hitCount});
@@ -153,7 +153,13 @@ function simulateImpl(ac,ec,maxRounds=40,options={}){
  dispatchEquipmentEvent('onBattleStart',{owner:null,actor:null},units,events,rt,0);
  let round=0;while(round<maxRounds&&alive('ally')&&alive('enemy')){round++;events.push({kind:'round',round});
  const order=units.filter(u=>u.alive).sort((a,b)=>b.spd-a.spd);
- for(const u of order)if(u.alive&&alive('ally')&&alive('enemy'))act(u,units,round,events,rt);
+ let previousActedSide=null;
+ for(const u of order)if(u.alive&&alive('ally')&&alive('enemy')){
+  u.formationFollowUpCriticalPp=u.side==='ally'&&previousActedSide==='ally'?(Number(u.formationBonus?.followUpCriticalPp)||0):0;
+  act(u,units,round,events,rt);
+  previousActedSide=u.side;
+  u.formationFollowUpCriticalPp=0;
+ }
  units.forEach(u=>{u.mp=Math.min(u.maxMp,u.mp+14);if(u.drTurns>0&&--u.drTurns===0)u.dr=0;if(u.taunt>0)u.taunt--;});}
  const result=alive('enemy')?'lose':'win';dispatchEquipmentEvent('onBattleEnd',{owner:null,actor:null,result},units,events,rt,round);rt.cooldowns.clear();rt.turnCounts.clear();events.push({kind:'end',result});
  const final=Object.fromEntries(units.map(u=>[u.uid,{hp:Math.max(0,Math.round(u.hp)),maxHp:Math.round(u.maxHp),mp:Math.round(u.mp),maxMp:u.maxMp,lp:u.lp,shield:Math.round(u.shield),alive:u.alive}]));
