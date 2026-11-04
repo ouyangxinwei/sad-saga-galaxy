@@ -1,8 +1,18 @@
 // Single source of truth for in-app, package, and release-document version.
-export const APP_VERSION = 'v0.48';
+export const APP_VERSION = 'v0.49';
 export const RELEASE_DATE = '2026-11-04';
 
 export const CHANGELOG = [
+  {
+    version: 'v0.49', date: '2026-11-04',
+    title: { zh: '主角等级全队属性加成（V7 Phase 3）', ja: '主人公レベルによる全体ステータスボーナス（V7 Phase 3）', en: 'Main-character-level teamwide stat bonus (V7 Phase 3)' },
+    items: {
+      zh: ['全队战斗属性根据主角等级获得额外加成：主角每提升 1 级，全队 HP、ATK、DEF、MP 增加 3%', '以主角等级 1 级为基准线性计算：加成倍率 = 1 +（主角等级 - 1）× 3%', '所有上阵角色统一享受同一加成，只计算一次；不按各角色等级分别累计', '更换阵容时自动重新计算；角色自身职业成长、玩家等级原有倍率、突破奖励和装备加成保持独立', '速度、暴击、技能效果与 MP 消耗规则不变；全队 HP/MP 汇总同步反映战斗加成', '新增主角等级、全队统一加成、不同角色等级不影响基准及汇总数值的战斗回归测试'],
+      ja: ['主人公レベルに応じて編成全体の戦闘能力に追加補正。1 レベル上昇ごとに全員の HP・ATK・DEF・MP が 3% 増加', '主人公レベル 1 を基準に線形計算：倍率 = 1 +（主人公レベル - 1）× 3%', '編成中の全キャラクターに同じ補正を 1 回だけ適用し、各キャラクターの個別レベルは加算しない', '編成変更時に自動再計算。職業成長、既存のプレイヤーレベル倍率、突破報酬、装備補正は独立して維持', '速度・会心・スキル効果・MP 消費ルールは変更せず、全体 HP/MP 集計には戦闘補正を反映', '主人公レベル、全員共通補正、個別レベル非依存、集計値を検証する戦闘回帰テストを追加'],
+      en: ['Adds a teamwide battle-stat bonus based on the main character level: each level gained increases every deployed character’s HP, ATK, DEF, and MP by 3%', 'Uses a linear baseline at main-character level 1: multiplier = 1 + (main-character level - 1) × 3%', 'Applies the same bonus exactly once to every deployed character; individual party-member levels are not summed', 'Recalculates automatically when the party changes; career growth, existing player-level scaling, breakthrough rewards, and equipment bonuses remain separate', 'Leaves SPD, critical stats, skills, and MP costs unchanged; team HP/MP summaries include the battle bonus', 'Adds battle regression tests for main-character level, shared team scaling, independence from individual character levels, and team summaries'],
+    },
+  },
+
   {
     version: 'v0.48', date: '2026-11-04',
     title: { zh: '角色突破固定属性奖励（V7 Phase 2）', ja: 'キャラクター突破の固定ステータス報酬（V7 Phase 2）', en: 'Fixed character breakthrough stat rewards (V7 Phase 2)' },
