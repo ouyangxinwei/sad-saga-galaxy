@@ -116,7 +116,7 @@ export function teamTotals(state) {
 export function partyUnits(state, fortune = null) {
   const f = fortune?.effect || {};
   const teamBonus = mainCharacterTeamBonusMultiplier(state);
-  return (state.party || [])
+  const units = (state.party || [])
     .map((id) => {
       const def = getCardDef(state, id);
       const st = cardStats(state, id);
@@ -140,8 +140,10 @@ export function partyUnits(state, fortune = null) {
         def: Math.max(0, Math.round(st.def * teamBonus * (1 + (f.def || 0)) * (1 + formationStatPct.def))),
         spd: Math.max(1, Math.round(st.spd * (1 + (f.spd || 0)) * (1 + formationStatPct.spd))),
         crit: Math.min(0.75, st.crit + (f.crit || 0) + formationBonus.criticalPp),
-        desperateCritRate: Math.min(0.3, desperateRates.desperateCritRate + formationBonus.desperateCritPp),
-        desperateDodgeRate: Math.min(0.3, desperateRates.desperateDodgeRate + formationBonus.dodgePp),
+        baseDesperateCritRate: desperateRates.desperateCritRate,
+        baseDesperateDodgeRate: desperateRates.desperateDodgeRate,
+        desperateCritRate: desperateRates.desperateCritRate,
+        desperateDodgeRate: desperateRates.desperateDodgeRate,
         formationBonus,
         formationStats,
         critDamagePct: st.critDamagePct,
@@ -158,6 +160,30 @@ export function partyUnits(state, fortune = null) {
       };
     })
     .filter(Boolean);
+
+  const averagePartySpeed = units.length
+    ? units.reduce((sum, unit) => sum + unit.spd, 0) / units.length
+    : 0;
+
+  return units.map((unit) => {
+    const isHighSpeed = unit.spd > averagePartySpeed;
+    const formationBonus = getFormationCombatBonuses(
+      state.formation,
+      unit.cardId,
+      state.party,
+      { isHighSpeed },
+    );
+    return {
+      ...unit,
+      isHighSpeed,
+      formationBonus,
+      desperateCritRate: Math.min(0.35, unit.baseDesperateCritRate + formationBonus.desperateCritPp),
+      desperateDodgeRate: Math.min(
+        0.45,
+        unit.baseDesperateDodgeRate + formationBonus.dodgePp + formationBonus.highSpeedDodgePp,
+      ),
+    };
+  });
 }
 
 export function strongestParty(state) {
