@@ -1,5 +1,5 @@
 import { HEROES, heroStats } from './gameData.js';
-export const DESPERATE_COMBAT_RULES = Object.freeze({critHpRatio:0.2,dodgeHpRatio:0.1,baseRate:0.2,minRate:0.1,maxRate:0.3,randomAdjustment:0.02});
+export const DESPERATE_COMBAT_RULES = Object.freeze({critHpRatio:0.2,dodgeHpRatio:0.1,baseRate:0.2,minRate:0.1,maxRate:0.3,formationCritMaxRate:0.35,formationDodgeMaxRate:0.45,randomAdjustment:0.02});
 const STAT_KEYS=['hp','atk','def','spd','mp'];
 const ROSTER_STATS=HEROES.map(hero=>heroStats(hero));
 const ROSTER_AVERAGES=Object.freeze(Object.fromEntries(STAT_KEYS.map(stat=>[stat,ROSTER_STATS.reduce((sum,stats)=>sum+(Number(stats?.[stat])||0),0)/Math.max(1,ROSTER_STATS.length)])));
@@ -16,5 +16,5 @@ export function getDesperateCombatRates(cardId,definition){
 }
 export function canTriggerDesperateCrit(unit){return Boolean(unit?.side==='ally'&&unit.alive!==false&&Number(unit.hp)>0&&Number(unit.maxHp)>0&&Number(unit.hp)/Number(unit.maxHp)<.2);}
 export function canTriggerDesperateDodge(unit){return Boolean(unit?.side==='ally'&&unit.alive!==false&&Number(unit.hp)>0&&Number(unit.maxHp)>0&&Number(unit.hp)/Number(unit.maxHp)<.1);}
-export function rollDesperateCrit(unit,random=Math.random){return canTriggerDesperateCrit(unit)&&random()<clamp(Number(unit.desperateCritRate)||0,0,.3);}
-export function rollDesperateDodge(unit,random=Math.random){return canTriggerDesperateDodge(unit)&&random()<clamp(Number(unit.desperateDodgeRate)||0,0,.3);}
+export function rollDesperateCrit(unit,random=Math.random){return canTriggerDesperateCrit(unit)&&random()<clamp(Number(unit.desperateCritRate)||0,0,DESPERATE_COMBAT_RULES.formationCritMaxRate);}
+export function rollDesperateDodge(unit,random=Math.random){return canTriggerDesperateDodge(unit)&&random()<clamp(Number(unit.desperateDodgeRate)||0,0,DESPERATE_COMBAT_RULES.formationDodgeMaxRate);}
