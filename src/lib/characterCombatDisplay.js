@@ -6,7 +6,6 @@ const clamp = (value, min, max) => Math.min(max, Math.max(min, Number(value) || 
  */
 export function getCharacterCombatChanceDisplay({
   definition,
-  stats,
   equipmentCrit = 0,
   fortuneCrit = 0,
   desperateRates,
