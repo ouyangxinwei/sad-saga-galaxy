@@ -119,8 +119,8 @@ function chooseSkillImpl(u,allies,foes,round){
 }
 function damage(a,t,s,events,units,round,rt,desperateCrit=false){
  if(a?.side==='enemy'&&t?.side==='ally'&&rollDesperateDodge(t,rt.random)){events.push({kind:'dodge',sid:a.uid,tid:t.uid,actor:a.name,target:t.name,rate:t.desperateDodgeRate,hp:Math.round(t.hp),maxHp:Math.round(t.maxHp)});return;}
- const crit=Math.random()<a.crit+(s.critBonus||0);let d=a.atk*s.power*rnd(.93,1.07)*(crit?criticalDamageMultiplier(a):1)*(desperateCrit?3:1);
- d=Math.max(1,d-t.def*(1-(s.pierce||0))*.45);if(t.dr)d*=1-t.dr;d=applyEquipmentDamageModifiers(d,a,t);
+ const crit=Math.random()<a.crit+(s.critBonus||0);let d=a.atk*s.power*rnd(.93,1.07)*(crit?criticalDamageMultiplier(a):1);
+ d=Math.max(1,d-t.def*(1-(s.pierce||0))*.45);if(t.dr)d*=1-t.dr;d=Math.max(1,applyEquipmentDamageModifiers(d,a,t));if(desperateCrit)d*=3;
  const absorbed=Math.min(t.shield,d);t.shield-=absorbed;d-=absorbed;t.hp=Math.max(0,t.hp-d);
  events.push({kind:'damage',sid:a.uid,tid:t.uid,actor:a.name,target:t.name,amount:Math.round(d),crit,desperateCrit,shield:Math.round(t.shield),hp:Math.round(t.hp),maxHp:Math.round(t.maxHp)});
  dispatchEquipmentEvent('onAttack',{owner:a,actor:a,target:t},units,events,rt,round);
