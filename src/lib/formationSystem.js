@@ -111,6 +111,8 @@ export function getFormationEffectBonuses(formationState, cardId, party = []) {
     skillEffectPct: Number(team.skillEffectPct) || 0,
     skillDamagePct: Number(position.skillDamagePct) || 0,
     mpCostReductionPct: Number(position.mpCostReductionPct) || 0,
+    actionOrder: position.actionOrder || null,
+    positionIndex,
   };
 }
 
