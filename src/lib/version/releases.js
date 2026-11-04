@@ -3,6 +3,16 @@ import { RELEASE_DATE } from './metadata.js';
 
 export const CHANGELOG = [
   {
+    version: 'v0.64', date: '2026-11-04',
+    title: { zh: '阵型系统 Phase 3-B 概率与条件机制', ja: '陣形 Phase 3-B 確率・条件効果', en: 'Formation Phase 3-B probability and conditions' },
+    items: {
+      zh: ['修正绝境暴击与危机闪避概率上限，阵型加成不再被角色基础概率的 30% 上限截断；本阶段有效上限分别为 35% 和 45%', '错位游击阵按战斗最终速度计算己方平均值，只有速度严格高于平均值的角色额外获得 5 个百分点危机闪避', '一字长蛇阵在同一回合己方角色连续行动时，为后续行动角色增加 5 个百分点普通暴击率；敌方行动会中断连续条件', '角色详情同步显示实际战斗概率，并区分高速条件闪避与连续行动暴击，不把条件加成误显示为常驻加成', '保留角色独立概率、HP 低于 20% 绝境暴击、HP 低于 10% 危机闪避、多段技能整次一次绝境暴击判定及 V20 存档结构'],
+      ja: ['窮地会心・危機回避の上限を修正し、陣形補正がキャラ基本確率の 30% 上限で切り捨てられないよう変更。本段階の上限はそれぞれ 35%・45%', '遊撃陣は戦闘時の最終 SPD から味方平均を計算し、平均を厳密に上回るキャラのみ危機回避率を 5 ポイント追加', '長蛇陣は同一ターン内で味方が連続行動した場合、後続メンバーの通常会心率を 5 ポイント追加。敵の行動で連続条件は中断', 'キャラクター詳細に実戦確率を反映し、高速条件回避と連続行動会心を常時効果と区別して表示', 'キャラ別固定確率、HP 20% 未満の窮地会心、10% 未満の危機回避、多段スキル全体で 1 回の窮地会心判定、V20 セーブ構造を維持'],
+      en: ['Fixes desperate-critical and desperate-dodge caps so formation bonuses are not truncated by the 30% base-character cap; effective caps for this phase are 35% and 45%', 'Staggered Skirmish compares final battle SPD against the allied average and grants its extra 5 percentage points of desperate dodge only to allies strictly above that average', 'Long Serpent grants 5 percentage points of ordinary critical chance to a follow-up ally when allied actions are consecutive in the same round; an enemy action breaks the chain', 'Character details now use actual battle probabilities and distinguish conditional high-speed dodge and follow-up critical bonuses from always-on bonuses', 'Preserves stable character-specific rates, the below-20% desperate-critical and below-10% dodge thresholds, one desperate-critical roll per multi-hit skill, and the V20 save schema'],
+    },
+  },
+
+  {
     version: 'v0.63', date: '2026-11-04',
     title: { zh: '阵型系统 Phase 3-A 属性计算接入', ja: '陣形 Phase 3-A 能力値計算', en: 'Formation Phase 3-A stat integration' },
     items: {
