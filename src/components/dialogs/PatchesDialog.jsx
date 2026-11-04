@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import GameModal from '@/components/common/GameModal';
 import GameIcon from '@/components/common/GameIcon';
 import { useGame } from '@/lib/GameContext';
-import { APP_VERSION, CHANGELOG, RELEASE_DATE } from '@/lib/version';
+import { APP_VERSION, CHANGELOG, RELEASE_DATE } from '@/lib/version/index.js';
 import { checkCurrentDeployment } from '@/lib/githubDeployment';
 
 const STATUS_STYLES = {
