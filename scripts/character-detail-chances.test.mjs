@@ -40,13 +40,14 @@ test('keeps conditional high-speed and follow-up bonuses separate', () => {
     definition,
     stats: { crit: 0.08 },
     desperateRates,
-    formationBonus: { highSpeedDodgePp: 0.05, followUpCriticalPp: 0.05 },
+    formationBonus: { conditionalHighSpeedDodgePp: 0.05, followUpCriticalPp: 0.05 },
     battleUnit: { isHighSpeed: false },
   });
   assert.equal(result.desperateDodge.highSpeedActive, false);
   assert.equal(result.desperateDodge.highSpeed, 0.05);
   assert.equal(result.followUpCriticalPp, 0.05);
   assert.equal(result.critical.rate, 0.08);
+  assert.equal(result.desperateDodge.rate, 0.18);
 });
 
 test('respects combat probability caps', () => {
