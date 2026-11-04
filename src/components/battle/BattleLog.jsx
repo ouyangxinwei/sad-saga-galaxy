@@ -23,7 +23,7 @@ function lineOf(ev, lang, t) {
     case 'damage':
       return {
         tone: ev.desperateCrit || ev.crit ? 'crit' : 'damage',
-        text: `${ev.actor} → ${ev.target}${ev.hitCount > 1 ? ` [${ev.hitIndex}/${ev.hitCount}]` : ''}  ${ev.amount.toLocaleString('en-US')}${ev.desperateCrit ? ` ✦ ${t('battle.desperateCrit')}` : ev.crit ? ' ✦' : ''}${ev.formationEnhanced || (ev.crit && ev.formationChancePp > 0) || (ev.desperateCrit && ev.formationDesperateCritPp > 0) ? ` · ✧ ${battleText(lang, 'formation')}` : ''}`,
+        text: `${ev.actor} → ${ev.target}${ev.hitCount > 1 ? ` [${ev.hitIndex}/${ev.hitCount}]` : ''}  ${ev.amount.toLocaleString('en-US')}${ev.desperateCrit ? ` ✦ ${t('battle.desperateCrit')}` : ev.crit ? ' ✦' : ''}${ev.formationEnhanced || ev.formationDamageReductionPct > 0 || (ev.crit && ev.formationChancePp > 0) || (ev.desperateCrit && ev.formationDesperateCritPp > 0) ? ` · ✧ ${battleText(lang, 'formation')}` : ''}`,
       };
     case 'dodge':
       return { tone: 'dodge', text: `${ev.target}${ev.hitCount > 1 ? ` [${ev.hitIndex}/${ev.hitCount}]` : ''} · ${t('battle.dodge')}${ev.formationDodgePp > 0 ? ` · ✧ ${battleText(lang, 'formation')}` : ''}` };

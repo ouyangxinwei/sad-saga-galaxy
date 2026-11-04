@@ -17,9 +17,9 @@ const STAMINA_COST = 6;
 const BATTLE_SPEED_KEY = 'oooo_battle_speed_v1';
 
 const BATTLE_COPY = {
-  zh: { actionOrder:'本回合实际行动顺序', formation:'阵型效果', formationBonus:'阵型加成', damageReduction:'受到伤害 -{n}%', skillDamage:'技能伤害 +{n}%', skillEffect:'技能效果 +{n}%', mpCost:'技能 MP 消耗 -{n}%', crit:'普通暴击率 +{n} 个百分点', desperateCrit:'绝境暴击率 +{n} 个百分点', dodge:'危机闪避率 +{n} 个百分点', followUp:'连续行动暴击率 +{n} 个百分点' },
-  ja: { actionOrder:'このターンの実際の行動順', formation:'陣形効果', formationBonus:'陣形ボーナス', damageReduction:'被ダメージ -{n}%', skillDamage:'スキルダメージ +{n}%', skillEffect:'スキル効果 +{n}%', mpCost:'スキル MP 消費 -{n}%', crit:'通常会心率 +{n} ポイント', desperateCrit:'窮地会心率 +{n} ポイント', dodge:'危機回避率 +{n} ポイント', followUp:'連続行動時の会心率 +{n} ポイント' },
-  en: { actionOrder:'Actual action order this round', formation:'Formation effect', formationBonus:'Formation bonuses', damageReduction:'Damage taken -{n}%', skillDamage:'Skill damage +{n}%', skillEffect:'Skill effects +{n}%', mpCost:'Skill MP cost -{n}%', crit:'Critical chance +{n} pp', desperateCrit:'Desperate critical chance +{n} pp', dodge:'Desperate dodge chance +{n} pp', followUp:'Follow-up critical chance +{n} pp' },
+  zh: { actionOrder:'本回合实际行动顺序', formation:'阵型效果', formationBonus:'阵型加成', damageReduction:'受到伤害 -{n}%', skillDamage:'技能伤害 +{n}%', skillEffect:'技能效果 +{n}%', mpCost:'技能 MP 消耗 -{n}%', crit:'普通暴击率 +{n} 个百分点', desperateCrit:'绝境暴击率 +{n} 个百分点', dodge:'危机闪避率 +{n} 个百分点', highSpeedDodge:'高速角色额外危机闪避 +{n} 个百分点', followUp:'连续行动暴击率 +{n} 个百分点' },
+  ja: { actionOrder:'このターンの実際の行動順', formation:'陣形効果', formationBonus:'陣形ボーナス', damageReduction:'被ダメージ -{n}%', skillDamage:'スキルダメージ +{n}%', skillEffect:'スキル効果 +{n}%', mpCost:'スキル MP 消費 -{n}%', crit:'通常会心率 +{n} ポイント', desperateCrit:'窮地会心率 +{n} ポイント', dodge:'危機回避率 +{n} ポイント', highSpeedDodge:'高速キャラの追加危機回避率 +{n} ポイント', followUp:'連続行動時の会心率 +{n} ポイント' },
+  en: { actionOrder:'Actual action order this round', formation:'Formation effect', formationBonus:'Formation bonuses', damageReduction:'Damage taken -{n}%', skillDamage:'Skill damage +{n}%', skillEffect:'Skill effects +{n}%', mpCost:'Skill MP cost -{n}%', crit:'Critical chance +{n} pp', desperateCrit:'Desperate critical chance +{n} pp', dodge:'Desperate dodge chance +{n} pp', highSpeedDodge:'Extra desperate dodge for fast allies +{n} pp', followUp:'Follow-up critical chance +{n} pp' },
 };
 function battleText(lang, key, vars = {}) {
   return (BATTLE_COPY[lang] || BATTLE_COPY.en)[key].replace(/\{(\w+)\}/g, (_, name) => String(vars[name] ?? ''));
@@ -36,7 +36,8 @@ function formationEffectLabels(unit, lang) {
   add('mpCost', Number(effects.mpCostReductionPct) || 0);
   add('crit', Number(chance.criticalPp) || 0);
   add('desperateCrit', Number(chance.desperateCritPp) || 0);
-  add('dodge', (Number(chance.dodgePp) || 0) + (Number(chance.highSpeedDodgePp) || 0));
+  add('dodge', Number(chance.dodgePp) || 0);
+  add('highSpeedDodge', Number(chance.highSpeedDodgePp) || 0);
   add('followUp', Number(chance.followUpCriticalPp) || 0);
   return labels;
 }
