@@ -516,12 +516,16 @@ test('teamwide bonus uses only the main character level, not individual party me
     } },
   });
   assert.equal(mainCharacterTeamBonusMultiplier(state), 1.21);
-  assert.equal(first[0].maxHp / Math.round(cardStats(state, 'lise').hp), 1.21);
-  assert.equal(first[1].maxHp / Math.round(cardStats(state, 'kain').hp), 1.21);
-  assert.equal(swappedGrowth[0].maxHp / Math.round(cardStats({
+  assert.equal(first[0].maxHp, Math.round(cardStats(state, 'lise').hp * 1.21));
+  assert.equal(first[1].maxHp, Math.round(cardStats(state, 'kain').hp * 1.21));
+  const swappedState = {
     ...state,
-    characterProgression: { instances: { ...state.characterProgression.instances, lise: { ...state.characterProgression.instances.lise, level: 1 } } },
-  }, 'lise').hp), 1.21);
+    characterProgression: { instances: {
+      lise: { ...state.characterProgression.instances.lise, level: 1 },
+      kain: { ...state.characterProgression.instances.kain, level: 60 },
+    } },
+  };
+  assert.equal(swappedGrowth[0].maxHp, Math.round(cardStats(swappedState, 'lise').hp * 1.21));
 });
 
 test('team summary HP and MP totals include the same battle-only teamwide bonus once', () => {
