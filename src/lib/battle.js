@@ -8,6 +8,25 @@ export function applyEquipmentDamageModifiers(n,a,t){return n*(1+Math.min(1,Math
 export function criticalDamageMultiplier(u){return 1.65+Math.min(1,Math.max(0,Number(u?.critDamagePct)||0));}
 export function healingMultiplier(u){return 1+Math.min(1.5,Math.max(0,Number(u?.healBonus)||0));}
 export function effectiveMpCost(s,u){return Math.max(0,Math.round(Math.max(0,Number(s?.mp)||0)*(1-Math.min(.5,Math.max(0,Number(u?.mpCostReductionPct)||0)))));}
+export function orderBattleUnits(units) {
+ const speedOrder=[...units].sort((a,b)=>b.spd-a.spd);
+ const allies=speedOrder.filter(unit=>unit.side==='ally');
+ if(!allies.length)return speedOrder;
+ const mode=allies.find(unit=>unit.formationActionOrder)?.formationActionOrder;
+ if(!mode)return speedOrder;
+ let formationOrder;
+ if(mode==='formation-order'){
+  formationOrder=[...allies].sort((a,b)=>(Number(a.formationPositionIndex)||0)-(Number(b.formationPositionIndex)||0));
+ }else if(mode==='ally-last'){
+  formationOrder=[...allies].sort((a,b)=>{
+   const aLast=a.formationActionOrder==='ally-last'?1:0;
+   const bLast=b.formationActionOrder==='ally-last'?1:0;
+   return aLast-bLast || b.spd-a.spd;
+  });
+ }else return speedOrder;
+ let allyIndex=0;
+ return speedOrder.map(unit=>unit.side==='ally'?formationOrder[allyIndex++]:unit);
+}
 export function applyFormationSkillModifiers(skill, unit) {
  const skillDamagePct=Math.min(1,Math.max(-.9,Number(unit?.skillDamagePct)||0));
  const skillEffectPct=Math.min(1,Math.max(-.9,Number(unit?.skillEffectPct)||0));
@@ -166,7 +185,7 @@ function simulateImpl(ac,ec,maxRounds=40,options={}){
  const alive=s=>units.some(u=>u.side===s&&u.alive);
  dispatchEquipmentEvent('onBattleStart',{owner:null,actor:null},units,events,rt,0);
  let round=0;while(round<maxRounds&&alive('ally')&&alive('enemy')){round++;events.push({kind:'round',round});
- const order=units.filter(u=>u.alive).sort((a,b)=>b.spd-a.spd);
+ const order=orderBattleUnits(units.filter(u=>u.alive));
  let previousActedSide=null;
  for(const u of order)if(u.alive&&alive('ally')&&alive('enemy')){
   u.formationFollowUpCriticalPp=u.side==='ally'&&previousActedSide==='ally'?(Number(u.formationBonus?.followUpCriticalPp)||0):0;
