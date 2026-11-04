@@ -3,6 +3,15 @@ import { RELEASE_DATE } from './metadata.js';
 
 export const CHANGELOG = [
   {
+    version: 'v0.55', date: '2026-11-04',
+    title: { zh: '清关宝石与挂机领取规则优化', ja: 'クリアジェムと放置報酬受取ルールの改善', en: 'Clear gems and idle claim improvements' },
+    items: {
+      zh: ['新增独立清关宝石：普通战斗胜利 30%、失败 15% 概率获得 1 颗，与挂机宝石分别统计和消耗', '主线任务新增快速清关入口，可选择当前难度下任意已通关关卡，支持 10 次 / 20 次批量结算；余额不足时按实际余额执行', '快速清关按所选关卡的常规战斗奖励结算金币、经验、钻石和敌方材料，不播放逐场战斗动画，也不推进主线进度', '结算界面显示清关次数、清关宝石消耗、金币、经验、钻石、材料和升级情况；支持中文、日文、英文', '挂机领取取消累计 5 分钟最低限制；累计时间大于 0 且持有挂机宝石即可领取，收益计算、宝石消耗、12 小时上限和批量规则保持不变', '沿用现有本地 V20 存档，旧存档自动补充清关宝石字段；不改动 main 分支'],
+      ja: ['独立したクリアジェムを追加。通常戦闘の勝利時 30%、敗北時 15% の確率で 1 個獲得し、放置ジェムとは残高・統計・消費を分離', 'メインクエストにクイッククリアを追加。現在の難易度でクリア済みの任意ステージを選択でき、10 回 / 20 回の一括精算に対応。残高不足時は所持数分のみ実行', '選択ステージの通常戦闘報酬に基づき、ゴールド・経験値・ダイヤ・敵素材を付与。個別戦闘アニメーションは再生せず、メイン進行度も変更しない', '精算画面にクリア回数、消費ジェム、ゴールド、経験値、ダイヤ、素材、レベルアップを表示。中国語・日本語・英語に対応', '放置報酬の受取に必要だった最低 5 分制限を撤廃。蓄積時間が 0 より大きく、放置ジェムを所持していれば受取可能。報酬計算、消費、12 時間上限、一括精算ルールは維持', '既存のローカル V20 セーブを継続し、旧セーブにはクリアジェム項目を自動補完。main ブランチは変更しない'],
+      en: ['Adds a separate Clear Gem currency: normal battle wins have a 30% drop chance and losses 15%, granting one gem; balances, statistics, and spending remain independent from Idle Gems', 'Adds Quick Clear to Main Quest. Select any stage already cleared in the current difficulty and settle 10 or 20 times; execution is capped by the owned balance', 'Grants the selected stage’s normal battle rewards: gold, EXP, diamonds, and enemy materials. No per-battle animations are played and main-stage progression is unchanged', 'Settlement details show clear count, Clear Gems spent, gold, EXP, diamonds, materials, and level gains; supports Chinese, Japanese, and English', 'Removes the five-minute minimum for idle claims. Any positive accrued time can be claimed when Idle Gems are available; reward formulas, gem costs, the 12-hour cap, and batch rules remain unchanged', 'Keeps the existing local V20 save and automatically supplies Clear Gem fields to legacy saves; the main branch is untouched'],
+    },
+  },
+  {
     version: 'v0.54', date: '2026-11-04',
     title: { zh: '挂机宝石与批量收益结算', ja: '放置ジェムと一括報酬精算', en: 'Idle gems and batch reward settlement' },
     items: {

@@ -261,9 +261,10 @@ export default function BattleArena({ mode, n }) {
               {t('battle.round', { n: sim.rounds })} ? {title}
             </p>
 
-            {result === 'lose' && rewards?.idleGemDrop ? (
-              <div className="mt-4 rounded-xl border border-primary/20 bg-primary/[0.05] p-3 text-left text-[11px] text-primary">
-                <GameIcon name="Gem" className="mr-1 inline h-3.5 w-3.5" />{t('idle.battleDrop', { n: rewards.idleGemDrop })}
+            {result === 'lose' && (rewards?.idleGemDrop || rewards?.clearGemDrop) ? (
+              <div className="mt-4 space-y-2 rounded-xl border border-primary/20 bg-primary/[0.05] p-3 text-left text-[11px] text-primary">
+                {rewards.idleGemDrop ? <p><GameIcon name="Gem" className="mr-1 inline h-3.5 w-3.5" />{t('idle.battleDrop', { n: rewards.idleGemDrop })}</p> : null}
+                {rewards.clearGemDrop ? <p><GameIcon name="Gem" className="mr-1 inline h-3.5 w-3.5" />{t('clearGem.battleDrop', { n: rewards.clearGemDrop })}</p> : null}
               </div>
             ) : null}
 
@@ -272,6 +273,7 @@ export default function BattleArena({ mode, n }) {
                 <p className="mb-1.5 text-[9px] uppercase tracking-[0.18em] text-muted-foreground">{t('common.reward')}</p>
                 <RewardLine reward={rewards} t={t} lang={lang} />
                 {rewards.idleGemDrop ? <p className="mt-2 flex items-center gap-1 text-left text-[10px] text-primary"><GameIcon name="Gem" className="h-3 w-3" />{t('idle.battleDrop', { n: rewards.idleGemDrop })}</p> : null}
+                {rewards.clearGemDrop ? <p className="mt-2 flex items-center gap-1 text-left text-[10px] text-primary"><GameIcon name="Gem" className="h-3 w-3" />{t('clearGem.battleDrop', { n: rewards.clearGemDrop })}</p> : null}
                 {rewards.characterExp > 0 ? <p className="mt-2 border-t border-white/[0.08] pt-2 text-left text-[10px] leading-relaxed text-emerald-300">{lang === 'ja' ? `編成キャラクターそれぞれに +${fmt(rewards.characterExp)} EXP` : lang === 'en' ? `Each deployed character receives +${fmt(rewards.characterExp)} character EXP` : `上阵角色各获得 +${fmt(rewards.characterExp)} 角色经验`}</p> : null}
               </div>
             ) : null}

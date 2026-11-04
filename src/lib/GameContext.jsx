@@ -41,6 +41,7 @@ import {
 import { APP_VERSION } from './version';
 import { cardPower, copiesOf, getCardDef, partyPower, strongestParty, teamTotals } from './cards';
 import { equipItem, getEquipmentDefinition, getEquippedItem } from './equipment';
+import { getClearGemSettlementCount, isStageCleared } from './clearGemSystem';
 import { normalizeCharacterProgressionState, grantPartyCharacterExperience, breakthroughCharacter, fuseCharacterProgressionInstances } from './characterProgression';
 
 const GameCtx = createContext(null);
@@ -409,8 +410,15 @@ export function GameProvider({ children }) {
           s.idleGemStats.earnedFromLosses += idleGemDrop;
           s.idleGemHistory = [...(s.idleGemHistory || []), { at: Date.now(), type: 'loss', amount: idleGemDrop, mode, stage: n }].slice(-30);
         }
+        const clearGemDrop = Math.random() < 0.15 ? 1 : 0;
+        if (clearGemDrop) {
+          s.clearGems = Math.max(0, Number(s.clearGems) || 0) + clearGemDrop;
+          s.clearGemStats = { earnedFromWins: 0, earnedFromLosses: 0, spent: 0, ...(s.clearGemStats || {}) };
+          s.clearGemStats.earnedFromLosses += clearGemDrop;
+          s.clearGemHistory = [...(s.clearGemHistory || []), { at: Date.now(), type: 'loss', amount: clearGemDrop, mode, stage: n }].slice(-30);
+        }
         commit(() => s);
-        return { idleGemDrop, idleGems: idleGemDrop };
+        return { idleGemDrop, idleGems: idleGemDrop, clearGemDrop, clearGems: clearGemDrop };
       }
       const rewards = { gold: stage.gold || 0, exp: stage.exp || 0, gems: stage.gems || 0, medals: 0, shards: 0, shardId: null, levels: 0 };
       const idleGemDrop = Math.random() < 0.30 ? 1 : 0;
@@ -421,6 +429,14 @@ export function GameProvider({ children }) {
         s.idleGemHistory = [...(s.idleGemHistory || []), { at: Date.now(), type: 'win', amount: idleGemDrop, mode, stage: n }].slice(-30);
       }
       rewards.idleGemDrop = idleGemDrop;
+      const clearGemDrop = Math.random() < 0.30 ? 1 : 0;
+      if (clearGemDrop) {
+        s.clearGems = Math.max(0, Number(s.clearGems) || 0) + clearGemDrop;
+        s.clearGemStats = { earnedFromWins: 0, earnedFromLosses: 0, spent: 0, ...(s.clearGemStats || {}) };
+        s.clearGemStats.earnedFromWins += clearGemDrop;
+        s.clearGemHistory = [...(s.clearGemHistory || []), { at: Date.now(), type: 'win', amount: clearGemDrop, mode, stage: n }].slice(-30);
+      }
+      rewards.clearGemDrop = clearGemDrop;
       if (mode === 'tower') {
         if (n > s.tower) s.tower = n;
       } else if (mode === 'event') {
@@ -470,7 +486,7 @@ export function GameProvider({ children }) {
 
   const claimIdle = useCallback((requestedBatch = 1) => {
     const p = idlePreview();
-    if (p.minutes < 5) {
+    if (p.seconds < 1) {
       notify(t('idle.none'));
       return null;
     }
@@ -526,6 +542,49 @@ export function GameProvider({ children }) {
     commit(() => s);
     return rewards;
   }, [commit, idlePreview, notify, t]);
+
+  const quickClear = useCallback(({ mode, stage: stageN, batch = 10 } = {}) => {
+    const s = {
+      ...ref.current,
+      codex: { ...(ref.current.codex || {}) },
+      enemyShards: { ...(ref.current.enemyShards || {}) },
+      clearGemStats: { earnedFromWins: 0, earnedFromLosses: 0, spent: 0, ...(ref.current.clearGemStats || {}) },
+      clearGemHistory: [...(ref.current.clearGemHistory || [])],
+    };
+    if (!MODES.some((item) => item.id === mode) || !isStageCleared(s.progress?.[mode], stageN)) {
+      notify(t('clearGem.invalidStage'));
+      return null;
+    }
+    const settlements = getClearGemSettlementCount(s.clearGems, batch);
+    if (settlements < 1) {
+      notify(t('clearGem.noGems'));
+      return null;
+    }
+    const stageDef = getStage(mode, stageN);
+    const firstEnemyId = stageDef.enemies?.[0]?.enemyId;
+    let materialAmount = 0;
+    if (firstEnemyId) {
+      for (let index = 0; index < settlements; index += 1) materialAmount += 1 + Math.floor(Math.random() * 2);
+      s.codex[firstEnemyId] = (s.codex[firstEnemyId] || 0) + settlements;
+      s.enemyShards[firstEnemyId] = (s.enemyShards[firstEnemyId] || 0) + materialAmount;
+    }
+    const now = Date.now();
+    s.clearGems = Math.max(0, Math.floor(Number(s.clearGems) || 0)) - settlements;
+    s.clearGemStats.spent += settlements;
+    s.clearGemHistory = [...s.clearGemHistory, { at: now, type: 'spend', amount: -settlements, mode, stage: stageN }].slice(-30);
+    const rewards = {
+      mode, stage: stageN, clears: settlements, settlements, clearGemsSpent: settlements,
+      gold: (stageDef.gold || 0) * settlements,
+      exp: (stageDef.exp || 0) * settlements,
+      gems: (stageDef.gems || 0) * settlements,
+      materials: firstEnemyId && materialAmount > 0
+        ? [{ id: firstEnemyId, name: ENEMY_MAP[firstEnemyId]?.name?.[s.lang] || ENEMY_MAP[firstEnemyId]?.name?.zh || firstEnemyId, amount: materialAmount }]
+        : [],
+    };
+    rewards.levels = grant(s, rewards);
+    commit(() => s);
+    return rewards;
+  }, [commit, notify, t]);
 
   const toggleIdle = useCallback(() => {
     const now = Date.now();
@@ -955,6 +1014,7 @@ export function GameProvider({ children }) {
         finishBattle: traceAction('finishBattle', finishBattle),
         idlePreview: traceAction('idlePreview', idlePreview),
         claimIdle: traceAction('claimIdle', claimIdle),
+        quickClear: traceAction('quickClear', quickClear),
         toggleIdle: traceAction('toggleIdle', toggleIdle),
         refreshBounties: traceAction('refreshBounties', refreshBounties),
         dispatchBounty: traceAction('dispatchBounty', dispatchBounty),

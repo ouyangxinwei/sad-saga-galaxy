@@ -10,8 +10,12 @@ import { fmt } from '@/lib/format';
 const MODE_IDS = ['normal', 'hard', 'nightmare'];
 
 export default function Stages() {
-  const { t, lang, progress, actions, power } = useGame();
+  const { t, lang, progress, actions, power, clearGems = 0, clearGemStats = {} } = useGame();
   const [mode, setMode] = useState('normal');
+  const [quickClearOpen, setQuickClearOpen] = useState(false);
+  const [quickClearStage, setQuickClearStage] = useState(0);
+  const [quickClearBatch, setQuickClearBatch] = useState(10);
+  const [quickClearResult, setQuickClearResult] = useState(null);
   const navigate = useNavigate();
 
   const cleared = progress[mode] || 0;
@@ -89,9 +93,16 @@ export default function Stages() {
                   {t('stages.power')} {fmt(nextStage.power)} · {t('battle.stamina')}
                 </p>
               </div>
-              <GoldButton onClick={() => navigate(`/battle?mode=${mode}&stage=${nextN}`)} className="shrink-0 px-3 py-1.5 text-[10px]">
-                {t('stages.challenge')}
-              </GoldButton>
+              <div className="flex shrink-0 gap-1.5">
+                <GoldButton onClick={() => navigate(`/battle?mode=${mode}&stage=${nextN}`)} className="px-3 py-1.5 text-[10px]">
+                  {t('stages.challenge')}
+                </GoldButton>
+                <button type="button" disabled={cleared < 1}
+                  onClick={() => { setQuickClearStage(cleared); setQuickClearBatch(10); setQuickClearResult(null); setQuickClearOpen(true); }}
+                  className="tap rounded-lg border border-primary/35 bg-primary/[0.08] px-2.5 py-1.5 text-[10px] text-primary disabled:cursor-not-allowed disabled:opacity-40">
+                  {t('clearGem.quickButton')}
+                </button>
+              </div>
             </div>
 
             <div className="mt-3 space-y-2">
@@ -161,6 +172,79 @@ export default function Stages() {
           </div>
         )}
       </div>
+
+        {quickClearOpen ? (
+          <div className="fixed inset-0 z-[150] flex items-center justify-center bg-[#03050d]/80 px-3 py-6 backdrop-blur-sm">
+            <div className="saga-panel max-h-[90dvh] w-full max-w-md overflow-y-auto p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="saga-heading text-sm text-foreground">{quickClearResult ? t('clearGem.settlementTitle') : t('clearGem.title')}</p>
+                  <p className="mt-1 text-[10px] leading-relaxed text-muted-foreground">{t('clearGem.desc')}</p>
+                </div>
+                <button type="button" onClick={() => setQuickClearOpen(false)} className="tap rounded-lg border border-white/10 px-2 py-1 text-xs text-muted-foreground">{t('common.close')}</button>
+              </div>
+              {!quickClearResult ? (
+                <>
+                  <div className="mt-3 rounded-xl border border-primary/20 bg-primary/[0.05] p-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] text-muted-foreground">{t('clearGem.balance')}</span>
+                      <span className="text-sm font-semibold text-primary"><GameIcon name="Gem" className="mr-1 inline h-3.5 w-3.5" />{fmt(clearGems)}</span>
+                    </div>
+                    <div className="mt-2 grid grid-cols-3 gap-1 text-center text-[9px]">
+                      <div><p className="text-muted-foreground">{t('clearGem.earnedWins')}</p><p className="text-emerald-300">{fmt(clearGemStats.earnedFromWins || 0)}</p></div>
+                      <div><p className="text-muted-foreground">{t('clearGem.earnedLosses')}</p><p className="text-amber-300">{fmt(clearGemStats.earnedFromLosses || 0)}</p></div>
+                      <div><p className="text-muted-foreground">{t('clearGem.spent')}</p><p>{fmt(clearGemStats.spent || 0)}</p></div>
+                    </div>
+                  </div>
+                  {cleared > 0 ? (
+                    <label className="mt-3 block text-[10px] text-muted-foreground">
+                      {t('clearGem.selectStage')}
+                      <select value={quickClearStage} onChange={(event) => setQuickClearStage(Number(event.target.value))}
+                        className="mt-1.5 w-full rounded-lg border border-white/10 bg-[#111827] px-3 py-2 text-sm text-foreground">
+                        {Array.from({ length: cleared }, (_, index) => index + 1).reverse().map((stageNumber) => (
+                          <option key={stageNumber} value={stageNumber}>{t('stages.stage', { n: stageNumber })}{stageNumber % 5 === 0 ? ` · ${t('stages.boss')}` : ''}</option>
+                        ))}
+                      </select>
+                    </label>
+                  ) : <p className="mt-3 text-xs text-muted-foreground">{t('clearGem.noStages')}</p>}
+                  <div className="mt-3 grid grid-cols-2 gap-2">
+                    <button type="button" onClick={() => setQuickClearBatch(10)} className={`tap rounded-lg border px-3 py-2 text-xs ${quickClearBatch === 10 ? 'border-primary/50 bg-primary/10 text-primary' : 'border-white/10 text-foreground/70'}`}>{t('clearGem.batch10')}</button>
+                    <button type="button" onClick={() => setQuickClearBatch(20)} className={`tap rounded-lg border px-3 py-2 text-xs ${quickClearBatch === 20 ? 'border-primary/50 bg-primary/10 text-primary' : 'border-white/10 text-foreground/70'}`}>{t('clearGem.batch20')}</button>
+                  </div>
+                  <p className="mt-2 text-center text-[10px] text-muted-foreground">{t('clearGem.actualBatch', { n: Math.min(quickClearBatch, Math.max(0, Number(clearGems) || 0)) })}</p>
+                  {quickClearStage > 0 ? (
+                    <div className="mt-3 grid grid-cols-3 gap-2 rounded-xl border border-white/[0.08] bg-white/[0.025] p-3 text-center">
+                      <div><p className="text-[9px] text-muted-foreground">{t('res.gold')}</p><p className="text-xs text-primary">{fmt((getStage(mode, quickClearStage).gold || 0) * Math.min(quickClearBatch, clearGems))}</p></div>
+                      <div><p className="text-[9px] text-muted-foreground">{t('player.exp')}</p><p className="text-xs text-accent">{fmt((getStage(mode, quickClearStage).exp || 0) * Math.min(quickClearBatch, clearGems))}</p></div>
+                      <div><p className="text-[9px] text-muted-foreground">{t('res.gems')}</p><p className="text-xs text-primary">{fmt((getStage(mode, quickClearStage).gems || 0) * Math.min(quickClearBatch, clearGems))}</p></div>
+                    </div>
+                  ) : null}
+                  <GoldButton onClick={() => { const result = actions.quickClear({ mode, stage: quickClearStage, batch: quickClearBatch }); if (result) setQuickClearResult(result); }}
+                    disabled={quickClearStage < 1 || quickClearStage > cleared || Number(clearGems) < 1} className="mt-3 w-full py-2.5">
+                    {t('clearGem.title')}
+                  </GoldButton>
+                </>
+              ) : (
+                <div className="mt-3 space-y-2">
+                  <p className="text-center text-[10px] text-muted-foreground">{t('stages.' + quickClearResult.mode)} · {t('stages.stage', { n: quickClearResult.stage })}</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="rounded-xl bg-white/[0.04] p-3"><p className="text-[9px] text-muted-foreground">{t('clearGem.count')}</p><p className="text-lg font-semibold">{fmt(quickClearResult.clears)}</p></div>
+                    <div className="rounded-xl bg-white/[0.04] p-3"><p className="text-[9px] text-muted-foreground">{t('clearGem.gemsSpent')}</p><p className="text-lg font-semibold text-primary">-{fmt(quickClearResult.clearGemsSpent)}</p></div>
+                    <div className="rounded-xl bg-white/[0.04] p-3"><p className="text-[9px] text-muted-foreground">{t('res.gold')}</p><p className="text-lg font-semibold text-primary">+{fmt(quickClearResult.gold)}</p></div>
+                    <div className="rounded-xl bg-white/[0.04] p-3"><p className="text-[9px] text-muted-foreground">{t('player.exp')}</p><p className="text-lg font-semibold text-accent">+{fmt(quickClearResult.exp)}</p></div>
+                    <div className="rounded-xl bg-white/[0.04] p-3"><p className="text-[9px] text-muted-foreground">{t('res.gems')}</p><p className="text-lg font-semibold text-primary">+{fmt(quickClearResult.gems)}</p></div>
+                    <div className="rounded-xl bg-white/[0.04] p-3"><p className="text-[9px] text-muted-foreground">{t('clearGem.levels')}</p><p className="text-lg font-semibold text-emerald-300">+{fmt(quickClearResult.levels || 0)}</p></div>
+                  </div>
+                  <div className="rounded-xl border border-white/[0.08] bg-white/[0.025] p-3">
+                    <p className="mb-2 text-[10px] text-muted-foreground">{t('clearGem.materials')}</p>
+                    {quickClearResult.materials?.length ? quickClearResult.materials.map((item) => <div key={item.id} className="flex justify-between text-xs"><span>{item.name}</span><span>+{fmt(item.amount)}</span></div>) : <p className="text-[10px] text-muted-foreground">{t('clearGem.noMaterials')}</p>}
+                  </div>
+                  <GoldButton onClick={() => { setQuickClearOpen(false); setQuickClearResult(null); }} className="w-full py-2">{t('common.confirm')}</GoldButton>
+                </div>
+              )}
+            </div>
+          </div>
+        ) : null}
     </AppShell>
   );
 }

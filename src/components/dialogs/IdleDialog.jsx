@@ -126,8 +126,8 @@ export default function IdleDialog({ open, onClose }) {
         <p className="mt-2 text-center text-[10px] text-muted-foreground">{t('idle.batchActual', { n: actualBatch })}</p>
       </div>
       <GoldButton onClick={() => { const result = actions.claimIdle(batch); if (result) setSettlement(result); }}
-        disabled={preview.minutes < 5 || actualBatch < 1} className="mt-3 w-full py-2.5">
-        {preview.minutes < 5 ? t('idle.none') : actualBatch < 1 ? t('idle.noGems') : t('idle.claim')}
+        disabled={preview.seconds < 1 || actualBatch < 1} className="mt-3 w-full py-2.5">
+        {preview.seconds < 1 ? t('idle.none') : actualBatch < 1 ? t('idle.noGems') : t('idle.claim')}
       </GoldButton>
       <GameModal open={Boolean(settlement)} onClose={() => setSettlement(null)} title={t('idle.settlementTitle')} subtitle={t('idle.stage') + ' · ' + t('stages.' + (settlement?.mode || 'normal')) + ' ' + (settlement?.stage || '')} width="max-w-sm">
         {settlement ? (
