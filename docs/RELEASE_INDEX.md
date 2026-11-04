@@ -8,7 +8,7 @@ PWA cache namespace: **v35**
 Target branch: `standalone-migration`
 
 ## Current release
-- **V0.53 — Standalone Version Management System V2.0**
+- **V0.53 — Standalone Version Management System V2.0** ([release record](releases/V053_VERSION_MANAGEMENT_V2.md))
 - Adds the dedicated version module, compatibility API, historical audit, stronger build validation, automated tests, and maintenance documentation.
 - No gameplay or save-schema changes.
 
