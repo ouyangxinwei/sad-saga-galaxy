@@ -56,7 +56,7 @@ test('validator rejects incorrect order and unknown historical gaps', () => {
 
 test('legacy v0.29 duplicate and v0.28 gap remain explicit audit warnings', () => {
   const result = validateVersionCatalog({
-    appVersion: APP_VERSION, releaseDate: RELEASE_DATE, packageVersion: '0.57.0',
+    appVersion: APP_VERSION, releaseDate: RELEASE_DATE, packageVersion: '0.58.0',
     changelog: CHANGELOG, supportedLanguages: languages, cacheName: 'oooo-app-shell-v36',
     knownDuplicateVersions: VERSION_HISTORY_AUDIT.knownDuplicateVersions,
     knownMissingVersions: VERSION_HISTORY_AUDIT.missingVersions,
