@@ -95,6 +95,25 @@ export function getFormationStatBonuses(formationState, cardId, party = []) {
   return { formationId: formation.id, formationName: formation.name, role, statPct };
 }
 
+// Skill, damage-reduction, and MP-cost modifiers remain separate from stats/chances.
+export function getFormationEffectBonuses(formationState, cardId, party = []) {
+  const formation = FORMATION_MAP[formationState?.activeFormationId] || FORMATION_MAP[DEFAULT_FORMATION_ID];
+  const assignments = formationState?.assignmentsByFormation?.[formation.id] || partySlots(party);
+  const positionIndex = assignments.indexOf(cardId);
+  const role = positionIndex >= 0 ? formation.positions[positionIndex]?.role : null;
+  const team = positionIndex >= 0 ? formation.effects?.team || {} : {};
+  const position = role ? formation.effects?.positions?.[role] || {} : {};
+  return {
+    formationId: formation.id,
+    formationName: formation.name,
+    role,
+    damageReductionPct: Number(team.damageReductionPct) || 0,
+    skillEffectPct: Number(team.skillEffectPct) || 0,
+    skillDamagePct: Number(position.skillDamagePct) || 0,
+    mpCostReductionPct: Number(position.mpCostReductionPct) || 0,
+  };
+}
+
 // Chance modifiers remain separate from stat modifiers.
 export function getFormationCombatBonuses(formationState, cardId, party = [], conditions = {}) {
   const formation = FORMATION_MAP[formationState?.activeFormationId] || FORMATION_MAP[DEFAULT_FORMATION_ID];
