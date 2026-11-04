@@ -8,9 +8,11 @@ function lineOf(ev, lang, t) {
       return { tone: 'action', text: `${ev.name} · ${ev.skill?.[lang] || ev.skill?.zh || ''}` };
     case 'damage':
       return {
-        tone: ev.crit ? 'crit' : 'damage',
-        text: `${ev.actor} → ${ev.target}  ${ev.amount.toLocaleString('en-US')}${ev.crit ? ' ✦' : ''}`,
+        tone: ev.desperateCrit || ev.crit ? 'crit' : 'damage',
+        text: `${ev.actor} → ${ev.target}  ${ev.amount.toLocaleString('en-US')}${ev.desperateCrit ? ` ✦ ${t('battle.desperateCrit')}` : ev.crit ? ' ✦' : ''}`,
       };
+    case 'dodge':
+      return { tone: 'dodge', text: `${ev.target} · ${t('battle.dodge')}` };
     case 'equipment':
       return { tone: 'action', text: `${ev.actor} ✦ ${ev.label?.[lang] || ev.label?.zh || ev.itemName?.[lang] || 'Equipment effect'}` };
     case 'mp':
@@ -39,6 +41,7 @@ const TONES = {
   action: 'text-foreground/60',
   damage: 'text-rose-300/85',
   crit: 'text-[#FFC978]',
+  dodge: 'text-[#9CC4FF] font-semibold',
   heal: 'text-[#8EF0CF]',
   shield: 'text-[#9CC4FF]',
   death: 'text-rose-400/70',

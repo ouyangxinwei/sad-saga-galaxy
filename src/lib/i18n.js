@@ -299,6 +299,8 @@ export const S = {
   'battle.taunt': { zh: '嘲讽', ja: '挑発', en: 'Taunt' },
   'battle.ward': { zh: '减伤', ja: '軽減', en: 'Reduce' },
   'battle.crit': { zh: '暴击', ja: '会心', en: 'Critical' },
+  'battle.desperateCrit': { zh: '绝境暴击 ×3', ja: '窮地クリティカル ×3', en: 'DESPERATE CRITICAL ×3' },
+  'battle.dodge': { zh: '危机闪避', ja: '危機回避', en: 'DESPERATE DODGE' },
   'battle.stamina': { zh: '挑战消耗 6 点体力', ja: '挑戦にスタミナ 6 消費', en: 'Costs 6 stamina' },
 
   'formation.title': { zh: '阵容编排', ja: '編成', en: 'Squad Formation' },

@@ -3,6 +3,15 @@ import { RELEASE_DATE } from './metadata.js';
 
 export const CHANGELOG = [
   {
+    version: 'v0.58', date: '2026-11-04',
+    title: { zh: '绝境暴击与危机闪避系统', ja: '窮地クリティカル・危機回避システム', en: 'Desperate Critical and Dodge System' },
+    items: {
+      zh: ['新增绝境暴击：己方角色 HP 低于最大值 20% 时，普通攻击和主动攻击技能有概率造成最终伤害的 3 倍；多段技能整次只判定一次', '新增危机闪避：己方角色 HP 低于最大值 10% 时，受到敌方每次直接攻击均独立判定，成功则本次伤害为 0', '20 名基础角色按 HP、攻击、防御、速度、MP 相对全体初始平均值计算能力指数；能力越强，绝境暴击率和闪避率总体越低', '以 20% 为基准概率，分别加入按角色 ID 固定的 ±2 个百分点伪随机差异，最终概率限制在 10%～30%；刷新、升级、突破和装备变化均不会改变结果', '角色详情显示绝境暴击率与危机闪避率的具体数值；战斗日志分别标记绝境暴击 ×3 与危机闪避', '保留原有普通暴击、装备触发和 V20 存档；不修改 main 分支，新增概率根据角色 ID 稳定计算，无需改动现有存档结构'],
+      ja: ['窮地クリティカルを追加。味方 HP が最大値の 20% 未満の場合、通常攻撃とアクティブ攻撃スキルが最終ダメージの 3 倍になる可能性があり、多段スキルはスキル全体で 1 回だけ判定', '危機回避を追加。味方 HP が最大値の 10% 未満の場合、敵の直接攻撃ごとに独立判定し、成功すると今回のダメージは 0', '20 人の基本キャラクターについて HP・攻撃・防御・速度・MP を全体の初期平均と比較して能力指数を算出。能力が高いほど両確率は全体的に低下', '基準確率 20%。キャラクター ID に基づく固定の ±2 ポイントの疑似ランダム差を個別に加え、最終確率を 10%～30% に制限。再読み込み、レベルアップ、突破、装備変更で変化しない', 'キャラクター詳細に窮地クリティカル率と危機回避率を数値表示。戦闘ログに窮地クリティカル ×3 と危機回避を表示', '既存の通常会心、装備効果、V20 セーブを維持。main ブランチは変更せず、キャラクター ID から安定計算するため既存セーブ構造を変更しない'],
+      en: ['Adds Desperate Critical: below 20% HP, an ally may deal 3× final damage with a basic attack or active attack skill; multi-hit skills make one roll for the entire skill', 'Adds Desperate Dodge: below 10% HP, each incoming enemy direct hit is checked independently; a successful dodge reduces that hit to zero damage', 'Calculates an initial ability index for the 20 base characters by comparing HP, ATK, DEF, SPD, and MP with roster-wide initial averages; stronger characters generally receive lower rates', 'Uses a 20% baseline with independent, stable ±2 percentage-point pseudo-random adjustments derived from character ID; final rates are clamped to 10%–30% and remain unchanged across reloads, progression, and equipment changes', 'Displays exact Desperate Critical and Desperate Dodge rates in character details; battle logs identify DESPERATE CRITICAL ×3 and DESPERATE DODGE', 'Preserves existing standard critical hits, equipment triggers, and V20 saves; leaves main untouched and requires no save-schema change because rates are stable by character ID'],
+    },
+  },
+  {
     version: 'v0.57', date: '2026-11-04',
     title: { zh: '主线关卡记忆与首页宝石余额', ja: 'メインステージ選択の記憶とホームのジェム残高', en: 'Main-stage selection memory and home gem balances' },
     items: {
