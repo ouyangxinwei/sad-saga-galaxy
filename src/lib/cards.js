@@ -2,7 +2,7 @@ import { HEROES, RELICS, classOf, heroStats } from './gameData.js';
 import { getEquippedItem, getEquipmentBonuses, getEquipmentEffects } from './equipment.js';
 import { characterGrowthMultipliers, strongestCharacterInstance, characterClassIdFor, getCharacterBreakthroughBonuses } from './characterProgression.js';
 import { getDesperateCombatRates } from './desperateCombat.js';
-import { getFormationCombatBonuses, getFormationStatBonuses } from './formationSystem.js';
+import { getFormationCombatBonuses, getFormationEffectBonuses, getFormationStatBonuses } from './formationSystem.js';
 
 export const HERO_MAP = Object.fromEntries(HEROES.map((h) => [h.id, h]));
 
@@ -124,6 +124,7 @@ export function partyUnits(state, fortune = null) {
       const desperateRates = getDesperateCombatRates(id, def);
       const formationBonus = getFormationCombatBonuses(state.formation, id, state.party);
       const formationStats = getFormationStatBonuses(state.formation, id, state.party);
+      const formationEffects = getFormationEffectBonuses(state.formation, id, state.party);
       const formationStatPct = formationStats.statPct;
       const hp = Math.max(1, Math.round(st.hp * teamBonus * (1 + (f.hp || 0)) * (1 + formationStatPct.hp)));
       return {
@@ -148,14 +149,17 @@ export function partyUnits(state, fortune = null) {
         formationStats,
         critDamagePct: st.critDamagePct,
         damageDealtPct: st.damageDealtPct,
-        damageReductionPct: st.damageReductionPct,
+        damageReductionPct: st.damageReductionPct + formationEffects.damageReductionPct,
+        skillEffectPct: formationEffects.skillEffectPct,
+        skillDamagePct: formationEffects.skillDamagePct,
         mp: Math.max(1, Math.round(st.mp * teamBonus * (1 + formationStatPct.mp))),
         maxMp: Math.max(1, Math.round(st.mp * teamBonus * (1 + formationStatPct.mp))),
         lp: 6,
         maxLp: 6,
         healBonus: st.healBonus + (f.heal || 0),
         equipmentEffects: getEquipmentEffects(state, id),
-        mpCostReductionPct: st.mpCostReductionPct,
+        mpCostReductionPct: Math.min(0.5, st.mpCostReductionPct + formationEffects.mpCostReductionPct),
+        formationEffects,
         skills: def.skills,
       };
     })
