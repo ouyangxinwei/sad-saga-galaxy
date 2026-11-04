@@ -8,10 +8,11 @@ import { GoldButton, GhostButton, Chip } from '@/components/common/Bits';
 import { useGame } from '@/lib/GameContext';
 import { CLASSES } from '@/lib/gameData';
 import { fmt } from '@/lib/format';
+import { mainCharacterTeamBonusMultiplier } from '@/lib/cards';
 import CharacterDetailDialog from '@/components/dialogs/CharacterDetailDialog';
 
 export default function Formation() {
-  const { t, lang, party, cards, defOf, powerOf, actions, presets, presetIndex, power } = useGame();
+  const { t, lang, level, party, cards, defOf, powerOf, actions, presets, presetIndex, power } = useGame();
   const [detailId, setDetailId] = useState(null);
   const navigate = useNavigate();
   const [slot, setSlot] = useState(0);
@@ -21,6 +22,13 @@ export default function Formation() {
   const list = owned.filter((id) => filter === 'all' || defOf(id)?.classId === filter);
   const slots = Array.from({ length: 5 }, (_, i) => party[i] || null);
   const filled = slots.filter(Boolean).length;
+  const teamBonusPercent = Math.round((mainCharacterTeamBonusMultiplier({ level }) - 1) * 10000) / 100;
+  const bonusLabels = {
+    zh: { level: '主角等级', bonus: '全队战斗加成', hint: '所有上阵角色统一享受；不按角色自身等级重复累计' },
+    ja: { level: '主人公レベル', bonus: '全体戦闘ボーナス', hint: '編成中の全員に同じ補正を適用。各キャラのレベルは加算しません' },
+    en: { level: 'Main character level', bonus: 'Teamwide battle bonus', hint: 'Applied equally to every deployed character; individual character levels are not added' },
+  };
+  const bonusLabel = bonusLabels[lang] || bonusLabels.zh;
 
   const place = (id) => {
     actions.setPartySlot(slot, id);
@@ -41,6 +49,15 @@ export default function Formation() {
             </div>
           }
         />
+
+        <section className="saga-panel-soft mt-3 flex flex-wrap items-center justify-between gap-2 px-3 py-2.5">
+          <div>
+            <p className="text-[9px] text-muted-foreground">{bonusLabel.level}: {level}</p>
+            <p className="mt-0.5 text-[11px] font-semibold text-emerald-300">{bonusLabel.bonus}: +{teamBonusPercent}%</p>
+            <p className="mt-0.5 text-[8px] text-muted-foreground">{bonusLabel.hint}</p>
+          </div>
+          <GameIcon name="Users" className="h-5 w-5 text-emerald-300/70" />
+        </section>
 
         <section className="saga-panel mt-3 p-3">
           <div className="grid grid-cols-5 gap-1.5">
