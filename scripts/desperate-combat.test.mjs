@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { HEROES, heroStats } from '../src/lib/gameData.js';
-import { makeUnit, simulateBattle } from '../src/lib/battle.js';
+import { applyEquipmentDamageModifiers, applyFormationSkillModifiers, effectiveMpCost, makeUnit, simulateBattle } from '../src/lib/battle.js';
 import {
   DESPERATE_COMBAT_RULES,
   getDesperateCombatRates,
@@ -188,4 +188,25 @@ test('Long Serpent grants follow-up critical chance only to a consecutive ally a
   } finally {
     Math.random = originalRandom;
   }
+});
+
+
+test('formation damage reduction applies to incoming damage modifiers', () => {
+  const defender = makeUnit({ uid: 'a_guard', hp: 100, maxHp: 100, damageReductionPct: 0.05 });
+  assert.equal(applyEquipmentDamageModifiers(100, { damageDealtPct: 0 }, defender), 95);
+});
+
+test('formation skill damage and skill-effect bonuses scale the correct skill outputs', () => {
+  const skill = { kind: 'attack', power: 2, heal: 3, shield: 0.2, mitigate: 0.3, mp: 20, turns: 2 };
+  const enhanced = applyFormationSkillModifiers(skill, { skillDamagePct: 0.10, skillEffectPct: 0.05 });
+  assert.ok(Math.abs(enhanced.power - 2.31) < 1e-10);
+  assert.ok(Math.abs(enhanced.heal - 3.15) < 1e-10);
+  assert.ok(Math.abs(enhanced.shield - 0.21) < 1e-10);
+  assert.ok(Math.abs(enhanced.mitigate - 0.315) < 1e-10);
+  assert.equal(enhanced.mp, 20);
+});
+
+test('formation MP-cost reduction applies after skill selection and respects the shared cap', () => {
+  assert.equal(effectiveMpCost({ mp: 20 }, { mpCostReductionPct: 0.10 }), 18);
+  assert.equal(effectiveMpCost({ mp: 20 }, { mpCostReductionPct: 0.80 }), 10);
 });
