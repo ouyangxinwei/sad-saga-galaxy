@@ -28,7 +28,7 @@ function ResourcePill({ icon, color, value, label, dot }) {
 }
 
 export default function TopBar({ onOpen }) {
-  const { t, lang, setLang, gold, gems, tickets, stamina, staminaMax, checkin, ownedHeroCount, enemyUnlocked, msClaimed } = useGame();
+  const { t, lang, setLang, gold, gems, tickets, idleGems = 0, clearGems = 0, stamina, staminaMax, checkin, ownedHeroCount, enemyUnlocked, msClaimed } = useGame();
 
   const checkinReady = checkin.last !== todayKey();
   const msReady =
@@ -73,6 +73,8 @@ export default function TopBar({ onOpen }) {
           <ResourcePill icon="Coins" color="#E8C87A" value={fmt(gold)} label={t('res.gold')} />
           <ResourcePill icon="Gem" color="#8B7BF7" value={fmt(gems)} label={t('res.gems')} />
           <ResourcePill icon="Ticket" color="#6FE3C0" value={fmt(tickets)} label={t('res.tickets')} />
+          <ResourcePill icon="Clock" color="#6FC7E8" value={fmt(idleGems)} label={t('res.idleGems')} />
+          <ResourcePill icon="Gem" color="#E8A0C8" value={fmt(clearGems)} label={t('res.clearGems')} />
           <ResourcePill icon="BatteryFull" color="#F0748F" value={`${stamina}/${staminaMax}`} label={t('res.stamina')} />
         </div>
         <div className="no-scrollbar flex items-center justify-between gap-0.5 overflow-x-auto">

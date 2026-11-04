@@ -3,6 +3,16 @@ import { RELEASE_DATE } from './metadata.js';
 
 export const CHANGELOG = [
   {
+    version: 'v0.57', date: '2026-11-04',
+    title: { zh: '主线关卡记忆与首页宝石余额', ja: 'メインステージ選択の記憶とホームのジェム残高', en: 'Main-stage selection memory and home gem balances' },
+    items: {
+      zh: ['主线任务分别记住普通、困难和特别难模式上次手动选择的关卡；离开页面、刷新或重新打开游戏后恢复', '重新进入时即使上次选择的关卡已经通关，也仍然回到该关；不自动跳转到下一关', '点击已通关或当前可挑战关卡先选中关卡，再通过挑战按钮进入战斗；各难度独立记忆', '若记忆关卡因进度或解锁状态变化而不可进入，则自动调整到该难度当前最近的有效关卡', '首页资源栏新增挂机宝石与清关宝石余额，实时跟随获得、消耗和兑换变化', '沿用独立本地页面设置与 V20 游戏存档，不修改通关进度、战斗规则或云存档；支持中文、日文、英文及手机端横向滚动显示'],
+      ja: ['メインクエストではノーマル・ハード・ナイトメアごとに最後に手動選択したステージを記憶し、画面移動・再読み込み・再起動後に復元', '前回選択したステージをクリア済みでも次のステージへ自動移動せず、同じステージを再表示', 'クリア済みまたは現在挑戦可能なステージを選択してから挑戦ボタンでバトル開始。難易度ごとに個別保存', '進行状況や解放状態の変化で保存済みステージに入れない場合、その難易度で現在選択可能な最も近いステージへ調整', 'ホームのリソース欄に放置ジェムとクリアジェムの残高を追加し、獲得・消費・交換に応じて即時更新', '独立したローカル設定と既存 V20 セーブを維持。クリア進行・戦闘ルール・クラウドセーブは変更せず、中国語・日本語・英語およびモバイルの横スクロールに対応'],
+      en: ['Remembers the last manually selected stage separately for Normal, Hard, and Nightmare, restoring it after navigation, refresh, or relaunch', 'Returns to the previously selected stage even if it has already been cleared; it does not automatically advance to the next stage', 'Select a cleared or currently challengeable stage first, then use the Challenge button to enter battle; each difficulty keeps its own selection', 'If a remembered stage becomes unavailable because progression or unlock state changes, it is adjusted to the nearest currently valid stage in that difficulty', 'Adds Idle Gem and Clear Gem balances to the Home resource bar, updating immediately after gains, spending, and exchanges', 'Uses a separate local page preference and the existing V20 game save; does not change clear progress, battle rules, or add cloud saves. Supports Chinese, Japanese, English, and horizontally scrollable mobile display'],
+    },
+  },
+
+  {
     version: 'v0.56', date: '2026-11-04',
     title: { zh: '资源互换系统', ja: 'リソース交換システム', en: 'Resource Exchange System' },
     items: {

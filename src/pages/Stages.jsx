@@ -8,10 +8,31 @@ import { MODES, STAGES_PER_MODE, getStage } from '@/lib/gameData';
 import { fmt } from '@/lib/format';
 
 const MODE_IDS = ['normal', 'hard', 'nightmare'];
+const STAGE_SELECTION_KEY = 'saga_galaxy_stage_selection_v1';
+
+function readStageSelection() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(STAGE_SELECTION_KEY) || '{}');
+    const mode = MODE_IDS.includes(parsed.mode) ? parsed.mode : 'normal';
+    const stages = Object.fromEntries(MODE_IDS.map((id) => {
+      const value = Number(parsed.stages?.[id]);
+      return [id, Number.isInteger(value) && value >= 1 && value <= STAGES_PER_MODE ? value : null];
+    }));
+    return { mode, stages };
+  } catch {
+    return { mode: 'normal', stages: { normal: null, hard: null, nightmare: null } };
+  }
+}
+
+function writeStageSelection(selection) {
+  try { localStorage.setItem(STAGE_SELECTION_KEY, JSON.stringify(selection)); } catch { /* local storage may be unavailable */ }
+}
 
 export default function Stages() {
   const { t, lang, progress, actions, power, clearGems = 0, clearGemStats = {} } = useGame();
-  const [mode, setMode] = useState('normal');
+  const [initialSelection] = useState(readStageSelection);
+  const [mode, setMode] = useState(() => initialSelection.mode);
+  const [selectedStages, setSelectedStages] = useState(() => initialSelection.stages);
   const [quickClearOpen, setQuickClearOpen] = useState(false);
   const [quickClearStage, setQuickClearStage] = useState(0);
   const [quickClearBatch, setQuickClearBatch] = useState(10);
@@ -25,8 +46,26 @@ export default function Stages() {
     hard: (progress.normal || 0) >= STAGES_PER_MODE,
     nightmare: (progress.hard || 0) >= STAGES_PER_MODE,
   };
-  const nextN = Math.min(STAGES_PER_MODE, cleared + 1);
-  const nextStage = getStage(mode, nextN);
+  const maxSelectable = Math.min(STAGES_PER_MODE, cleared + 1);
+  const rememberedStage = selectedStages[mode];
+  const selectedStageN = Math.min(maxSelectable, Math.max(1, rememberedStage || maxSelectable));
+  const selectedStage = getStage(mode, selectedStageN);
+
+  const selectMode = (id) => {
+    const nextCleared = Number(progress[id]) || 0;
+    const maxStage = Math.min(STAGES_PER_MODE, nextCleared + 1);
+    const restored = Math.min(maxStage, Math.max(1, selectedStages[id] || maxStage));
+    const nextStages = { ...selectedStages, [id]: restored };
+    setMode(id);
+    setSelectedStages(nextStages);
+    writeStageSelection({ mode: id, stages: nextStages });
+  };
+
+  const selectStage = (stageN) => {
+    const nextStages = { ...selectedStages, [mode]: stageN };
+    setSelectedStages(nextStages);
+    writeStageSelection({ mode, stages: nextStages });
+  };
 
   return (
     <AppShell>
@@ -58,7 +97,7 @@ export default function Stages() {
               <button
                 key={id}
                 type="button"
-                onClick={() => isUnlocked && setMode(id)}
+                onClick={() => isUnlocked && selectMode(id)}
                 className={`tap rounded-xl border px-2 py-2 text-left ${
                   mode === id ? 'border-primary/45 bg-primary/[0.08]' : 'border-white/10 bg-white/[0.03]'
                 } ${isUnlocked ? '' : 'opacity-45'}`}
@@ -82,19 +121,19 @@ export default function Stages() {
           <>
             <div className="saga-panel mt-3 flex items-center gap-3 p-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-primary/25 bg-primary/[0.07]">
-                <GameIcon name={nextStage.boss ? 'Crown' : 'Map'} className="h-5 w-5 text-primary" />
+                <GameIcon name={selectedStage.boss ? 'Crown' : 'Map'} className="h-5 w-5 text-primary" />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-[11.5px] text-foreground/90">
-                  {t('stages.stage', { n: nextN })}
-                  {nextStage.boss ? ` · ${t('stages.boss')}` : ''}
+                  {t('stages.stage', { n: selectedStageN })}
+                  {selectedStage.boss ? ` · ${t('stages.boss')}` : ''}
                 </p>
                 <p className="text-[9px] text-muted-foreground">
-                  {t('stages.power')} {fmt(nextStage.power)} · {t('battle.stamina')}
+                  {t('stages.power')} {fmt(selectedStage.power)} · {t('battle.stamina')}
                 </p>
               </div>
               <div className="flex shrink-0 gap-1.5">
-                <GoldButton onClick={() => navigate(`/battle?mode=${mode}&stage=${nextN}`)} className="px-3 py-1.5 text-[10px]">
+                <GoldButton onClick={() => navigate(`/battle?mode=${mode}&stage=${selectedStageN}`)} className="px-3 py-1.5 text-[10px]">
                   {t('stages.challenge')}
                 </GoldButton>
                 <button type="button" disabled={cleared < 1}
@@ -142,9 +181,10 @@ export default function Stages() {
                             key={stageN}
                             type="button"
                             disabled={!isCleared && !isNext}
-                            onClick={() => navigate(`/battle?mode=${mode}&stage=${stageN}`)}
+                            aria-pressed={selectedStageN === stageN}
+                            onClick={() => selectStage(stageN)}
                             className={`tap relative flex h-[52px] flex-col items-center justify-center rounded-lg border text-[11px] ${
-                              isNext
+                              selectedStageN === stageN
                                 ? 'border-primary/60 bg-primary/[0.12] text-primary glow-gold'
                                 : isCleared
                                   ? 'border-white/10 bg-white/[0.04] text-foreground/70'
