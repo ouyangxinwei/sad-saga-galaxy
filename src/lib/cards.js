@@ -160,6 +160,8 @@ export function partyUnits(state, fortune = null) {
         equipmentEffects: getEquipmentEffects(state, id),
         mpCostReductionPct: Math.min(0.5, st.mpCostReductionPct + formationEffects.mpCostReductionPct),
         formationEffects,
+        formationActionOrder: formationEffects.actionOrder,
+        formationPositionIndex: formationEffects.positionIndex,
         skills: def.skills,
       };
     })
