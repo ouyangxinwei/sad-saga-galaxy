@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { DEFAULT_FORMATION_ID, FORMATIONS, createDefaultFormationState, getFormationCombatBonuses, getFormationEffectBonuses, getFormationStatBonuses, normalizeFormationState, setActiveFormation, setFormationPosition } from '../src/lib/formationSystem.js';
+import { DEFAULT_FORMATION_ID, FORMATIONS, createDefaultFormationState, getFormationActionOrderBonuses, getFormationCombatBonuses, getFormationEffectBonuses, getFormationStatBonuses, normalizeFormationState, setActiveFormation, setFormationPosition } from '../src/lib/formationSystem.js';
 
 const party = ['hero-a', 'hero-b', 'hero-c', 'hero-d', 'hero-e'];
 
