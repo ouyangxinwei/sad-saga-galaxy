@@ -3,6 +3,16 @@ import { RELEASE_DATE } from './metadata.js';
 
 export const CHANGELOG = [
   {
+    version: 'v0.65', date: '2026-11-04',
+    title: { zh: '阵型系统 Phase 3-C 伤害与技能机制', ja: '陣形 Phase 3-C ダメージ・スキル効果', en: 'Formation Phase 3-C damage and skill effects' },
+    items: {
+      zh: ['菱形守护阵：全队直接伤害减免 5% 正式参与承伤计算', '四方核心阵：中央核心角色的技能伤害提高 10%，不影响普通攻击', '十字协同阵：全队技能效果提高 5%，覆盖技能伤害、治疗、护盾与减伤效果；外围角色技能 MP 消耗降低 10%', '阵型效果与装备属性叠加，MP 消耗继续遵循现有统一上限；未安排到当前阵型站位的角色不获得阵型效果', '更新阵型页面说明与专项测试；保留 V20 本地存档结构，特殊行动顺序留待 Phase 3-D'],
+      ja: ['菱形守護陣：味方全員の直接ダメージを 5% 軽減する効果を実戦に反映', '四方コア陣：中央の主力キャラのスキルダメージを 10% 強化。通常攻撃には適用しない', '十字協同陣：全員のスキル効果を 5% 強化し、スキルダメージ・回復・シールド・軽減効果に適用。外周キャラのスキル MP 消費を 10% 軽減', '陣形効果は装備能力と加算。MP 消費は既存の共通上限を維持し、現在の陣形に配置されていないキャラには適用しない', '陣形画面の説明と重点テストを更新。V20 ローカルセーブ構造を維持し、特殊行動順は Phase 3-D で対応'],
+      en: ['Diamond Guard: the team-wide 5% direct-damage reduction now applies when allies take damage', 'Four-Corner Core: the center carry gains 10% skill damage; this does not affect basic attacks', 'Cross Support: team skill effects increase by 5%, applying to skill damage, healing, shields, and mitigation; outer-position allies spend 10% less MP on skills', 'Formation modifiers stack additively with equipment values; MP cost retains its existing shared cap, and unassigned characters receive no formation effect', 'Updates formation-screen notices and focused tests; preserves the V20 local-save schema. Special action order remains for Phase 3-D'],
+    },
+  },
+
+  {
     version: 'v0.64', date: '2026-11-04',
     title: { zh: '阵型系统 Phase 3-B 概率与条件机制', ja: '陣形 Phase 3-B 確率・条件効果', en: 'Formation Phase 3-B probability and conditions' },
     items: {
