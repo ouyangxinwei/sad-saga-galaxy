@@ -3,6 +3,16 @@ import { RELEASE_DATE } from './metadata.js';
 
 export const CHANGELOG = [
   {
+    version: 'v0.66', date: '2026-11-04',
+    title: { zh: '阵型系统 Phase 3-D 特殊行动顺序', ja: '陣形 Phase 3-D 特殊行動順', en: 'Formation Phase 3-D special action order' },
+    items: {
+      zh: ['四方核心阵：中央核心角色固定排在我方其他队员之后行动；其他队员之间仍按速度排序', '一字长蛇阵：我方五名队员按照当前阵型从第 1 至第 5 个站位依次行动；敌方行动仍按速度排序并保留原有插入时机', '阵型顺序只重排我方行动槽位，不改变敌我单位的速度属性、队伍名单或阵型站位存档', '行动顺序在每回合开始时根据存活单位重新计算；死亡、复活与敌我行动交错仍遵循现有战斗流程', '补充行动顺序专项测试与三语言说明；保留 V20 本地存档结构'],
+      ja: ['四方コア陣：中央の主力キャラは味方の他メンバー全員の後に行動し、その他の味方同士は速度順を維持', '長蛇陣：味方 5 人は現在の陣形配置 1 番から 5 番の順に行動。敵の行動は速度順を維持し、元の割り込み位置を保持', '陣形順は味方の行動枠のみを並べ替え、速度能力値・パーティ編成・陣形配置セーブを変更しない', '各ターン開始時に生存ユニットから行動順を再計算し、死亡・復活・敵味方の交互行動は既存の戦闘フローに従う', '行動順の重点テストと三言語説明を追加。V20 ローカルセーブ構造を維持'],
+      en: ['Four-Corner Core: the center carry acts after every other ally; the remaining allies retain their speed order', 'Long Serpent: the five allies act in formation-slot order from position 1 through 5. Enemy turns retain speed order and their existing interleaving slots', 'Formation order only rearranges allied action slots; it does not change SPD stats, party membership, or saved formation assignments', 'The order is recalculated from living units at the start of each round; existing death, revival, and ally/enemy interleaving behavior is preserved', 'Adds focused action-order tests and localized notices while preserving the V20 local-save schema'],
+    },
+  },
+
+  {
     version: 'v0.65', date: '2026-11-04',
     title: { zh: '阵型系统 Phase 3-C 伤害与技能机制', ja: '陣形 Phase 3-C ダメージ・スキル効果', en: 'Formation Phase 3-C damage and skill effects' },
     items: {
