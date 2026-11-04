@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { HEROES, heroStats } from '../src/lib/gameData.js';
-import { simulateBattle } from '../src/lib/battle.js';
+import { makeUnit, simulateBattle } from '../src/lib/battle.js';
 import {
   DESPERATE_COMBAT_RULES,
   getDesperateCombatRates,
@@ -149,4 +149,39 @@ test('each enemy direct hit checks desperate dodge before applying damage', () =
   );
   assert.ok(result.events.some((event) => event.kind === 'dodge' && event.sid === 'e_0' && event.tid === 'a_test'));
   assert.equal(result.events.some((event) => event.kind === 'damage' && event.sid === 'e_0' && event.tid === 'a_test'), false);
+});
+
+
+test('formation bonuses can raise desperate combat rates above the base-character cap', () => {
+  const unit = makeUnit({
+    uid: 'a_formation',
+    hp: 9,
+    maxHp: 100,
+    desperateCritRate: 0.35,
+    desperateDodgeRate: 0.45,
+  });
+  assert.equal(unit.desperateCritRate, 0.35);
+  assert.equal(unit.desperateDodgeRate, 0.45);
+});
+
+test('Long Serpent grants follow-up critical chance only to a consecutive ally action', () => {
+  const originalRandom = Math.random;
+  Math.random = () => 0.03;
+  try {
+    const result = simulateBattle(
+      [
+        { uid: 'a_first', name: 'First', hp: 100, maxHp: 100, atk: 10, def: 0, spd: 120, crit: 0, skills: ['slash'], formationBonus: { followUpCriticalPp: 0.05 } },
+        { uid: 'a_second', name: 'Second', hp: 100, maxHp: 100, atk: 10, def: 0, spd: 110, crit: 0, skills: ['slash'], formationBonus: { followUpCriticalPp: 0.05 } },
+      ],
+      [{ uid: 'e_target', name: 'Target', hp: 10000, maxHp: 10000, atk: 0, def: 0, spd: 1, crit: 0, skills: ['claw'] }],
+      1,
+      { random: () => 0.99 },
+    );
+    const firstHit = result.events.find((event) => event.kind === 'damage' && event.sid === 'a_first');
+    const secondHit = result.events.find((event) => event.kind === 'damage' && event.sid === 'a_second');
+    assert.equal(firstHit.crit, false);
+    assert.equal(secondHit.crit, true);
+  } finally {
+    Math.random = originalRandom;
+  }
 });
