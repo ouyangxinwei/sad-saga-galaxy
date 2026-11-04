@@ -3,6 +3,15 @@ import { RELEASE_DATE } from './metadata.js';
 
 export const CHANGELOG = [
   {
+    version: 'v0.63', date: '2026-11-04',
+    title: { zh: '阵型系统 Phase 3-A 属性计算接入', ja: '陣形 Phase 3-A 能力値計算', en: 'Formation Phase 3-A stat integration' },
+    items: {
+      zh: ['八种阵型的 HP、攻击、防御、速度、MP 加成与负面效果正式参与战斗角色属性计算', '根据当前启用阵型及独立站位应用团队与位置属性修正；未编入阵型位置的角色不获得阵型属性加成', '阵型属性在角色成长、突破、装备、主角等级团队加成及现有战斗增益之后计算', '新增八种阵型属性专项测试；HP/MP 最大值与战斗初始当前值同步生成，初始资源保持满值', '保留 V20 本地存档结构；伤害减免、技能强化、MP 消耗降低及特殊行动顺序留待后续阶段'],
+      ja: ['8 種類の陣形による HP・攻撃・防御・速度・MP の強化と弱体化を実際の戦闘能力値へ反映', '有効な陣形と独立配置に基づいて全体・位置別補正を適用し、配置外のキャラクターには補正しない', 'キャラクター成長・突破・装備・プレイヤーレベル補正・既存戦闘バフの後に陣形補正を適用', '8 陣形の能力値テストを追加。戦闘開始時の現在 HP/MP は最大値と同期し満タンを維持', 'V20 ローカルセーブ構造を維持。ダメージ軽減、スキル強化、MP 消費軽減、特殊行動順は後続フェーズで対応'],
+      en: ['Connects HP, ATK, DEF, SPD, and MP bonuses and penalties from all eight formations to actual battle-unit stats', 'Applies team and position modifiers from the active formation assignments; characters outside the five assigned slots receive no formation stat modifiers', 'Applies formation stats after character growth, breakthrough, equipment, main-player team bonus, and existing battle buffs', 'Adds focused stat tests for all eight formations; current and maximum HP/MP are generated together so battles start at full resources', 'Preserves the V20 local-save schema; damage reduction, skill enhancement, MP-cost reduction, and special action order remain for later phases'],
+    },
+  },
+  {
     version: 'v0.62', date: '2026-11-04',
     title: { zh: '阵型系统 Phase 5 专项验收', ja: '陣形システム Phase 5 の重点検証', en: 'Formation system Phase 5 focused verification' },
     items: {
