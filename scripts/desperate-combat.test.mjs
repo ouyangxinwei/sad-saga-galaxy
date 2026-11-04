@@ -147,6 +147,6 @@ test('each enemy direct hit checks desperate dodge before applying damage', () =
     1,
     { random: () => 0 },
   );
-  assert.ok(result.events.some((event) => event.kind === 'dodge' && event.sid === 'e_test' && event.tid === 'a_test'));
-  assert.equal(result.events.some((event) => event.kind === 'damage' && event.sid === 'e_test' && event.tid === 'a_test'), false);
+  assert.ok(result.events.some((event) => event.kind === 'dodge' && event.sid === 'e_0' && event.tid === 'a_test'));
+  assert.equal(result.events.some((event) => event.kind === 'damage' && event.sid === 'e_0' && event.tid === 'a_test'), false);
 });
