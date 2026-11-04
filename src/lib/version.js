@@ -1,8 +1,17 @@
 // Single source of truth for in-app, package, and release-document version.
-export const APP_VERSION = 'v0.51';
+export const APP_VERSION = 'v0.52';
 export const RELEASE_DATE = '2026-11-04';
 
 export const CHANGELOG = [
+  {
+    version: 'v0.52', date: '2026-11-04',
+    title: { zh: 'V7 综合回归与发布验收（Phase 6）', ja: 'V7 総合回帰テストとリリース受け入れ（Phase 6）', en: 'V7 comprehensive regression and release acceptance (Phase 6)' },
+    items: {
+      zh: ['完成 V7 角色成长、职业差异化属性、等级经验、突破奖励及主角等级全队加成的综合回归核查', '核查融合最强成长记录继承、已有结果卡保留及卡片数量与进度处理', '核查完整存档 JSON 导出、导入预览、二次确认、V20 旧档迁移和导入失败保护', '执行现有角色成长、战斗/装备/平衡、警告诊断、重置及存档自动化回归测试；GitHub Actions 测试与生产构建通过', '发布版本号更新为 V0.52，PWA Service Worker 缓存版本升级至 v34，保留完整历史更新履历', 'GitHub Pages 部署成功；真实设备安装、离线启动及触屏验收需在目标设备上继续确认'],
+      ja: ['V7 のキャラクター育成、職業別能力成長、経験値、突破報酬、主人公レベルによる全体補正を総合回帰確認', '融合時の最強育成記録の継承、既存結果カードの保持、カード枚数と進行状況の処理を確認', '完全 JSON セーブのエクスポート、インポートプレビュー、二段階確認、V20 旧セーブ移行、失敗時保護を確認', '既存のキャラクター育成、戦闘/装備/バランス、警告診断、リセット、セーブ自動回帰テストを実行。GitHub Actions のテストと本番ビルドが成功', 'バージョンを V0.52 に更新し、PWA Service Worker キャッシュを v34 に更新。全履歴を保持', 'GitHub Pages へのデプロイ成功。実機でのインストール、オフライン起動、タッチ操作は対象端末での確認が必要'],
+      en: ['Completes regression review of V7 character progression, career-specific stats, EXP, breakthrough rewards, and main-character-level team bonus', 'Reviews strongest progression inheritance in fusion, preservation of existing result copies, card counts, and progression state', 'Reviews full JSON save export, import preview, second confirmation, V20 legacy migration, and failure protection', 'Runs the existing character progression, battle/equipment/balance, warning diagnosis, reset, and save regression suites; GitHub Actions tests and production build pass', 'Updates the release to V0.52 and the PWA Service Worker cache to v34 while retaining the complete version history', 'GitHub Pages deployment succeeds; installation, offline launch, and touch interaction still require confirmation on a target device'],
+    },
+  },
   {
     version: 'v0.51', date: '2026-11-04',
     title: { zh: '完整存档导出与安全恢复（V7 Phase 5）', ja: 'セーブデータの完全エクスポートと安全な復元（V7 Phase 5）', en: 'Full save export and safe restore (V7 Phase 5)' },
