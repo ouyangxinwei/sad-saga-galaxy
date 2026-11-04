@@ -83,7 +83,19 @@ export function getFormationDefinition(formationId) {
   return FORMATION_MAP[formationId] || null;
 }
 
-// Phase 3 Demo: only chance-based formation effects are connected to combat.
+// Phase 3-A: derive active formation stat modifiers for each assigned member.
+export function getFormationStatBonuses(formationState, cardId, party = []) {
+  const formation = FORMATION_MAP[formationState?.activeFormationId] || FORMATION_MAP[DEFAULT_FORMATION_ID];
+  const assignments = formationState?.assignmentsByFormation?.[formation.id] || partySlots(party);
+  const positionIndex = assignments.indexOf(cardId);
+  const role = positionIndex >= 0 ? formation.positions[positionIndex]?.role : null;
+  const team = positionIndex >= 0 ? formation.effects?.team?.statPct || {} : {};
+  const position = role ? formation.effects?.positions?.[role]?.statPct || {} : {};
+  const statPct = Object.fromEntries(['hp', 'atk', 'def', 'spd', 'mp'].map((stat) => [stat, (Number(team[stat]) || 0) + (Number(position[stat]) || 0)]));
+  return { formationId: formation.id, formationName: formation.name, role, statPct };
+}
+
+// Chance modifiers remain separate from stat modifiers.
 export function getFormationCombatBonuses(formationState, cardId, party = []) {
   const formation = FORMATION_MAP[formationState?.activeFormationId] || FORMATION_MAP[DEFAULT_FORMATION_ID];
   const assignments = formationState?.assignmentsByFormation?.[formation.id] || partySlots(party);
