@@ -17,13 +17,21 @@ import {
   upgradedName,
 } from '@/lib/gameData';
 import { copiesOf } from '@/lib/cards';
+import { getCharacterBreakthroughBonuses, previewFusionCharacterProgression } from '@/lib/characterProgression';
 import { fmt } from '@/lib/format';
+
+const FUSION_PREVIEW = {
+  zh: { title: '融合成长继承预览', source: '本次融合将继承消耗卡中最强的成长记录', existing: '已有结果卡的成长记录更强：原有结果卡保留，新融合卡将从 Lv1 开始', level: '等级', cap: '等级上限', exp: '储存经验', breakthroughs: '突破次数', rewards: '累计突破奖励', need: '需要 3 张同类型卡', none: '暂无可继承的成长记录' },
+  ja: { title: '融合成長引き継ぎプレビュー', source: '消費カードの中で最も強い成長記録を新しいカードへ引き継ぎます', existing: '既存の結果カードの成長記録が最も強いため、そのカードを保持し、新しい融合カードは Lv1 から開始します', level: 'レベル', cap: '上限', exp: '保存経験値', breakthroughs: '突破回数', rewards: '累計突破報酬', need: '同じ種類のカードが 3 枚必要です', none: '引き継げる成長記録がありません' },
+  en: { title: 'Fusion Growth Preview', source: 'The strongest progression among the consumed source copies will transfer to the new card', existing: 'An existing result card has the strongest record and will be kept; the newly fused copy starts at Lv 1', level: 'Level', cap: 'Level cap', exp: 'Stored EXP', breakthroughs: 'Breakthroughs', rewards: 'Total breakthrough rewards', need: 'Requires 3 cards of the same type', none: 'No progression record is available to inherit' },
+};
 
 const TABS = ['cards', 'fuse', 'convert', 'rebirth'];
 const TAB_LABEL = { cards: 'synth.cards', fuse: 'synth.fuseCards', convert: 'synth.convert', rebirth: 'synth.rebirth' };
 
 export default function Synthesis() {
-  const { t, lang, cardShards, enemyShards, cards, cardCounts, level, rebirth, actions, defOf, customDefs } = useGame();
+  const game = useGame();
+  const { t, lang, cardShards, enemyShards, cards, cardCounts, level, rebirth, actions, defOf, customDefs } = game;
   const [tab, setTab] = useState(() => {
     const wanted = new URLSearchParams(window.location.search).get('tab');
     return TABS.includes(wanted) ? wanted : 'cards';
@@ -122,6 +130,32 @@ export default function Synthesis() {
                   >
                     {copies < 3 ? t('synth.copies', { n: copies }) : t('synth.fuseGo')}
                   </GoldButton>
+                  {(() => {
+                    const preview = previewFusionCharacterProgression(game, id, result.id, 3);
+                    const winner = preview.winner;
+                    const record = winner?.record;
+                    const reward = getCharacterBreakthroughBonuses(record, def.classId);
+                    const copyLabels = FUSION_PREVIEW[lang] || FUSION_PREVIEW.zh;
+                    return (
+                      <div className="basis-full rounded-lg border border-primary/15 bg-primary/[0.035] p-2.5">
+                        <p className="text-[9px] font-semibold tracking-wide text-primary">{copyLabels.title}</p>
+                        {copies < 3 ? (
+                          <p className="mt-1 text-[9px] text-muted-foreground">{copyLabels.need}</p>
+                        ) : record ? (
+                          <>
+                            <p className="mt-1 text-[9px] leading-relaxed text-muted-foreground">{winner.origin === 'result' ? copyLabels.existing : copyLabels.source}</p>
+                            <div className="mt-2 grid grid-cols-2 gap-1.5 text-[9px] sm:grid-cols-4">
+                              <div className="rounded bg-black/20 p-1.5"><span className="text-muted-foreground">{copyLabels.level}</span><p className="text-foreground">Lv {record.level}</p></div>
+                              <div className="rounded bg-black/20 p-1.5"><span className="text-muted-foreground">{copyLabels.cap}</span><p className="text-foreground">Lv {record.levelCap}</p></div>
+                              <div className="rounded bg-black/20 p-1.5"><span className="text-muted-foreground">{copyLabels.exp}</span><p className="text-foreground">{fmt(record.exp || 0)}</p></div>
+                              <div className="rounded bg-black/20 p-1.5"><span className="text-muted-foreground">{copyLabels.breakthroughs}</span><p className="text-foreground">{record.breakthroughCount || 0}</p></div>
+                            </div>
+                            <p className="mt-1.5 text-[8.5px] text-muted-foreground">{copyLabels.rewards}: HP +{reward.hp} · ATK +{reward.atk} · DEF +{reward.def} · MP +{reward.mp}</p>
+                          </>
+                        ) : <p className="mt-1 text-[9px] text-muted-foreground">{copyLabels.none}</p>}
+                      </div>
+                    );
+                  })()}
                 </div>
               );
             })}
