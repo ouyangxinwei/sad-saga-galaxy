@@ -42,6 +42,7 @@ import { APP_VERSION } from './version';
 import { cardPower, copiesOf, getCardDef, partyPower, strongestParty, teamTotals } from './cards';
 import { equipItem, getEquipmentDefinition, getEquippedItem } from './equipment';
 import { getClearGemSettlementCount, isStageCleared } from './clearGemSystem';
+import { getProgressAfterStageWin } from './stageProgression';
 import { normalizeCharacterProgressionState, grantPartyCharacterExperience, breakthroughCharacter, fuseCharacterProgressionInstances } from './characterProgression';
 import { applyResourceExchange } from './resourceExchange';
 import { setActiveFormation as selectActiveFormation, setFormationPosition as assignFormationPosition, normalizeFormationState } from './formationSystem';
@@ -465,12 +466,7 @@ export function GameProvider({ children }) {
         rewards.medals = stage.medal || 0;
       } else {
         const currentProgress = s.progress[mode] || 0;
-        if (currentProgress === n - 1) s.progress[mode] = n;
-        // In Normal mode, clearing a chapter boss also unlocks the next boss.
-        // The four skipped minion stages grant no rewards.
-        if (mode === 'normal' && stage.boss && n < 100 && s.progress.normal === n) {
-          s.progress.normal = Math.min(100, n + 4);
-        }
+        s.progress[mode] = getProgressAfterStageWin(currentProgress, n, Boolean(stage.boss));
       }
       const first = stage.enemies?.[0]?.enemyId;
       if (first) {
