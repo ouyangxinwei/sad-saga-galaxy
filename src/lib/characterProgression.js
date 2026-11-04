@@ -227,6 +227,40 @@ export function strongestCharacterInstance(state, cardId) {
  * result-card instance ID. If an existing result copy wins, it stays untouched
  * and normalization creates the newly fused copy at its initial growth.
  */
+export function previewFusionCharacterProgression(state, sourceCardId, resultCardId, count = 3) {
+  const instances = state?.characterProgression?.instances || {};
+  const amount = Math.max(0, Math.floor(Number(count) || 0));
+  const all = Object.entries(instances);
+  const sourceCandidates = all
+    .filter(([, record]) => record?.cardId === sourceCardId)
+    .sort((a, b) =>
+      (Number(a[1].level) || 1) - (Number(b[1].level) || 1) ||
+      (Number(a[1].exp) || 0) - (Number(b[1].exp) || 0) ||
+      (Number(a[1].breakthroughCount) || 0) - (Number(b[1].breakthroughCount) || 0) ||
+      (Number(a[1].levelCap) || INITIAL_CHARACTER_LEVEL_CAP) - (Number(b[1].levelCap) || INITIAL_CHARACTER_LEVEL_CAP) ||
+      String(a[0]).localeCompare(String(b[0]))
+    );
+  const consumed = sourceCandidates.slice(0, amount);
+  const resultCandidates = all
+    .filter(([, record]) => record?.cardId === resultCardId)
+    .map(([instanceId, record]) => ({ instanceId, record, origin: 'result' }));
+  const sourceGrowth = consumed.map(([instanceId, record]) => ({ instanceId, record, origin: 'source' }));
+  const compareGrowth = (a, b) =>
+    (Number(b.record.level) || 1) - (Number(a.record.level) || 1) ||
+    (Number(b.record.exp) || 0) - (Number(a.record.exp) || 0) ||
+    (Number(b.record.breakthroughCount) || 0) - (Number(a.record.breakthroughCount) || 0) ||
+    (Number(b.record.levelCap) || INITIAL_CHARACTER_LEVEL_CAP) - (Number(a.record.levelCap) || INITIAL_CHARACTER_LEVEL_CAP) ||
+    ((a.origin === 'result' ? 0 : 1) - (b.origin === 'result' ? 0 : 1));
+  const winner = [...sourceGrowth, ...resultCandidates].sort(compareGrowth)[0] || null;
+  return {
+    canPreview: amount > 0 && sourceCandidates.length >= amount,
+    consumedCount: consumed.length,
+    sourceCopyCount: sourceCandidates.length,
+    resultCopyCount: resultCandidates.length,
+    winner: winner ? { ...winner } : null,
+  };
+}
+
 export function fuseCharacterProgressionInstances(state, sourceCardId, resultCardId, count = 3) {
   const progression = state?.characterProgression;
   if (!progression?.instances || !sourceCardId || !resultCardId) return state;
