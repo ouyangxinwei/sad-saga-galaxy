@@ -28,9 +28,12 @@ export function getCharacterCombatChanceDisplay({
 
   const baseDesperateDodge = Number(desperateRates?.desperateDodgeRate) || 0;
   const formationDodge = Number(formationBonus.dodgePp) || 0;
-  const highSpeedDodge = Number(formationBonus.highSpeedDodgePp) || 0;
+  const highSpeedDodge = Number(
+    formationBonus.conditionalHighSpeedDodgePp ?? formationBonus.highSpeedDodgePp,
+  ) || 0;
+  const highSpeedActive = Boolean(battleUnit?.isHighSpeed && highSpeedDodge > 0);
   const calculatedDesperateDodge = clamp(
-    baseDesperateDodge + formationDodge + highSpeedDodge,
+    baseDesperateDodge + formationDodge + (highSpeedActive ? highSpeedDodge : 0),
     0,
     0.45,
   );
@@ -57,7 +60,7 @@ export function getCharacterCombatChanceDisplay({
       base: baseDesperateDodge,
       formation: formationDodge,
       highSpeed: highSpeedDodge,
-      highSpeedActive: Boolean(battleUnit?.isHighSpeed && highSpeedDodge > 0),
+      highSpeedActive,
       rate: Number.isFinite(battleUnit?.desperateDodgeRate)
         ? clamp(battleUnit.desperateDodgeRate, 0, 0.45)
         : calculatedDesperateDodge,
