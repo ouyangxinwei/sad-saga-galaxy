@@ -442,11 +442,14 @@ test('subsequent unlimited breakthroughs add one fixed reward per successful bre
   }
 });
 test('legacy records backfill cumulative breakthrough rewards without changing level, EXP or resources', () => {
+  const legacyRecord = createCharacterProgressionRecord('lise', 'lise-old');
+  // Simulate a save created before the breakthroughBonuses field existed.
+  delete legacyRecord.breakthroughBonuses;
   const legacy = {
     level: 25, exp: 456, gold: 9000, cardShards: { lise: 4 },
     cards: { lise: true }, cardCounts: { lise: 1 },
     characterProgression: { instances: {
-      'lise-old': { ...createCharacterProgressionRecord('lise', 'lise-old'), level: 70, exp: 123, breakthroughCount: 1, levelCap: 70 },
+      'lise-old': { ...legacyRecord, level: 70, exp: 123, breakthroughCount: 1, levelCap: 70 },
     } },
   };
   const migrated = normalizeCharacterProgressionState(legacy);
