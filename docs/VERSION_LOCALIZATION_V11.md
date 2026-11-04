@@ -1,5 +1,7 @@
 # Version Consistency and Localization V11
 
+> **Historical architecture note (superseded):** This document records the original V11 implementation. Since V0.53, the active version system is **Version Management V2.0**. The canonical source is now `src/lib/version/`; `src/lib/version.js` is retained only as a backward-compatible re-export. See [Version Management V2.0](VERSION_MANAGEMENT_V2.md) and [the directory map](VERSION_DIRECTORY_MAP.md) for current ownership and release procedures.
+
 > Branch: `standalone-migration`  
 > App release: `v0.22`  
 > Release date: 2026-11-03  
