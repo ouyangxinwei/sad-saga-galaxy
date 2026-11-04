@@ -150,7 +150,7 @@ function act(u,units,round,events,rt){
  dispatchEquipmentEvent('onTurnStart',{owner:u,actor:u},units,events,rt,round);
  const {sk,id}=traceSync('Battle.chooseSkill',()=>chooseSkillImpl(u,allies,foes,round),{unit:u.uid,round});
  const cost=effectiveMpCost(sk,u);u.mp=Math.max(0,u.mp-cost);events.push({kind:'action',uid:u.uid,name:u.name,sid:u.uid,skill:sk.name,skillId:id,mp:u.mp,mpCost:cost});
- const resolvedSkill=applyFormationSkillModifiers(sk,u);
+ const resolvedSkill=id==='basic'?sk:applyFormationSkillModifiers(sk,u);
  dispatchEquipmentEvent('onSkillUsed',{owner:u,actor:u,skill:sk,skillId:id},units,events,rt,round);
  if(sk.kind==='attack'){const taunts=foes.filter(f=>f.taunt>0),pool=taunts.length?taunts:foes,targets=sk.target==='all'?[...foes]:[lowHp(pool)||foes[0]];
  const desperateCrit=rollDesperateCrit(u,rt.random);
