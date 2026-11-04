@@ -6,7 +6,7 @@ import GameIcon from '@/components/common/GameIcon';
 import { GhostButton, GoldButton } from '@/components/common/Bits';
 import { useGame } from '@/lib/GameContext';
 import { LANGS } from '@/lib/i18n';
-import { APP_VERSION } from '@/lib/version';
+import { APP_VERSION } from '@/lib/version/index.js';
 
 export default function Settings() {
   const { t, lang, setLang, actions, level, rebirth, cleared, testSupport, gems, tickets, stamina, staminaMax } = useGame();
