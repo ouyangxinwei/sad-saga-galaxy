@@ -3,6 +3,15 @@ import { RELEASE_DATE } from './metadata.js';
 
 export const CHANGELOG = [
   {
+    version: 'v0.60', date: '2026-11-04',
+    title: { zh: '阵型管理界面与手机端交互', ja: '陣形管理 UI とモバイル操作', en: 'Formation management UI and mobile interaction' },
+    items: {
+      zh: ['在阵容编排页面新增战术阵型管理区域，可查看并切换八种阵型：五芒星阵、四方核心阵、尖锋突击阵、菱形守护阵、一字长蛇阵、十字协同阵、错位游击阵和五环均衡阵', '新增五人阵型站位图，按阵型坐标显示角色位置与职责；点击任一位置即可选中并调整', '支持从当前五人队伍中选择角色安排到指定位置；若角色已在其他位置，会自动交换，不会重复安排同一角色', '每种阵型分别保存自己的五人站位；可先预览阵型和编辑位置，再点击启用，切换阵型不会覆盖其他阵型的配置', '新增阵型效果说明预览，展示属性、暴击、闪避、MP、技能效果和行动顺序等设计效果；本版本仅展示说明，实际战斗数值接入留待 Phase 3', '明确区分阵型站位与当前队伍名单：阵型换位不会改变现有队伍、自动最强编队或队伍预设；支持中文、日文、英文及手机端布局'],
+      ja: ['編成画面に陣形管理エリアを追加。五芒星陣、四方コア陣、尖鋒突撃陣、菱形守護陣、一字長蛇陣、十字協同陣、錯位遊撃陣、五環均衡陣の 8 種類を確認・切替可能', '陣形座標に基づく 5 人の配置図を追加し、キャラクターの位置と役割を表示。任意の配置をタップして選択・変更可能', '現在の 5 人編成からキャラクターを選んで配置可能。すでに別の位置にいるキャラクターを選ぶと自動で入れ替え、重複配置を防止', '陣形ごとに 5 人の配置を個別保存。陣形と配置をプレビュー・編集してから適用でき、切替時に他の陣形設定を上書きしない', '能力値、クリティカル、回避、MP、スキル効果、行動順などの陣形効果プレビューを追加。本バージョンでは説明表示のみで、実際の戦闘数値への適用は Phase 3 で実装', '陣形配置と現在の編成メンバーを明確に分離。陣形の入れ替えは現在の編成、自動最強編成、プリセットを変更しない。中国語・日本語・英語とモバイル表示に対応'],
+      en: ['Adds a tactical formation manager to the squad page, with access to all eight formations: Star, Four-Corner Core, Spearhead, Diamond Guard, Long Serpent, Cross Support, Staggered Skirmish, and Balanced Ring', 'Adds a five-position formation diagram using each formation’s coordinates and role labels; tap any position to select and edit it', 'Assigns characters from the current five-member party to selected positions; choosing a character already placed elsewhere swaps positions and prevents duplicates', 'Saves five assignments independently for every formation. Preview and edit a formation before activating it; switching formations does not overwrite other layouts', 'Adds a formation effect preview covering stats, Critical, Dodge, MP, skill effects, and action order. This release displays descriptions only; actual battle modifiers are reserved for Phase 3', 'Separates formation positioning from the current party roster: formation swaps do not change the party, auto-best lineup, or saved party presets. Supports Chinese, Japanese, English, and mobile layouts'],
+    },
+  },
+  {
     version: 'v0.59', date: '2026-11-04',
     title: { zh: '阵型系统基础数据与配置', ja: '陣形システムの基礎データと設定', en: 'Formation system foundation and configuration' },
     items: {
