@@ -3,6 +3,15 @@ import { RELEASE_DATE } from './metadata.js';
 
 export const CHANGELOG = [
   {
+    version: 'v0.62', date: '2026-11-04',
+    title: { zh: '阵型系统 Phase 5 专项验收', ja: '陣形システム Phase 5 の重点検証', en: 'Formation system Phase 5 focused verification' },
+    items: {
+      zh: ['完成阵型配置、五人站位、概率加成与角色详情显示的专项验收；不执行完整回归测试', '部署工作流增加绝境战斗专项测试，覆盖角色固定概率、触发阈值、多段技能统一暴击判定及逐次闪避', '确认角色详情与战斗单位使用同一阵型概率加成计算，保留 V20 本地存档结构', '更新版本记录与 PWA 缓存版本；其他阵型属性、行动顺序及技能效果仍保持预览，不纳入本次完成范围'],
+      ja: ['陣形設定、5 人配置、確率補正、キャラクター詳細表示を重点検証。完全な回帰テストは実施しない', 'デプロイワークフローに窮地戦闘の重点テストを追加。キャラクター固有確率、発動 HP 閾値、多段スキルの一括会心判定、攻撃ごとの回避判定を検証', 'キャラクター詳細と戦闘ユニットが同じ陣形確率補正計算を使用することを確認し、V20 ローカルセーブ構造を維持', 'バージョン履歴と PWA キャッシュを更新。その他の陣形能力値、行動順、スキル効果はプレビューのままとし、本リリースの完了範囲に含めない'],
+      en: ['Completes focused acceptance of formation configuration, five-member assignments, chance bonuses, and character-detail values; no full regression suite is run', 'Adds targeted Desperate Combat tests to the deployment workflow, covering stable per-character rates, HP thresholds, one-roll multi-hit desperate criticals, and per-hit dodge checks', 'Confirms character details and battle units share the same formation chance-bonus calculation while preserving the V20 local-save structure', 'Updates release history and PWA cache version; other formation stats, action order, and skill effects remain previews and are outside this release scope'],
+    },
+  },
+  {
     version: 'v0.61', date: '2026-11-04',
     title: { zh: '阵型战斗演示与角色概率详情', ja: '陣形バトルデモとキャラクター確率詳細', en: 'Formation combat demo and character chance details' },
     items: {
