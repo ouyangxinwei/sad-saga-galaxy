@@ -44,6 +44,7 @@ import { equipItem, getEquipmentDefinition, getEquippedItem } from './equipment'
 import { getClearGemSettlementCount, isStageCleared } from './clearGemSystem';
 import { normalizeCharacterProgressionState, grantPartyCharacterExperience, breakthroughCharacter, fuseCharacterProgressionInstances } from './characterProgression';
 import { applyResourceExchange } from './resourceExchange';
+import { setActiveFormation as selectActiveFormation, setFormationPosition as assignFormationPosition, normalizeFormationState } from './formationSystem';
 
 const GameCtx = createContext(null);
 const traceAction = (name, fn) => (...args) => traceSync('GameContext.' + name, () => fn(...args));
@@ -186,7 +187,8 @@ export function GameProvider({ children }) {
   }, []);
 
   const commit = useCallback((fn) => traceSync('GameContext.commit', () => {
-    const next = normalizeCharacterProgressionState(fn({ ...ref.current }));
+    const draft = fn({ ...ref.current });
+    const next = normalizeCharacterProgressionState({ ...draft, formation: normalizeFormationState(draft.formation, draft.party) });
     ref.current = next;
     setState(next);
     return next;
@@ -346,6 +348,23 @@ export function GameProvider({ children }) {
     },
     [commit],
   );
+
+  const setActiveFormation = useCallback((formationId) => {
+    commit((s) => {
+      const formation = selectActiveFormation(s.formation, formationId, s.party);
+      return formation === s.formation ? s : { ...s, formation };
+    });
+  }, [commit]);
+
+  const setFormationPosition = useCallback((formationId, positionIndex, cardId) => {
+    let changed = false;
+    commit((s) => {
+      const formation = assignFormationPosition(s.formation, formationId, positionIndex, cardId, s.party);
+      changed = formation !== s.formation;
+      return changed ? { ...s, formation } : s;
+    });
+    return changed;
+  }, [commit]);
 
   const autoBest = useCallback(() => {
     const s = { ...ref.current };
@@ -1026,6 +1045,8 @@ export function GameProvider({ children }) {
         exchangeSS: traceAction('exchangeSS', exchangeSS),
         setPartySlot: traceAction('setPartySlot', setPartySlot),
         setParty: traceAction('setParty', setParty),
+        setActiveFormation: traceAction('setActiveFormation', setActiveFormation),
+        setFormationPosition: traceAction('setFormationPosition', setFormationPosition),
         autoBest: traceAction('autoBest', autoBest),
         savePreset: traceAction('savePreset', savePreset),
         loadPreset: traceAction('loadPreset', loadPreset),
@@ -1071,6 +1092,8 @@ export function GameProvider({ children }) {
     exchangeSS,
     setPartySlot,
     setParty,
+    setActiveFormation,
+    setFormationPosition,
     autoBest,
     savePreset,
     loadPreset,
