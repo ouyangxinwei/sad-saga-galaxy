@@ -96,7 +96,7 @@ export function getFormationStatBonuses(formationState, cardId, party = []) {
 }
 
 // Chance modifiers remain separate from stat modifiers.
-export function getFormationCombatBonuses(formationState, cardId, party = []) {
+export function getFormationCombatBonuses(formationState, cardId, party = [], conditions = {}) {
   const formation = FORMATION_MAP[formationState?.activeFormationId] || FORMATION_MAP[DEFAULT_FORMATION_ID];
   const assignments = formationState?.assignmentsByFormation?.[formation.id] || partySlots(party);
   const positionIndex = assignments.indexOf(cardId);
