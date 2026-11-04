@@ -43,6 +43,7 @@ import { cardPower, copiesOf, getCardDef, partyPower, strongestParty, teamTotals
 import { equipItem, getEquipmentDefinition, getEquippedItem } from './equipment';
 import { getClearGemSettlementCount, isStageCleared } from './clearGemSystem';
 import { normalizeCharacterProgressionState, grantPartyCharacterExperience, breakthroughCharacter, fuseCharacterProgressionInstances } from './characterProgression';
+import { applyResourceExchange } from './resourceExchange';
 
 const GameCtx = createContext(null);
 const traceAction = (name, fn) => (...args) => traceSync('GameContext.' + name, () => fn(...args));
@@ -919,6 +920,24 @@ export function GameProvider({ children }) {
     return true;
   }, [commit, notify, t]);
 
+
+  const exchangeResources = useCallback((fromKey, toKey, amount) => {
+    const result = applyResourceExchange(ref.current, fromKey, toKey, amount);
+    if (!result.success) {
+      const message = result.reason === 'insufficient-balance' ? t('resourceExchange.insufficient') : result.reason === 'same-resource' ? t('resourceExchange.sameResource') : t('resourceExchange.invalid');
+      notify(message);
+      return false;
+    }
+    if (!persist(result.state)) {
+      notify(t('resourceExchange.saveFailed'));
+      return false;
+    }
+    commit(() => result.state);
+    const label = (key) => t(key === 'idleGems' ? 'res.idleGems' : key === 'clearGems' ? 'res.clearGems' : 'res.' + key);
+    notify(t('resourceExchange.success', { spent: result.spent, from: label(fromKey), received: result.received, to: label(toKey) }));
+    return true;
+  }, [commit, notify, t]);
+
   const refillTestStamina = useCallback(() => {
     const support = readTestSupport();
     if (!support || Date.now() >= support.expiresAt) {
@@ -1031,6 +1050,7 @@ export function GameProvider({ children }) {
         buyShop: traceAction('buyShop', buyShop),
         refillTestStamina: traceAction('refillTestStamina', refillTestStamina),
         exchangeMedals: traceAction('exchangeMedals', exchangeMedals),
+        exchangeResources: traceAction('exchangeResources', exchangeResources),
         claimMilestone: traceAction('claimMilestone', claimMilestone),
         resetSave: traceAction('resetSave', resetSave),
         exportSave: traceAction('exportSave', exportSave),
@@ -1074,6 +1094,7 @@ export function GameProvider({ children }) {
     buyShop,
     refillTestStamina,
     exchangeMedals,
+    exchangeResources,
     claimMilestone,
     resetSave,
     exportSave,

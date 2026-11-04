@@ -12,6 +12,7 @@ import Synthesis from '@/pages/Synthesis';
 import Forge from '@/pages/Forge';
 import Settings from '@/pages/Settings';
 import Debug from '@/pages/Debug';
+import ResourceExchange from '@/pages/ResourceExchange';
 import { GameProvider } from '@/lib/GameContext';
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
             <Route path="/forge" element={<Forge />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/debug" element={<Debug />} />
+            <Route path="/resource-exchange" element={<ResourceExchange />} />
             <Route path="*" element={<PageNotFound />} />
           </Routes>
         </Router>

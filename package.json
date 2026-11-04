@@ -1,7 +1,7 @@
 {
   "name": "oooo-app",
   "private": true,
-  "version": "0.55.0",
+  "version": "0.56.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -11,7 +11,7 @@
     "typecheck": "tsc -p ./jsconfig.json",
     "preview": "vite preview",
     "validate:version": "node scripts/validate-version.mjs",
-    "test:equipment": "node --test scripts/equipment*.test.mjs scripts/warning-diagnosis.test.mjs scripts/reset.test.mjs scripts/character-progression.test.mjs scripts/save-backup.test.mjs scripts/idle-system.test.mjs scripts/clear-gem-system.test.mjs && npm run test:version-management",
+    "test:equipment": "node --test scripts/equipment*.test.mjs scripts/warning-diagnosis.test.mjs scripts/reset.test.mjs scripts/character-progression.test.mjs scripts/save-backup.test.mjs scripts/idle-system.test.mjs scripts/clear-gem-system.test.mjs scripts/resource-exchange.test.mjs && npm run test:version-management",
     "test:version-management": "node --test scripts/version-management.test.mjs"
   },
   "dependencies": {

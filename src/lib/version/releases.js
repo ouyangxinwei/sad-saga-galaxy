@@ -3,6 +3,15 @@ import { RELEASE_DATE } from './metadata.js';
 
 export const CHANGELOG = [
   {
+    version: 'v0.56', date: '2026-11-04',
+    title: { zh: '资源互换系统', ja: 'リソース交換システム', en: 'Resource Exchange System' },
+    items: {
+      zh: ['新增独立资源互换页面，支持金币、钻石、挂机宝石、清关宝石和召唤券五类资源双向兑换；不包含已获得的角色卡片', '所有资源统一采用 1:2 比例：消耗 1 单位资源，获得 2 单位目标资源；无手续费、次数、等级或解锁限制', '支持输入数量、1 / 10 / 100 / 最大快捷数量，自动显示余额与兑换预览；禁止负数、小数、零数量、余额不足及相同资源兑换', '兑换成功后先写入本地存档，再更新游戏状态；保留最近 30 条兑换记录，失败时不改变余额', '沿用 V20 本地存档，旧存档在首次兑换时自动补充兑换记录字段；支持中文、日文、英文及手机端布局', '该功能用于测试辅助；双向 1:2 可能在循环兑换时增加资源总量，属于已知且接受的测试行为'],
+      ja: ['独立したリソース交換画面を追加。ゴールド、ダイヤ、放置ジェム、クリアジェム、召喚券の 5 種類を双方向交換可能。所持済みキャラクターカードは対象外', '全リソース共通で 1:2 のレートを適用。1 個消費して対象リソースを 2 個獲得。手数料、回数、レベル、解放条件なし', '数量入力、1 / 10 / 100 / 最大のクイック選択、残高と交換プレビューに対応。負数、小数、0、残高不足、同一リソース交換を拒否', '交換成功前にローカルセーブへ書き込み、成功後にゲーム状態を更新。直近 30 件を保存し、失敗時は残高を変更しない', 'V20 ローカルセーブを維持し、初回交換時に履歴項目を補完。中国語・日本語・英語とモバイル表示に対応', 'テスト補助機能。双方向 1:2 のため循環交換で総リソース量が増える場合があることを既知の仕様として許容'],
+      en: ['Adds a dedicated Resource Exchange page for bidirectional exchange among five resources: gold, gems, Idle Gems, Clear Gems, and summon tickets. Owned character cards are excluded', 'Uses one fixed 1:2 rate for every resource pair: spend one unit and receive two units. No fees, usage limits, level requirements, or unlock conditions', 'Supports amount entry and 1 / 10 / 100 / Max shortcuts, with live balance and exchange previews; rejects negative, fractional, zero, insufficient, and same-resource exchanges', 'Writes the complete local save before updating in-memory state; keeps the latest 30 exchange records and leaves balances unchanged on failure', 'Preserves V20 local saves and initializes exchange history on first use; supports Chinese, Japanese, English, and mobile layouts', 'This is a testing utility. Because the 1:2 rate works in both directions, circular exchanges can increase total resources; this is an accepted testing behavior'],
+    },
+  },
+  {
     version: 'v0.55', date: '2026-11-04',
     title: { zh: '清关宝石与挂机领取规则优化', ja: 'クリアジェムと放置報酬受取ルールの改善', en: 'Clear gems and idle claim improvements' },
     items: {
