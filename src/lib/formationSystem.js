@@ -111,6 +111,6 @@ export function getFormationCombatBonuses(formationState, cardId, party = [], co
     desperateCritPp: (Number(team.desperateCrit) || 0) + (Number(position.desperateCrit) || 0),
     dodgePp: (Number(team.dodge) || 0) + (Number(position.dodge) || 0),
     followUpCriticalPp: Number(formation.effects?.positions?.[role]?.followUpCriticalPp) || 0,
-    highSpeedDodgePp: conditions.isHighSpeed ? Number(formation.effects?.conditions?.highSpeedDodgePp) || 0 : 0,
+    highSpeedDodgePp: positionIndex >= 0 && conditions.isHighSpeed ? Number(formation.effects?.conditions?.highSpeedDodgePp) || 0 : 0,
   };
 }
