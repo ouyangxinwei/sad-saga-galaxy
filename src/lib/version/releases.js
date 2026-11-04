@@ -3,6 +3,15 @@ import { RELEASE_DATE } from './metadata.js';
 
 export const CHANGELOG = [
   {
+    version: 'v0.68', date: '2026-11-04',
+    title: { zh: 'Phase 4：角色战斗概率详情完善', ja: 'Phase 4：キャラクター戦闘確率詳細の改善', en: 'Phase 4: Detailed character combat chances' },
+    items: {
+      zh: ['角色详情按实际战斗单位显示普通暴击、绝境暴击和危机闪避概率，优先使用战斗计算结果', '普通暴击概率拆分显示角色基础、装备、命运增益和阵型加成来源', '绝境暴击与危机闪避分别显示基础概率、阵型加成和最终有效概率，并标注 35% / 45% 上限', '高速条件闪避与连续行动暴击明确标记为条件效果，不混入常驻概率；显示 HP 触发阈值', '中文、日文、英文同步；增加概率来源、条件效果和概率上限专项测试；不修改战斗规则或 V20 存档结构'],
+      ja: ['キャラクター詳細に通常会心・窮地会心・危機回避の実際の戦闘ユニット確率を表示し、戦闘計算値を優先', '通常会心率をキャラ基本値・装備・運命強化・陣形補正に分けて表示', '窮地会心と危機回避は基本確率・陣形補正・最終確率を個別表示し、35% / 45% の上限を明記', '高速条件回避と連続行動会心を常時確率に含めず条件付き効果として表示。HP 発動条件も明記', '中国語・日本語・英語を同期し、確率内訳・条件効果・上限の重点テストを追加。戦闘ルールと V20 セーブ構造は変更しない'],
+      en: ['Character details prefer actual battle-unit values for standard critical, desperate critical, and desperate dodge chances', 'Breaks standard critical chance into character base, equipment, fortune, and formation sources', 'Shows base chance, formation bonus, and final effective chance for desperate critical and dodge, including the 35% / 45% caps', 'Keeps high-speed dodge and follow-up critical as conditional effects rather than permanent chance; shows HP trigger thresholds', 'Synchronizes Chinese, Japanese, and English; adds focused tests for chance sources, conditions, and caps without changing combat rules or the V20 save schema'],
+    },
+  },
+  {
     version: 'v0.67', date: '2026-11-04',
     title: { zh: '阵型系统 Phase 3-E 战斗显示与日志完善', ja: '陣形 Phase 3-E 戦闘表示・ログ改善', en: 'Formation Phase 3-E battle display and logs' },
     items: {
