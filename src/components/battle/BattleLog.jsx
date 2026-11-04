@@ -9,10 +9,10 @@ function lineOf(ev, lang, t) {
     case 'damage':
       return {
         tone: ev.desperateCrit || ev.crit ? 'crit' : 'damage',
-        text: `${ev.actor} → ${ev.target}  ${ev.amount.toLocaleString('en-US')}${ev.desperateCrit ? ` ✦ ${t('battle.desperateCrit')}` : ev.crit ? ' ✦' : ''}`,
+        text: `${ev.actor} → ${ev.target}${ev.hitCount > 1 ? ` [${ev.hitIndex}/${ev.hitCount}]` : ''}  ${ev.amount.toLocaleString('en-US')}${ev.desperateCrit ? ` ✦ ${t('battle.desperateCrit')}` : ev.crit ? ' ✦' : ''}`,
       };
     case 'dodge':
-      return { tone: 'dodge', text: `${ev.target} · ${t('battle.dodge')}` };
+      return { tone: 'dodge', text: `${ev.target}${ev.hitCount > 1 ? ` [${ev.hitIndex}/${ev.hitCount}]` : ''} · ${t('battle.dodge')}` };
     case 'equipment':
       return { tone: 'action', text: `${ev.actor} ✦ ${ev.label?.[lang] || ev.label?.zh || ev.itemName?.[lang] || 'Equipment effect'}` };
     case 'mp':

@@ -117,12 +117,12 @@ function chooseSkillImpl(u,allies,foes,round){
  logInfo('BattleAI','chooseSkill',{unit:u.uid,round,chosenSkillId:chosen.id,candidates:opts.map(({id,baseScore,bonus,score,rolledScore})=>({id,baseScore,bonus,score,rolledScore})),equipmentAware:(u.equipmentEffects||[]).length>0});
  return chosen;
 }
-function damage(a,t,s,events,units,round,rt,desperateCrit=false){
- if(a?.side==='enemy'&&t?.side==='ally'&&rollDesperateDodge(t,rt.random)){events.push({kind:'dodge',sid:a.uid,tid:t.uid,actor:a.name,target:t.name,rate:t.desperateDodgeRate,hp:Math.round(t.hp),maxHp:Math.round(t.maxHp)});return;}
+function damage(a,t,s,events,units,round,rt,desperateCrit=false,hitIndex=1,hitCount=1){
+ if(a?.side==='enemy'&&t?.side==='ally'&&rollDesperateDodge(t,rt.random)){events.push({kind:'dodge',sid:a.uid,tid:t.uid,actor:a.name,target:t.name,rate:t.desperateDodgeRate,hp:Math.round(t.hp),maxHp:Math.round(t.maxHp),hitIndex,hitCount});return;}
  const crit=Math.random()<a.crit+(s.critBonus||0);let d=a.atk*s.power*rnd(.93,1.07)*(crit?criticalDamageMultiplier(a):1);
  d=Math.max(1,d-t.def*(1-(s.pierce||0))*.45);if(t.dr)d*=1-t.dr;d=Math.max(1,applyEquipmentDamageModifiers(d,a,t));if(desperateCrit)d*=3;
  const absorbed=Math.min(t.shield,d);t.shield-=absorbed;d-=absorbed;t.hp=Math.max(0,t.hp-d);
- events.push({kind:'damage',sid:a.uid,tid:t.uid,actor:a.name,target:t.name,amount:Math.round(d),crit,desperateCrit,shield:Math.round(t.shield),hp:Math.round(t.hp),maxHp:Math.round(t.maxHp)});
+ events.push({kind:'damage',sid:a.uid,tid:t.uid,actor:a.name,target:t.name,amount:Math.round(d),crit,desperateCrit,shield:Math.round(t.shield),hp:Math.round(t.hp),maxHp:Math.round(t.maxHp),hitIndex,hitCount});
  dispatchEquipmentEvent('onAttack',{owner:a,actor:a,target:t},units,events,rt,round);
  if(crit||desperateCrit)dispatchEquipmentEvent('onCritical',{owner:a,actor:a,target:t},units,events,rt,round);
  if(t.hp<=0)die(t,units,events,a,round,rt);else dispatchEquipmentEvent('onDamageTaken',{owner:t,actor:a,target:t},units,events,rt,round);
@@ -140,7 +140,7 @@ function act(u,units,round,events,rt){
  dispatchEquipmentEvent('onSkillUsed',{owner:u,actor:u,skill:sk,skillId:id},units,events,rt,round);
  if(sk.kind==='attack'){const taunts=foes.filter(f=>f.taunt>0),pool=taunts.length?taunts:foes,targets=sk.target==='all'?[...foes]:[lowHp(pool)||foes[0]];
  const desperateCrit=rollDesperateCrit(u,rt.random);
- for(let h=0;h<(sk.hits||1);h++)targets.forEach(t=>{if(t?.alive)damage(u,t,sk,events,units,round,rt,desperateCrit);});}
+ const hitCount=Math.max(1,Number(sk.hits)||1);for(let h=0;h<hitCount;h++)targets.forEach(t=>{if(t?.alive)damage(u,t,sk,events,units,round,rt,desperateCrit,h+1,hitCount);});}
  else if(sk.kind==='support'){let targets;if(sk.target==='all')targets=allies;else if(sk.target==='random')targets=allies.filter(x=>x.alive&&x.hp<x.maxHp).sort(()=>Math.random()-.5).slice(0,sk.targets||2);else targets=[lowRatio(allies)||u];if(!targets.length)targets=[u];targets.forEach(t=>t&&heal(u,t,sk,events,units,round,rt));}
  else if(sk.taunt){const n=Math.round(u.maxHp*(sk.shield||.3));u.shield+=n;u.taunt=sk.taunt;events.push({kind:'shield',tid:u.uid,target:u.name,amount:n,shield:u.shield});events.push({kind:'taunt',tid:u.uid,target:u.name});}
  else if(sk.shield){const t=lowRatio(allies)||u,n=Math.round(t.maxHp*sk.shield);t.shield+=n;events.push({kind:'shield',tid:t.uid,target:t.name,amount:n,shield:t.shield});}

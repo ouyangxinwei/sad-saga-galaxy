@@ -82,3 +82,21 @@ export function setFormationPosition(value, formationId, positionIndex, cardId, 
 export function getFormationDefinition(formationId) {
   return FORMATION_MAP[formationId] || null;
 }
+
+// Phase 3 Demo: only chance-based formation effects are connected to combat.
+export function getFormationCombatBonuses(formationState, cardId, party = []) {
+  const formation = FORMATION_MAP[formationState?.activeFormationId] || FORMATION_MAP[DEFAULT_FORMATION_ID];
+  const assignments = formationState?.assignmentsByFormation?.[formation.id] || partySlots(party);
+  const positionIndex = assignments.indexOf(cardId);
+  const role = positionIndex >= 0 ? formation.positions[positionIndex]?.role : null;
+  const team = formation.effects?.team?.chancePp || {};
+  const position = role ? formation.effects?.positions?.[role]?.chancePp || {} : {};
+  return {
+    formationId: formation.id,
+    formationName: formation.name,
+    role,
+    criticalPp: (Number(team.critical) || 0) + (Number(position.critical) || 0),
+    desperateCritPp: (Number(team.desperateCrit) || 0) + (Number(position.desperateCrit) || 0),
+    dodgePp: (Number(team.dodge) || 0) + (Number(position.dodge) || 0),
+  };
+}

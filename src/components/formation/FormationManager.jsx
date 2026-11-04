@@ -11,7 +11,7 @@ const COPY = {
     roster: '可安排角色', noParty: '当前队伍暂无可安排角色。',
     saved: '配置会自动保存在本设备。每种阵型分别保存自己的角色位置。',
     partyNote: '这里的换位只影响所选阵型，不会改变下方的当前队伍名单或队伍预设。',
-    effect: '效果预览', effectNotice: '本阶段展示阵型效果说明；实际战斗属性与概率加成将在 Phase 3 接入。',
+    effect: '效果预览', effectNotice: 'Phase 3 演示版：当前仅接入暴击与闪避概率加成；其他阵型属性效果暂时只作说明。',
     selected: '已选站位', empty: '空位', assigned: '已安排', selectSlot: '请选择一个站位',
     roles: { core: '核心位', support: '支援位', corner: '角位', vanguard: '前锋', wing: '侧翼', rear: '后排', front: '前卫', line: '纵列', center: '中央', outer: '外围', stagger: '游击位', ring: '环位' },
     effects: {
@@ -32,7 +32,7 @@ const COPY = {
     roster: '配置可能なキャラクター', noParty: '現在の編成に配置可能なキャラクターがいません。',
     saved: '設定はこの端末に自動保存されます。陣形ごとに配置を個別保存します。',
     partyNote: 'ここでの入れ替えは選択中の陣形だけに反映され、現在の編成やプリセットは変更されません。',
-    effect: '効果プレビュー', effectNotice: 'このフェーズでは陣形効果を表示します。実際の戦闘ステータスと確率への反映は Phase 3 で実装します。',
+    effect: '効果プレビュー', effectNotice: 'Phase 3 デモ版：現在は会心率・回避率の補正のみ戦闘に反映します。その他の陣形効果は説明表示のみです。',
     selected: '選択中の配置', empty: '空き', assigned: '配置済み', selectSlot: '配置場所を選択してください',
     roles: { core: '主力', support: '支援', corner: '四隅', vanguard: '先鋒', wing: '側翼', rear: '後衛', front: '前衛', line: '縦列', center: '中央', outer: '外周', stagger: '遊撃', ring: '環状' },
     effects: {
@@ -53,7 +53,7 @@ const COPY = {
     roster: 'Available party members', noParty: 'There are no available characters in the current party.',
     saved: 'Settings are saved automatically on this device. Each formation keeps its own arrangement.',
     partyNote: 'These changes affect only the selected formation; your current party roster and presets remain unchanged.',
-    effect: 'Effect preview', effectNotice: 'This phase displays formation effect descriptions. Actual battle stat and chance modifiers will be connected in Phase 3.',
+    effect: 'Effect preview', effectNotice: 'Phase 3 Demo: only critical and dodge chance bonuses are connected to combat. Other formation effects remain informational previews.',
     selected: 'Selected position', empty: 'Empty', assigned: 'Assigned', selectSlot: 'Select a position',
     roles: { core: 'Core', support: 'Support', corner: 'Corner', vanguard: 'Vanguard', wing: 'Wing', rear: 'Rear', front: 'Front', line: 'Line', center: 'Center', outer: 'Outer', stagger: 'Skirmish', ring: 'Ring' },
     effects: {

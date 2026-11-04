@@ -2,6 +2,7 @@ import { HEROES, RELICS, classOf, heroStats } from './gameData.js';
 import { getEquippedItem, getEquipmentBonuses, getEquipmentEffects } from './equipment.js';
 import { characterGrowthMultipliers, strongestCharacterInstance, characterClassIdFor, getCharacterBreakthroughBonuses } from './characterProgression.js';
 import { getDesperateCombatRates } from './desperateCombat.js';
+import { getFormationCombatBonuses } from './formationSystem.js';
 
 export const HERO_MAP = Object.fromEntries(HEROES.map((h) => [h.id, h]));
 
@@ -121,6 +122,7 @@ export function partyUnits(state, fortune = null) {
       const st = cardStats(state, id);
       if (!def || !st) return null;
       const desperateRates = getDesperateCombatRates(id, def);
+      const formationBonus = getFormationCombatBonuses(state.formation, id, state.party);
       const hp = Math.round(st.hp * teamBonus * (1 + (f.hp || 0)));
       return {
         uid: `a_${id}`,
@@ -135,9 +137,10 @@ export function partyUnits(state, fortune = null) {
         atk: Math.round(st.atk * teamBonus * (1 + (f.atk || 0))),
         def: Math.round(st.def * teamBonus * (1 + (f.def || 0))),
         spd: Math.round(st.spd * (1 + (f.spd || 0))),
-        crit: Math.min(0.75, st.crit + (f.crit || 0)),
-        desperateCritRate: desperateRates.desperateCritRate,
-        desperateDodgeRate: desperateRates.desperateDodgeRate,
+        crit: Math.min(0.75, st.crit + (f.crit || 0) + formationBonus.criticalPp),
+        desperateCritRate: Math.min(0.3, desperateRates.desperateCritRate + formationBonus.desperateCritPp),
+        desperateDodgeRate: Math.min(0.3, desperateRates.desperateDodgeRate + formationBonus.dodgePp),
+        formationBonus,
         critDamagePct: st.critDamagePct,
         damageDealtPct: st.damageDealtPct,
         damageReductionPct: st.damageReductionPct,
