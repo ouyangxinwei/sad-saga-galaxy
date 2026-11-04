@@ -97,16 +97,16 @@ export default function MainMenuGrid({ onOpen }) {
       tint: '#9B8CFF',
       title: t('menu.arena'),
       desc: t('menu.arena_desc'),
-      badge: '1:2',
-      onClick: () => navigate('/resource-exchange'),
+      badge: t('menu.todo'),
+      locked: true,
     },
     {
       icon: 'Repeat',
-      tint: '#8B93A8',
+      tint: '#72D9C2',
       title: t('resourceExchange.title'),
       desc: t('resourceExchange.subtitle'),
-      badge: t('menu.todo'),
-      locked: true,
+      badge: '1:2',
+      onClick: () => navigate('/resource-exchange'),
     },
   ];
 
