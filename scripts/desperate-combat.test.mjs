@@ -35,6 +35,8 @@ test('all 20 base heroes receive unique, stable rates within the approved range'
   assert.equal(ratePairs.size, 20, 'each of the 20 base heroes must have its own crit/dodge rate pair');
   assert.ok(Math.abs(baseRateTotal / HEROES.length - .2) < 1e-10, 'roster-average baseline must remain 20%');
   assert.equal(DESPERATE_COMBAT_RULES.randomAdjustment, .02);
+  assert.equal(DESPERATE_COMBAT_RULES.formationCritMaxRate, .35);
+  assert.equal(DESPERATE_COMBAT_RULES.formationDodgeMaxRate, .45);
 });
 
 test('higher initial ability lowers the base desperate-combat rate', () => {
@@ -73,6 +75,8 @@ test('critical and dodge rolls use each character rate and the supplied random s
   assert.equal(rollDesperateCrit(unit, () => .2), false);
   assert.equal(rollDesperateDodge(unit, () => .29), true);
   assert.equal(rollDesperateDodge(unit, () => .3), false);
+  assert.equal(rollDesperateCrit({ ...unit, desperateCritRate: .35 }, () => .34), true);
+  assert.equal(rollDesperateDodge({ ...unit, desperateDodgeRate: .45 }, () => .44), true);
 });
 
 test('a multi-hit active skill makes one desperate-crit roll and triples every hit', () => {
