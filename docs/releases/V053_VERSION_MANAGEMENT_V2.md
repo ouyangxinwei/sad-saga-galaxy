@@ -18,4 +18,10 @@
 No gameplay logic, local save key, save schema, player progress, or existing release-history data was intentionally changed. Historical catalog entries are preserved; unresolved missing/duplicate labels are explicitly reported.
 
 ## Verification record
-Commit SHA and GitHub Actions run details are added after the commit and workflow complete. Deployment must not be described as successful until both build and deploy jobs pass for the branch's exact commit SHA.
+- Implementation commit: `12aed2c2984753fbe26547b9d835f323a086889e`
+- Verified GitHub Actions run: [#41773523286](https://github.com/ouyangxinwei/sad-saga-galaxy/actions/runs/41773523286)
+- Result: `completed / success`; Build and Deploy jobs both succeeded.
+- Verified commit SHA matched the `standalone-migration` branch head at deployment time.
+- GitHub Pages: https://ouyangxinwei.github.io/sad-saga-galaxy/
+
+The release handoff message records the final documentation commit and its follow-up deployment run.
