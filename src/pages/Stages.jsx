@@ -30,7 +30,16 @@ function writeStageSelection(selection) {
 
 export default function Stages() {
   const { t, lang, progress, actions, power, clearGems = 0, clearGemStats = {} } = useGame();
-  const [initialSelection] = useState(readStageSelection);
+  const [initialSelection] = useState(() => {
+    const saved = readStageSelection();
+    const canEnter = {
+      normal: true,
+      hard: (progress.normal || 0) >= STAGES_PER_MODE,
+      nightmare: (progress.hard || 0) >= STAGES_PER_MODE,
+    };
+    if (!canEnter[saved.mode]) saved.mode = canEnter.hard ? 'hard' : 'normal';
+    return saved;
+  });
   const [mode, setMode] = useState(() => initialSelection.mode);
   const [selectedStages, setSelectedStages] = useState(() => initialSelection.stages);
   const [quickClearOpen, setQuickClearOpen] = useState(false);
@@ -182,7 +191,7 @@ export default function Stages() {
                             type="button"
                             disabled={!isCleared && !isNext}
                             aria-pressed={selectedStageN === stageN}
-                            onClick={() => selectStage(stageN)}
+                            onClick={() => { selectStage(stageN); navigate(`/battle?mode=${mode}&stage=${stageN}`); }}
                             className={`tap relative flex h-[52px] flex-col items-center justify-center rounded-lg border text-[11px] ${
                               selectedStageN === stageN
                                 ? 'border-primary/60 bg-primary/[0.12] text-primary glow-gold'
