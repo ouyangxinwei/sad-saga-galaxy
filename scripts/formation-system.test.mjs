@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { DEFAULT_FORMATION_ID, FORMATIONS, createDefaultFormationState, getFormationCombatBonuses, getFormationStatBonuses, normalizeFormationState, setActiveFormation, setFormationPosition } from '../src/lib/formationSystem.js';
+import { DEFAULT_FORMATION_ID, FORMATIONS, createDefaultFormationState, getFormationCombatBonuses, getFormationEffectBonuses, getFormationStatBonuses, normalizeFormationState, setActiveFormation, setFormationPosition } from '../src/lib/formationSystem.js';
 
 const party = ['hero-a', 'hero-b', 'hero-c', 'hero-d', 'hero-e'];
 
@@ -102,4 +102,20 @@ test('does not apply stat bonuses to characters outside the active formation ass
   const state = createDefaultFormationState(party);
   const bonus = getFormationStatBonuses(state, 'not-in-party', party);
   assert.deepEqual(bonus.statPct, { hp: 0, atk: 0, def: 0, spd: 0, mp: 0 });
+});
+
+
+test('resolves formation damage, skill, and MP modifiers by assigned position', () => {
+  const state = createDefaultFormationState(party);
+  const diamond = setActiveFormation(state, 'diamond-guard', party);
+  assert.equal(getFormationEffectBonuses(diamond, 'hero-a', party).damageReductionPct, 0.05);
+
+  const core = setActiveFormation(state, 'four-corner-core', party);
+  assert.equal(getFormationEffectBonuses(core, 'hero-c', party).skillDamagePct, 0.10);
+  assert.equal(getFormationEffectBonuses(core, 'hero-a', party).skillDamagePct, 0);
+
+  const cross = setActiveFormation(state, 'cross-support', party);
+  assert.equal(getFormationEffectBonuses(cross, 'hero-a', party).skillEffectPct, 0.05);
+  assert.equal(getFormationEffectBonuses(cross, 'hero-b', party).mpCostReductionPct, 0.10);
+  assert.equal(getFormationEffectBonuses(cross, 'reserve-hero', party).skillEffectPct, 0);
 });
