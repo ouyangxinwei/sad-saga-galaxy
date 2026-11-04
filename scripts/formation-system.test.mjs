@@ -70,6 +70,7 @@ test('returns active formation chance bonuses for each assigned role', () => {
   const skirmish = setActiveFormation(state, 'staggered-skirmish', party);
   assert.equal(getFormationCombatBonuses(skirmish, 'hero-a', party, { isHighSpeed: false }).highSpeedDodgePp, 0);
   assert.equal(getFormationCombatBonuses(skirmish, 'hero-a', party, { isHighSpeed: true }).highSpeedDodgePp, 0.05);
+  assert.equal(getFormationCombatBonuses(skirmish, 'reserve-hero', party, { isHighSpeed: true }).highSpeedDodgePp, 0);
 });
 
 test('does not grant team formation bonuses to characters outside the active five slots', () => {
