@@ -3,6 +3,16 @@ import { RELEASE_DATE } from './metadata.js';
 
 export const CHANGELOG = [
   {
+    version: 'v0.69', date: '2026-11-04',
+    title: { zh: '普通、困难与超困难模式五关一 Boss 推进统一', ja: 'ノーマル・ハード・超ハードの5ステージ単位ボス進行を統一', en: 'Unified five-stage boss progression across campaign difficulties' },
+    items: {
+      zh: ['困难与超困难模式现在与普通模式一致：每五关挑战一次 Boss，击败 Boss 后直接解锁后续四个小怪关卡及下一个 Boss', '三个难度分别维护各自进度；仅击败当前已解锁的 Boss 才能推进，不跳过 Boss 战、不重复发放被跳过小怪关卡奖励', '保留已通关记录、奖励、难度解锁和上次手动选择关卡；不修改 V20 本地存档结构', '补充五关推进专项测试与中、日、英版本说明；修复上一版本概率上限专项测试的高速条件测试数据'],
+      ja: ['ハード・超ハードもノーマルと同じく5ステージごとにボス戦を行い、撃破後に次の4つの雑魚ステージと次のボスを解放', '3つの難易度は個別に進行状況を保持。現在解放済みのボス撃破時のみ進行し、ボス戦をスキップせず、スキップ対象の雑魚報酬も重複付与しない', '既存のクリア記録・報酬・難易度解放・最後に手動選択したステージを維持。V20 ローカルセーブ構造は変更しない', '5ステージ進行の重点テストと中国語・日本語・英語の説明を追加。前バージョンの確率上限テストにおける高速条件データも修正'],
+      en: ['Hard and Nightmare now match Normal: fight one boss every five stages, then unlock the next four minion stages and the following boss', 'Each difficulty keeps independent progress; only defeating the currently unlocked boss advances the block, with no boss skips or duplicate rewards for skipped minion stages', 'Preserves clear records, rewards, difficulty unlocks, and the last manually selected stage; leaves the V20 local-save schema unchanged', 'Adds focused five-stage progression tests and Chinese/Japanese/English release notes; corrects the high-speed condition fixture in the prior chance-cap test'],
+    },
+  },
+
+  {
     version: 'v0.68', date: '2026-11-04',
     title: { zh: 'Phase 4：角色战斗概率详情完善', ja: 'Phase 4：キャラクター戦闘確率詳細の改善', en: 'Phase 4: Detailed character combat chances' },
     items: {
