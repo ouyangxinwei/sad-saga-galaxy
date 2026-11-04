@@ -4,7 +4,7 @@ import { LANGS } from '@/lib/i18n';
 import { MILESTONES } from '@/lib/gameData';
 import { todayKey } from '@/lib/save';
 import { fmt } from '@/lib/format';
-import { APP_VERSION } from '@/lib/version';
+import { APP_VERSION } from '@/lib/version/index.js';
 
 const ACTIONS = [
   { id: 'checkin', icon: 'Gift', key: 'top.checkin' },
