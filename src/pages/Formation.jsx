@@ -51,7 +51,7 @@ export default function Formation() {
           }
         />
 
-        <FormationManager party={party} lang={lang} defOf={defOf} powerOf={powerOf} formationState={formation} actions={actions} />
+        <FormationManager party={party} lang={lang} defOf={defOf} formationState={formation} actions={actions} />
 
         <div className="mt-5 mb-2 flex items-center gap-2">
           <h3 className="text-[11px] font-semibold tracking-wide text-foreground/90">{lang === 'ja' ? '現在の編成メンバー' : lang === 'en' ? 'Current party roster' : '当前队伍名单'}</h3>
