@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { DEFAULT_FORMATION_ID, FORMATIONS, createDefaultFormationState, getFormationActionOrderBonuses, getFormationCombatBonuses, getFormationEffectBonuses, getFormationStatBonuses, normalizeFormationState, setActiveFormation, setFormationPosition } from '../src/lib/formationSystem.js';
+import { DEFAULT_FORMATION_ID, FORMATIONS, createDefaultFormationState, getFormationCombatBonuses, getFormationEffectBonuses, getFormationStatBonuses, normalizeFormationState, setActiveFormation, setFormationPosition } from '../src/lib/formationSystem.js';
 
 const party = ['hero-a', 'hero-b', 'hero-c', 'hero-d', 'hero-e'];
 
@@ -112,7 +112,13 @@ test('resolves formation damage, skill, and MP modifiers by assigned position', 
 
   const core = setActiveFormation(state, 'four-corner-core', party);
   assert.equal(getFormationEffectBonuses(core, 'hero-c', party).skillDamagePct, 0.10);
+  assert.equal(getFormationEffectBonuses(core, 'hero-c', party).actionOrder, 'ally-last');
+  assert.equal(getFormationEffectBonuses(core, 'hero-c', party).positionIndex, 2);
   assert.equal(getFormationEffectBonuses(core, 'hero-a', party).skillDamagePct, 0);
+
+  const serpent = setActiveFormation(state, 'long-serpent', party);
+  assert.equal(getFormationEffectBonuses(serpent, 'hero-a', party).actionOrder, 'formation-order');
+  assert.equal(getFormationEffectBonuses(serpent, 'hero-a', party).positionIndex, 0);
 
   const cross = setActiveFormation(state, 'cross-support', party);
   assert.equal(getFormationEffectBonuses(cross, 'hero-a', party).skillEffectPct, 0.05);
