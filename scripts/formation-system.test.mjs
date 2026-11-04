@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { DEFAULT_FORMATION_ID, FORMATIONS, createDefaultFormationState, normalizeFormationState, setActiveFormation, setFormationPosition } from '../src/lib/formationSystem.js';
+import { DEFAULT_FORMATION_ID, FORMATIONS, createDefaultFormationState, getFormationCombatBonuses, normalizeFormationState, setActiveFormation, setFormationPosition } from '../src/lib/formationSystem.js';
 
 const party = ['hero-a', 'hero-b', 'hero-c', 'hero-d', 'hero-e'];
 
@@ -48,4 +48,20 @@ test('rejects unknown formation ids, invalid slots, and characters outside the p
   assert.equal(setActiveFormation(state, 'unknown', party), state);
   assert.equal(setFormationPosition(state, 'star', 8, 'hero-a', party), state);
   assert.equal(setFormationPosition(state, 'star', 0, 'unowned', party), state);
+});
+
+test('returns active formation chance bonuses for each assigned role', () => {
+  const state = createDefaultFormationState(party);
+  const balanced = getFormationCombatBonuses(state, 'hero-a', party);
+  assert.equal(balanced.criticalPp, 0.03);
+  assert.equal(balanced.dodgePp, 0.03);
+
+  const spear = setActiveFormation(state, 'spearhead', party);
+  assert.equal(getFormationCombatBonuses(spear, 'hero-b', party).criticalPp, 0.05);
+
+  const star = setActiveFormation(state, 'star', party);
+  assert.equal(getFormationCombatBonuses(star, 'hero-a', party).desperateCritPp, 0.05);
+
+  const diamond = setActiveFormation(state, 'diamond-guard', party);
+  assert.equal(getFormationCombatBonuses(diamond, 'hero-e', party).dodgePp, 0.10);
 });

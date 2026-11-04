@@ -3,6 +3,15 @@ import { RELEASE_DATE } from './metadata.js';
 
 export const CHANGELOG = [
   {
+    version: 'v0.61', date: '2026-11-04',
+    title: { zh: '阵型战斗演示与角色概率详情', ja: '陣形バトルデモとキャラクター確率詳細', en: 'Formation combat demo and character chance details' },
+    items: {
+      zh: ['完成 Phase 3 简化演示：当前启用阵型中的暴击、绝境暴击和危机闪避概率加成正式参与战斗结算', '保留原有绝境暴击与危机闪避基础规则，不修改角色固定基础概率和 V20 存档结构', '多段攻击继续逐段计算伤害，并在战斗日志中显示当前段数与总段数；绝境暴击仍按一次技能统一判定', '完成 Phase 4：角色详情显示当前阵型带来的普通暴击、绝境暴击和危机闪避概率加成，数值与战斗单位计算保持一致', '阵型页面明确说明本版本仅接入概率类效果，其他属性、行动顺序和技能效果仍为预览，不视为完整阵型战斗系统', '角色详情与阵型说明支持中文、日文、英文；更新 PWA 缓存版本至 v43'],
+      ja: ['Phase 3 の簡易デモを実装。有効な陣形の通常会心・窮地会心・危機回避の確率補正を実際の戦闘計算に反映', '既存の窮地会心・危機回避の基本ルールを維持し、キャラクター固有の基礎確率と V20 セーブ構造は変更しない', '多段攻撃は従来どおり各段でダメージを計算し、戦闘ログに現在の段数と総段数を表示。窮地会心はスキル全体で 1 回だけ判定', 'Phase 4 を実装。キャラクター詳細に現在の陣形による通常会心・窮地会心・危機回避の確率補正を表示し、戦闘ユニットの計算と一致', '本バージョンで戦闘に接続するのは確率系効果のみ。その他の能力値・行動順・スキル効果はプレビュー表示であり、陣形戦闘システム全体の完成ではないことを明記', 'キャラクター詳細と陣形説明は中国語・日本語・英語に対応。PWA キャッシュを v43 に更新'],
+      en: ['Completes a simplified Phase 3 demo: critical, desperate critical, and desperate dodge chance bonuses from the active formation now affect actual battle calculations', 'Preserves existing Desperate Critical and Desperate Dodge base rules, fixed character base rates, and the V20 save structure', 'Multi-hit attacks continue to calculate damage per hit and now show hit index/total in the battle log; Desperate Critical remains a single roll for the whole skill', 'Completes Phase 4: character details show active-formation bonuses to standard Critical, Desperate Critical, and Desperate Dodge, matching battle-unit calculations', 'Clarifies that this release connects chance-based effects only; other stat, action-order, and skill effects remain previews and are not a complete formation combat implementation', 'Supports Chinese, Japanese, and English in character details and formation notices; updates the PWA cache to v43'],
+    },
+  },
+  {
     version: 'v0.60', date: '2026-11-04',
     title: { zh: '阵型管理界面与手机端交互', ja: '陣形管理 UI とモバイル操作', en: 'Formation management UI and mobile interaction' },
     items: {
