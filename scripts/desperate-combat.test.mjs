@@ -11,20 +11,30 @@ import {
   rollDesperateDodge,
 } from '../src/lib/desperateCombat.js';
 
-test('all 20 base heroes receive stable rates within the approved range', () => {
+test('all 20 base heroes receive unique, stable rates within the approved range', () => {
   assert.equal(HEROES.length, 20);
-  const allRates = [];
+  const ratePairs = new Set();
+  let baseRateTotal = 0;
   for (const hero of HEROES) {
     const def = { ...hero, stats: heroStats(hero) };
     const first = getDesperateCombatRates(hero.id, def);
-    assert.deepEqual(first, getDesperateCombatRates(hero.id, def));
+    const refreshed = getDesperateCombatRates(hero.id, {
+      ...def,
+      level: 999,
+      equipment: [{ id: 'test-equipment', stats: { atkPct: 9, hpPct: 9 } }],
+      temporaryBuffs: { atk: 999, def: 999 },
+    });
+    assert.deepEqual(first, refreshed, `${hero.id} rates must remain stable across progression and equipment changes`);
     assert.ok(first.desperateCritRate >= .1 && first.desperateCritRate <= .3);
     assert.ok(first.desperateDodgeRate >= .1 && first.desperateDodgeRate <= .3);
     assert.ok(Math.abs(first.desperateCritRate - first.baseRate) <= .0200001);
     assert.ok(Math.abs(first.desperateDodgeRate - first.baseRate) <= .0200001);
-    allRates.push(first.desperateCritRate, first.desperateDodgeRate);
+    ratePairs.add(`${first.desperateCritRate.toFixed(8)}:${first.desperateDodgeRate.toFixed(8)}`);
+    baseRateTotal += first.baseRate;
   }
-  assert.ok(new Set(allRates).size > 1);
+  assert.equal(ratePairs.size, 20, 'each of the 20 base heroes must have its own crit/dodge rate pair');
+  assert.ok(Math.abs(baseRateTotal / HEROES.length - .2) < 1e-10, 'roster-average baseline must remain 20%');
+  assert.equal(DESPERATE_COMBAT_RULES.randomAdjustment, .02);
 });
 
 test('higher initial ability lowers the base desperate-combat rate', () => {
@@ -41,7 +51,6 @@ test('higher initial ability lowers the base desperate-combat rate', () => {
   assert.equal(weakRate.baseRate, .3);
   assert.equal(strongRate.baseRate, .1);
   assert.ok(weakRate.baseRate > strongRate.baseRate);
-  assert.equal(DESPERATE_COMBAT_RULES.randomAdjustment, .02);
 });
 
 test('desperate critical threshold is strictly below 20 percent and excludes dead units', () => {
