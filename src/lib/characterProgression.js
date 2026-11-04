@@ -66,6 +66,7 @@ export function createCharacterProgressionRecord(cardId, instanceId, instanceNum
     exp: 0,
     breakthroughCount: 0,
     levelCap: INITIAL_CHARACTER_LEVEL_CAP,
+    breakthroughBonuses: { hp: 0, atk: 0, def: 0, mp: 0 },
   };
 }
 
