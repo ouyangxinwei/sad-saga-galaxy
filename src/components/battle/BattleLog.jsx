@@ -1,28 +1,42 @@
 import { useMemo } from 'react';
 
+const BATTLE_COPY = {
+  zh: { actionOrder:'本回合实际行动顺序', formation:'阵型效果', formationBonus:'阵型加成', damageReduction:'受到伤害 -{n}%', skillDamage:'技能伤害 +{n}%', skillEffect:'技能效果 +{n}%', mpCost:'技能 MP 消耗 -{n}%', crit:'普通暴击率 +{n} 个百分点', desperateCrit:'绝境暴击率 +{n} 个百分点', dodge:'危机闪避率 +{n} 个百分点', followUp:'连续行动暴击率 +{n} 个百分点' },
+  ja: { actionOrder:'このターンの実際の行動順', formation:'陣形効果', formationBonus:'陣形ボーナス', damageReduction:'被ダメージ -{n}%', skillDamage:'スキルダメージ +{n}%', skillEffect:'スキル効果 +{n}%', mpCost:'スキル MP 消費 -{n}%', crit:'通常会心率 +{n} ポイント', desperateCrit:'窮地会心率 +{n} ポイント', dodge:'危機回避率 +{n} ポイント', followUp:'連続行動時の会心率 +{n} ポイント' },
+  en: { actionOrder:'Actual action order this round', formation:'Formation effect', formationBonus:'Formation bonuses', damageReduction:'Damage taken -{n}%', skillDamage:'Skill damage +{n}%', skillEffect:'Skill effects +{n}%', mpCost:'Skill MP cost -{n}%', crit:'Critical chance +{n} pp', desperateCrit:'Desperate critical chance +{n} pp', dodge:'Desperate dodge chance +{n} pp', followUp:'Follow-up critical chance +{n} pp' },
+};
+function battleText(lang, key, vars = {}) {
+  return (BATTLE_COPY[lang] || BATTLE_COPY.en)[key].replace(/\{(\w+)\}/g, (_, name) => String(vars[name] ?? ''));
+}
+
 function lineOf(ev, lang, t) {
   switch (ev.kind) {
     case 'round':
       return { tone: 'round', text: t('battle.round', { n: ev.round }) };
-    case 'action':
-      return { tone: 'action', text: `${ev.name} · ${ev.skill?.[lang] || ev.skill?.zh || ''}` };
+    case 'action': {
+      const notes = [];
+      if (ev.formationSkillDamagePct > 0) notes.push(battleText(lang, 'skillDamage', { n: Math.round(ev.formationSkillDamagePct * 100) }));
+      if (ev.formationSkillEffectPct > 0) notes.push(battleText(lang, 'skillEffect', { n: Math.round(ev.formationSkillEffectPct * 100) }));
+      if (ev.formationMpCostReductionPct > 0) notes.push(battleText(lang, 'mpCost', { n: Math.round(ev.formationMpCostReductionPct * 100) }));
+      return { tone: notes.length ? 'formation' : 'action', text: `${ev.name} · ${ev.skill?.[lang] || ev.skill?.zh || ''}${notes.length ? ` · ✧ ${battleText(lang, 'formation')} ${notes.join(' / ')}` : ''}` };
+    }
     case 'damage':
       return {
         tone: ev.desperateCrit || ev.crit ? 'crit' : 'damage',
-        text: `${ev.actor} → ${ev.target}${ev.hitCount > 1 ? ` [${ev.hitIndex}/${ev.hitCount}]` : ''}  ${ev.amount.toLocaleString('en-US')}${ev.desperateCrit ? ` ✦ ${t('battle.desperateCrit')}` : ev.crit ? ' ✦' : ''}`,
+        text: `${ev.actor} → ${ev.target}${ev.hitCount > 1 ? ` [${ev.hitIndex}/${ev.hitCount}]` : ''}  ${ev.amount.toLocaleString('en-US')}${ev.desperateCrit ? ` ✦ ${t('battle.desperateCrit')}` : ev.crit ? ' ✦' : ''}${ev.formationEnhanced || (ev.crit && ev.formationChancePp > 0) || (ev.desperateCrit && ev.formationDesperateCritPp > 0) ? ` · ✧ ${battleText(lang, 'formation')}` : ''}`,
       };
     case 'dodge':
-      return { tone: 'dodge', text: `${ev.target}${ev.hitCount > 1 ? ` [${ev.hitIndex}/${ev.hitCount}]` : ''} · ${t('battle.dodge')}` };
+      return { tone: 'dodge', text: `${ev.target}${ev.hitCount > 1 ? ` [${ev.hitIndex}/${ev.hitCount}]` : ''} · ${t('battle.dodge')}${ev.formationDodgePp > 0 ? ` · ✧ ${battleText(lang, 'formation')}` : ''}` };
     case 'equipment':
       return { tone: 'action', text: `${ev.actor} ✦ ${ev.label?.[lang] || ev.label?.zh || ev.itemName?.[lang] || 'Equipment effect'}` };
     case 'mp':
       return { tone: 'heal', text: `${ev.name} +${ev.amount} MP` };
     case 'heal':
-      return { tone: 'heal', text: `${ev.actor} → ${ev.target}  ${ev.amount.toLocaleString('en-US')}` };
+      return { tone: ev.formationEnhanced ? 'formation' : 'heal', text: `${ev.actor} → ${ev.target}  ${ev.amount.toLocaleString('en-US')}${ev.formationEnhanced ? ` · ✧ ${battleText(lang, 'formation')}` : ''}` };
     case 'shield':
-      return { tone: 'shield', text: `${ev.target} 🛡 ${ev.amount.toLocaleString('en-US')}` };
+      return { tone: ev.formationEnhanced ? 'formation' : 'shield', text: `${ev.target} 🛡 ${ev.amount.toLocaleString('en-US')}${ev.formationEnhanced ? ` · ✧ ${battleText(lang, 'formation')}` : ''}` };
     case 'ward':
-      return { tone: 'shield', text: `${ev.name} · ${Math.round(ev.value * 100)}%` };
+      return { tone: ev.formationEnhanced ? 'formation' : 'shield', text: `${ev.name} · ${Math.round(ev.value * 100)}%${ev.formationEnhanced ? ` · ✧ ${battleText(lang, 'formation')}` : ''}` };
     case 'taunt':
       return { tone: 'action', text: `${ev.target} · ${t('battle.taunt')}` };
     case 'death':
@@ -39,6 +53,7 @@ function lineOf(ev, lang, t) {
 const TONES = {
   round: 'text-primary/70 border-primary/20 bg-primary/[0.06]',
   action: 'text-foreground/60',
+  formation: 'text-[#c6a4ff] font-medium',
   damage: 'text-rose-300/85',
   crit: 'text-[#FFC978]',
   dodge: 'text-[#9CC4FF] font-semibold',

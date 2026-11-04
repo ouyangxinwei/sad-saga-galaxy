@@ -3,6 +3,15 @@ import { RELEASE_DATE } from './metadata.js';
 
 export const CHANGELOG = [
   {
+    version: 'v0.67', date: '2026-11-04',
+    title: { zh: '阵型系统 Phase 3-E 战斗显示与日志完善', ja: '陣形 Phase 3-E 戦闘表示・ログ改善', en: 'Formation Phase 3-E battle display and logs' },
+    items: {
+      zh: ['战斗界面显示每回合实际行动顺序，并高亮当前行动角色；敌我顺序与阵型特殊规则一致', '战斗区域展示当前阵型对各队员实际生效的伤害减免、技能伤害/效果、MP 消耗及暴击/闪避概率加成', '战斗日志为阵型强化的技能、治疗、护盾、减伤及阵型概率触发增加独立标记，与普通效果区分', '行动顺序、加成说明与战斗日志支持中文、日文、英文', '仅增加战斗显示与事件说明字段，不改变战斗数值规则、V20 本地存档结构及队伍配置'],
+      ja: ['各ターンの実際の行動順を戦闘画面に表示し、現在行動中のキャラクターを強調。敵味方の順序と陣形ルールを反映', '現在の陣形が各メンバーに適用する被ダメージ軽減、スキルダメージ/効果、MP 消費、会心/回避率補正を表示', '陣形で強化されたスキル・回復・シールド・軽減効果と陣形由来の確率発動をログで専用表示し、通常効果と区別', '行動順、ボーナス説明、戦闘ログを中国語・日本語・英語に対応', '戦闘表示とイベント説明フィールドのみを追加し、戦闘数値ルール・V20 ローカルセーブ・編成を変更しない'],
+      en: ['Shows the actual action order for each round and highlights the acting unit, including enemy/ally interleaving and formation rules', 'Displays each ally’s active formation damage reduction, skill damage/effect, MP-cost, critical, and dodge bonuses', 'Adds distinct formation markers to enhanced skills, healing, shields, mitigation, and formation-based probability triggers in the battle log', 'Localizes action order, bonus descriptions, and battle logs in Chinese, Japanese, and English', 'Adds display and event metadata only; does not change combat balance, V20 local-save schema, or party configuration'],
+    },
+  },
+  {
     version: 'v0.66', date: '2026-11-04',
     title: { zh: '阵型系统 Phase 3-D 特殊行动顺序', ja: '陣形 Phase 3-D 特殊行動順', en: 'Formation Phase 3-D special action order' },
     items: {

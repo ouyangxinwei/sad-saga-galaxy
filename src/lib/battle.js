@@ -34,6 +34,7 @@ export function applyFormationSkillModifiers(skill, unit) {
  const effectMultiplier=1+skillEffectPct;
  return {
   ...skill,
+  formationModifiers: skillDamagePct > 0 || skillEffectPct > 0 ? { skillDamagePct, skillEffectPct } : null,
   ...(skill.power!==undefined?{power:skill.power*damageMultiplier}:{}),
   ...(skill.heal!==undefined?{heal:skill.heal*effectMultiplier}:{}),
   ...(skill.shield!==undefined?{shield:skill.shield*effectMultiplier}:{}),
@@ -150,42 +151,43 @@ function chooseSkillImpl(u,allies,foes,round){
  return chosen;
 }
 function damage(a,t,s,events,units,round,rt,desperateCrit=false,hitIndex=1,hitCount=1){
- if(a?.side==='enemy'&&t?.side==='ally'&&rollDesperateDodge(t,rt.random)){events.push({kind:'dodge',sid:a.uid,tid:t.uid,actor:a.name,target:t.name,rate:t.desperateDodgeRate,hp:Math.round(t.hp),maxHp:Math.round(t.maxHp),hitIndex,hitCount});return;}
+ if(a?.side==='enemy'&&t?.side==='ally'&&rollDesperateDodge(t,rt.random)){events.push({kind:'dodge',sid:a.uid,tid:t.uid,actor:a.name,target:t.name,rate:t.desperateDodgeRate,formationDodgePp:(Number(t.formationBonus?.dodgePp)||0)+(Number(t.formationBonus?.highSpeedDodgePp)||0),hp:Math.round(t.hp),maxHp:Math.round(t.maxHp),hitIndex,hitCount});return;}
  const critChance=Math.min(.75,Math.max(0,(Number(a.crit)||0)+(Number(s.critBonus)||0)+(Number(a.formationFollowUpCriticalPp)||0)));const crit=Math.random()<critChance;let d=a.atk*s.power*rnd(.93,1.07)*(crit?criticalDamageMultiplier(a):1);
  d=Math.max(1,d-t.def*(1-(s.pierce||0))*.45);if(t.dr)d*=1-t.dr;d=Math.max(1,applyEquipmentDamageModifiers(d,a,t));if(desperateCrit)d*=3;
  const absorbed=Math.min(t.shield,d);t.shield-=absorbed;d-=absorbed;t.hp=Math.max(0,t.hp-d);
- events.push({kind:'damage',sid:a.uid,tid:t.uid,actor:a.name,target:t.name,amount:Math.round(d),crit,desperateCrit,shield:Math.round(t.shield),hp:Math.round(t.hp),maxHp:Math.round(t.maxHp),hitIndex,hitCount});
+ events.push({kind:'damage',sid:a.uid,tid:t.uid,actor:a.name,target:t.name,amount:Math.round(d),crit,desperateCrit,formationEnhanced:Boolean(s?.formationModifiers),formationChancePp:(Number(a.formationBonus?.criticalPp)||0)+(Number(a.formationFollowUpCriticalPp)||0),formationDesperateCritPp:Number(a.formationBonus?.desperateCritPp)||0,shield:Math.round(t.shield),hp:Math.round(t.hp),maxHp:Math.round(t.maxHp),hitIndex,hitCount});
  dispatchEquipmentEvent('onAttack',{owner:a,actor:a,target:t},units,events,rt,round);
  if(crit||desperateCrit)dispatchEquipmentEvent('onCritical',{owner:a,actor:a,target:t},units,events,rt,round);
  if(t.hp<=0)die(t,units,events,a,round,rt);else dispatchEquipmentEvent('onDamageTaken',{owner:t,actor:a,target:t},units,events,rt,round);
 }
 function heal(a,t,s,events,units,round,rt){
  const amount=Math.round(a.atk*s.heal*healingMultiplier(a)*rnd(.95,1.05)),n=Math.min(t.maxHp-t.hp,amount);t.hp+=n;
- events.push({kind:'heal',sid:a.uid,tid:t.uid,actor:a.name,target:t.name,amount:n,hp:Math.round(t.hp),maxHp:Math.round(t.maxHp)});
+ events.push({kind:'heal',sid:a.uid,tid:t.uid,actor:a.name,target:t.name,amount:n,hp:Math.round(t.hp),maxHp:Math.round(t.maxHp),formationEnhanced:Boolean(s?.formationModifiers)});
  dispatchEquipmentEvent('onHeal',{owner:a,actor:a,target:t},units,events,rt,round);
 }
 function act(u,units,round,events,rt){
  const allies=units.filter(x=>x.side===u.side&&x.alive),foes=units.filter(x=>x.side!==u.side&&x.alive);if(!foes.length)return;
  dispatchEquipmentEvent('onTurnStart',{owner:u,actor:u},units,events,rt,round);
  const {sk,id}=traceSync('Battle.chooseSkill',()=>chooseSkillImpl(u,allies,foes,round),{unit:u.uid,round});
- const cost=effectiveMpCost(sk,u);u.mp=Math.max(0,u.mp-cost);events.push({kind:'action',uid:u.uid,name:u.name,sid:u.uid,skill:sk.name,skillId:id,mp:u.mp,mpCost:cost});
+ const cost=effectiveMpCost(sk,u);u.mp=Math.max(0,u.mp-cost);events.push({kind:'action',uid:u.uid,name:u.name,sid:u.uid,skill:sk.name,skillId:id,mp:u.mp,mpCost:cost,formationName:u.formationEffects?.formationName,formationSkillDamagePct:Number(u.skillDamagePct)||0,formationSkillEffectPct:Number(u.skillEffectPct)||0,formationMpCostReductionPct:Number(u.formationEffects?.mpCostReductionPct)||0});
  const resolvedSkill=id==='basic'?sk:applyFormationSkillModifiers(sk,u);
  dispatchEquipmentEvent('onSkillUsed',{owner:u,actor:u,skill:sk,skillId:id},units,events,rt,round);
  if(sk.kind==='attack'){const taunts=foes.filter(f=>f.taunt>0),pool=taunts.length?taunts:foes,targets=sk.target==='all'?[...foes]:[lowHp(pool)||foes[0]];
  const desperateCrit=rollDesperateCrit(u,rt.random);
  const hitCount=Math.max(1,Number(sk.hits)||1);for(let h=0;h<hitCount;h++)targets.forEach(t=>{if(t?.alive)damage(u,t,resolvedSkill,events,units,round,rt,desperateCrit,h+1,hitCount);});}
  else if(sk.kind==='support'){let targets;if(sk.target==='all')targets=allies;else if(sk.target==='random')targets=allies.filter(x=>x.alive&&x.hp<x.maxHp).sort(()=>Math.random()-.5).slice(0,sk.targets||2);else targets=[lowRatio(allies)||u];if(!targets.length)targets=[u];targets.forEach(t=>t&&heal(u,t,resolvedSkill,events,units,round,rt));}
- else if(sk.taunt){const n=Math.round(u.maxHp*(resolvedSkill.shield||.3));u.shield+=n;u.taunt=sk.taunt;events.push({kind:'shield',tid:u.uid,target:u.name,amount:n,shield:u.shield});events.push({kind:'taunt',tid:u.uid,target:u.name});}
- else if(resolvedSkill.shield){const t=lowRatio(allies)||u,n=Math.round(t.maxHp*resolvedSkill.shield);t.shield+=n;events.push({kind:'shield',tid:t.uid,target:t.name,amount:n,shield:t.shield});}
- else if(resolvedSkill.mitigate){allies.forEach(x=>{x.dr=resolvedSkill.mitigate;x.drTurns=resolvedSkill.turns;});events.push({kind:'ward',name:u.name,value:resolvedSkill.mitigate});}
+ else if(sk.taunt){const n=Math.round(u.maxHp*(resolvedSkill.shield||.3));u.shield+=n;u.taunt=sk.taunt;events.push({kind:'shield',tid:u.uid,target:u.name,amount:n,shield:u.shield,formationEnhanced:Boolean(resolvedSkill.formationModifiers)});events.push({kind:'taunt',tid:u.uid,target:u.name});}
+ else if(resolvedSkill.shield){const t=lowRatio(allies)||u,n=Math.round(t.maxHp*resolvedSkill.shield);t.shield+=n;events.push({kind:'shield',tid:t.uid,target:t.name,amount:n,shield:t.shield,formationEnhanced:Boolean(resolvedSkill.formationModifiers)});}
+ else if(resolvedSkill.mitigate){allies.forEach(x=>{x.dr=resolvedSkill.mitigate;x.drTurns=resolvedSkill.turns;});events.push({kind:'ward',name:u.name,value:resolvedSkill.mitigate,formationEnhanced:Boolean(resolvedSkill.formationModifiers)});}
  dispatchEquipmentEvent('onTurnEnd',{owner:u,actor:u},units,events,rt,round);
 }
 function simulateImpl(ac,ec,maxRounds=40,options={}){
  const units=[...ac.map(u=>makeUnit({...u,side:'ally'})),...ec.map((u,i)=>makeUnit({...u,side:'enemy',uid:'e_'+i}))],events=[],rt=createEquipmentRuntime(units,options.random||Math.random);
  const alive=s=>units.some(u=>u.side===s&&u.alive);
  dispatchEquipmentEvent('onBattleStart',{owner:null,actor:null},units,events,rt,0);
- let round=0;while(round<maxRounds&&alive('ally')&&alive('enemy')){round++;events.push({kind:'round',round});
+ let round=0;while(round<maxRounds&&alive('ally')&&alive('enemy')){round++;
  const order=orderBattleUnits(units.filter(u=>u.alive));
+ events.push({kind:'round',round,order:order.map(({uid,name,side})=>({uid,name,side}))});
  let previousActedSide=null;
  for(const u of order)if(u.alive&&alive('ally')&&alive('enemy')){
   u.formationFollowUpCriticalPp=u.side==='ally'&&previousActedSide==='ally'?(Number(u.formationBonus?.followUpCriticalPp)||0):0;

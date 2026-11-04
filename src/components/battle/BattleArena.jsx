@@ -16,6 +16,31 @@ import { logInfo } from '@/lib/logger';
 const STAMINA_COST = 6;
 const BATTLE_SPEED_KEY = 'oooo_battle_speed_v1';
 
+const BATTLE_COPY = {
+  zh: { actionOrder:'本回合实际行动顺序', formation:'阵型效果', formationBonus:'阵型加成', damageReduction:'受到伤害 -{n}%', skillDamage:'技能伤害 +{n}%', skillEffect:'技能效果 +{n}%', mpCost:'技能 MP 消耗 -{n}%', crit:'普通暴击率 +{n} 个百分点', desperateCrit:'绝境暴击率 +{n} 个百分点', dodge:'危机闪避率 +{n} 个百分点', followUp:'连续行动暴击率 +{n} 个百分点' },
+  ja: { actionOrder:'このターンの実際の行動順', formation:'陣形効果', formationBonus:'陣形ボーナス', damageReduction:'被ダメージ -{n}%', skillDamage:'スキルダメージ +{n}%', skillEffect:'スキル効果 +{n}%', mpCost:'スキル MP 消費 -{n}%', crit:'通常会心率 +{n} ポイント', desperateCrit:'窮地会心率 +{n} ポイント', dodge:'危機回避率 +{n} ポイント', followUp:'連続行動時の会心率 +{n} ポイント' },
+  en: { actionOrder:'Actual action order this round', formation:'Formation effect', formationBonus:'Formation bonuses', damageReduction:'Damage taken -{n}%', skillDamage:'Skill damage +{n}%', skillEffect:'Skill effects +{n}%', mpCost:'Skill MP cost -{n}%', crit:'Critical chance +{n} pp', desperateCrit:'Desperate critical chance +{n} pp', dodge:'Desperate dodge chance +{n} pp', followUp:'Follow-up critical chance +{n} pp' },
+};
+function battleText(lang, key, vars = {}) {
+  return (BATTLE_COPY[lang] || BATTLE_COPY.en)[key].replace(/\{(\w+)\}/g, (_, name) => String(vars[name] ?? ''));
+}
+
+function formationEffectLabels(unit, lang) {
+  const effects = unit.formationEffects || {};
+  const chance = unit.formationBonus || {};
+  const labels = [];
+  const add = (key, value) => { if (value > 0) labels.push(battleText(lang, key, { n: Math.round(value * 100) })); };
+  add('damageReduction', Number(effects.damageReductionPct) || 0);
+  add('skillDamage', Number(effects.skillDamagePct) || 0);
+  add('skillEffect', Number(effects.skillEffectPct) || 0);
+  add('mpCost', Number(effects.mpCostReductionPct) || 0);
+  add('crit', Number(chance.criticalPp) || 0);
+  add('desperateCrit', Number(chance.desperateCritPp) || 0);
+  add('dodge', (Number(chance.dodgePp) || 0) + (Number(chance.highSpeedDodgePp) || 0));
+  add('followUp', Number(chance.followUpCriticalPp) || 0);
+  return labels;
+}
+
 function loadBattleSpeed() {
   try {
     const saved = Number(window.localStorage.getItem(BATTLE_SPEED_KEY));
@@ -137,6 +162,17 @@ export default function BattleArena({ mode, n }) {
 
   const allyUnits = sim.units.filter((u) => u.side === 'ally');
   const enemyUnits = sim.units.filter((u) => u.side === 'enemy');
+  const orderState = useMemo(() => {
+    let order = [];
+    let currentActorUid = null;
+    let currentRound = 1;
+    for (let i = 0; i <= step && i < sim.events.length; i += 1) {
+      const event = sim.events[i];
+      if (event.kind === 'round') { currentRound = event.round; order = event.order || []; currentActorUid = null; }
+      else if (event.kind === 'action') currentActorUid = event.uid;
+    }
+    return { order, currentActorUid, currentRound };
+  }, [step, sim]);
 
   const title =
     mode === 'tower'
@@ -207,6 +243,30 @@ export default function BattleArena({ mode, n }) {
         <div className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,1fr)_260px]">
           <div className="saga-panel relative overflow-hidden p-3 sm:p-4">
             <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-rose-500/[0.07] to-transparent" />
+            <div className="relative mb-3 rounded-lg border border-white/[0.08] bg-black/10 p-2">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[9px] uppercase tracking-[0.16em] text-muted-foreground">{battleText(lang, 'actionOrder')}</span>
+                <span className="text-[9px] text-muted-foreground">{t('battle.round', { n: orderState.currentRound })}</span>
+              </div>
+              <div className="mt-1.5 flex flex-wrap gap-1">
+                {orderState.order.map((entry, index) => (
+                  <span key={entry.uid} className={`rounded-md border px-1.5 py-1 text-[9px] ${entry.uid === orderState.currentActorUid ? 'border-primary/60 bg-primary/15 text-primary' : entry.side === 'ally' ? 'border-white/10 text-foreground/75' : 'border-rose-400/20 text-rose-200/70'}`}>
+                    {index + 1}. {entry.name}
+                  </span>
+                ))}
+              </div>
+              {allyUnits.some((unit) => formationEffectLabels(unit, lang).length > 0) ? (
+                <div className="mt-2 border-t border-white/[0.07] pt-2">
+                  <p className="text-[9px] text-primary/80">{allyUnits[0]?.formationEffects?.formationName?.[lang] || battleText(lang, 'formationBonus')}</p>
+                  <div className="mt-1 space-y-1">
+                    {allyUnits.map((unit) => {
+                      const labels = formationEffectLabels(unit, lang);
+                      return labels.length ? <p key={unit.uid} className="text-[9px] leading-relaxed text-foreground/65"><span className="text-foreground/85">{unit.name}:</span> {labels.join(' · ')}</p> : null;
+                    })}
+                  </div>
+                </div>
+              ) : null}
+            </div>
             <div className="relative flex items-center justify-between">
               <span className="text-[9px] uppercase tracking-[0.2em] text-rose-300/70">{t('battle.enemy')}</span>
               <span className="text-[9px] text-muted-foreground">{stage.enemies.length}</span>

@@ -224,6 +224,32 @@ test('Long Serpent orders allied action slots by configured formation position',
   assert.deepEqual(ordered.map(unit => unit.uid), ['a_pos0', 'e_fast', 'a_pos1', 'e_slow', 'a_pos2']);
 });
 
+
+test('battle events expose the actual round order and formation-specific skill markers', () => {
+  const originalRandom = Math.random;
+  Math.random = () => 0;
+  try {
+    const result = simulateBattle(
+      [
+        { uid: 'a_second', name: 'Second', hp: 100, maxHp: 100, atk: 100, def: 0, spd: 90, crit: 0, skills: ['slash'], formationActionOrder: 'formation-order', formationPositionIndex: 1, skillDamagePct: 0.10, skillEffectPct: 0.05, formationEffects: { formationName: { zh: '长蛇阵' }, mpCostReductionPct: 0 }, formationBonus: { criticalPp: 0.04 } },
+        { uid: 'a_first', name: 'First', hp: 100, maxHp: 100, atk: 100, def: 0, spd: 120, crit: 0, skills: ['slash'], formationActionOrder: 'formation-order', formationPositionIndex: 0 },
+      ],
+      [{ uid: 'e_target', name: 'Target', hp: 10000, maxHp: 10000, atk: 0, def: 0, spd: 1, crit: 0, skills: ['claw'] }],
+      1,
+      { random: () => 0.99 },
+    );
+    const round = result.events.find((event) => event.kind === 'round');
+    assert.deepEqual(round.order.map((unit) => unit.uid), ['a_first', 'a_second', 'e_0']);
+    const action = result.events.find((event) => event.kind === 'action' && event.uid === 'a_second');
+    assert.equal(action.formationSkillDamagePct, 0.10);
+    assert.equal(action.formationSkillEffectPct, 0.05);
+    const hit = result.events.find((event) => event.kind === 'damage' && event.sid === 'a_second');
+    assert.equal(hit.formationEnhanced, true);
+    assert.equal(hit.formationChancePp, 0.04);
+  } finally {
+    Math.random = originalRandom;
+  }
+});
 test('Four-Corner Core schedules its center carry after all other allies', () => {
   const ordered = orderBattleUnits([
     { uid: 'a_corner1', side: 'ally', spd: 50, formationPositionIndex: 0 },
