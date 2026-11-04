@@ -17,8 +17,9 @@ import {
   characterBreakthroughCost,
   breakthroughCharacter,
   fuseCharacterProgressionInstances,
+  previewFusionCharacterProgression,
 } from '../src/lib/characterProgression.js';
-import { cardStats, partyUnits, teamTotals, mainCharacterTeamBonusMultiplier } from '../src/lib/cards.js';
+import { cardStats, partyUnits, teamTotals, mainCharacterTeamBonusMultiplier, characterStatBreakdown } from '../src/lib/cards.js';
 
 test('confirmed character growth policies are represented exactly in Phase 1', () => {
   assert.deepEqual(CHARACTER_GROWTH_RULES, {
@@ -535,4 +536,51 @@ test('team summary HP and MP totals include the same battle-only teamwide bonus 
   assert.equal(totals.hp, units.reduce((sum, unit) => sum + unit.maxHp, 0));
   assert.equal(totals.mp, units.reduce((sum, unit) => sum + unit.maxMp, 0));
   assert.equal(totals.lp, units.reduce((sum, unit) => sum + unit.maxLp, 0));
+});
+
+
+test('fusion preview selects the same strongest progression record as fusion policy', () => {
+  const instances = {
+    sourceWeak: { ...createCharacterProgressionRecord('lise', 'sourceWeak'), level: 5, exp: 10 },
+    sourceStrong: { ...createCharacterProgressionRecord('lise', 'sourceStrong'), level: 35, exp: 80, breakthroughCount: 2, levelCap: 80, breakthroughBonuses: { hp: 40, atk: 12, def: 4, mp: 6 } },
+    sourceMid: { ...createCharacterProgressionRecord('lise', 'sourceMid'), level: 20, exp: 30 },
+    resultExisting: { ...createCharacterProgressionRecord('lise_S', 'resultExisting'), level: 25, exp: 50 },
+  };
+  const state = { characterProgression: { instances } };
+  const preview = previewFusionCharacterProgression(state, 'lise', 'lise_S', 3);
+  assert.equal(preview.canPreview, true);
+  assert.equal(preview.consumedCount, 3);
+  assert.equal(preview.winner.origin, 'source');
+  assert.equal(preview.winner.record.level, 35);
+
+  const resultWins = previewFusionCharacterProgression({
+    characterProgression: { instances: {
+      ...instances,
+      resultExisting: { ...instances.resultExisting, level: 60, breakthroughCount: 3, levelCap: 90 },
+    } },
+  }, 'lise', 'lise_S', 3);
+  assert.equal(resultWins.winner.origin, 'result');
+  assert.equal(resultWins.winner.record.level, 60);
+});
+
+test('character stat source breakdown exposes main level, team bonus, career, breakthrough and equipment separately', () => {
+  const record = {
+    ...createCharacterProgressionRecord('lise', 'lise-main'),
+    level: 20,
+    breakthroughCount: 2,
+    levelCap: 80,
+    breakthroughBonuses: { hp: 40, atk: 12, def: 4, mp: 6 },
+  };
+  const breakdown = characterStatBreakdown({
+    level: 10,
+    rebirth: 0,
+    characterProgression: { instances: { 'lise-main': record } },
+  }, 'lise');
+  assert.equal(breakdown.mainCharacterLevel, 10);
+  assert.equal(breakdown.teamBonusPercent, 27);
+  assert.equal(breakdown.characterLevel, 20);
+  assert.equal(breakdown.careerGrowthPercent.hp, 5.7);
+  assert.equal(breakdown.careerGrowthPercent.atk, 10.45);
+  assert.deepEqual(breakdown.breakthrough, { hp: 40, atk: 12, def: 4, mp: 6 });
+  assert.deepEqual(breakdown.equipment, { hpPct: 0, atkPct: 0, defPct: 0, spdPct: 0, crit: 0 });
 });
