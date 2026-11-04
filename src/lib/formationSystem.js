@@ -89,7 +89,7 @@ export function getFormationCombatBonuses(formationState, cardId, party = []) {
   const assignments = formationState?.assignmentsByFormation?.[formation.id] || partySlots(party);
   const positionIndex = assignments.indexOf(cardId);
   const role = positionIndex >= 0 ? formation.positions[positionIndex]?.role : null;
-  const team = formation.effects?.team?.chancePp || {};
+  const team = positionIndex >= 0 ? formation.effects?.team?.chancePp || {} : {};
   const position = role ? formation.effects?.positions?.[role]?.chancePp || {} : {};
   return {
     formationId: formation.id,

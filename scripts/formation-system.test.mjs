@@ -65,3 +65,10 @@ test('returns active formation chance bonuses for each assigned role', () => {
   const diamond = setActiveFormation(state, 'diamond-guard', party);
   assert.equal(getFormationCombatBonuses(diamond, 'hero-e', party).dodgePp, 0.10);
 });
+
+test('does not grant team formation bonuses to characters outside the active five slots', () => {
+  const state = createDefaultFormationState(party);
+  const bonus = getFormationCombatBonuses(state, 'not-in-party', party);
+  assert.equal(bonus.criticalPp, 0);
+  assert.equal(bonus.dodgePp, 0);
+});
