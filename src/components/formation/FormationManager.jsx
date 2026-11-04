@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import GameIcon from '@/components/common/GameIcon';
-import CardTile from '@/components/common/CardTile';
-import { GoldButton, GhostButton } from '@/components/common/Bits';
+import { GoldButton } from '@/components/common/Bits';
 import { FORMATIONS, DEFAULT_FORMATION_ID } from '@/lib/formationSystem';
 
 const COPY = {
@@ -70,7 +69,7 @@ const COPY = {
   },
 };
 
-export default function FormationManager({ party, lang, defOf, powerOf, formationState, actions }) {
+export default function FormationManager({ party, lang, defOf, formationState, actions }) {
   const copy = COPY[lang] || COPY.zh;
   const [previewId, setPreviewId] = useState(formationState?.activeFormationId || DEFAULT_FORMATION_ID);
   const [selectedPosition, setSelectedPosition] = useState(0);
