@@ -60,6 +60,35 @@ export function cardStats(state, id) {
   };
 }
 
+
+export function characterStatBreakdown(state, id) {
+  const def = getCardDef(state, id);
+  if (!def) return null;
+  const progression = strongestCharacterInstance(state, id)?.[1] || null;
+  const career = characterGrowthMultipliers(def.classId, progression?.level || 1);
+  const equipment = getEquipmentBonuses(state, id);
+  const breakthrough = getCharacterBreakthroughBonuses(
+    progression,
+    characterClassIdFor(state, id) || def.classId,
+  );
+  return {
+    mainCharacterLevel: Math.max(1, Math.floor(Number(state?.level) || 1)),
+    teamBonusPercent: Math.round((mainCharacterTeamBonusMultiplier(state) - 1) * 10000) / 100,
+    characterLevel: progression?.level || 1,
+    careerGrowthPercent: Object.fromEntries(
+      Object.entries(career).map(([stat, multiplier]) => [stat, Math.round((multiplier - 1) * 10000) / 100]),
+    ),
+    breakthrough,
+    equipment: {
+      hpPct: equipment.hpPct,
+      atkPct: equipment.atkPct,
+      defPct: equipment.defPct,
+      spdPct: equipment.spdPct,
+      crit: equipment.crit,
+    },
+  };
+}
+
 export function cardPower(state, id) {
   const st = cardStats(state, id);
   if (!st) return 0;
