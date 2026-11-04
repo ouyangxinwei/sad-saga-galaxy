@@ -2,6 +2,7 @@ import { logWarn, traceSync } from './logger.js';
 import { normalizeEquipmentState } from './equipment.js';
 import { RESET_GEMS, createResetState, persistResetState } from './resetState.js';
 import { normalizeCharacterProgressionState } from './characterProgression.js';
+import { createDefaultFormationState, normalizeFormationState } from './formationSystem.js';
 import {
   DEFAULT_UNLOCKED,
   STAGES_PER_MODE,
@@ -65,6 +66,7 @@ function defaultStateImpl() {
     codex: {},
     customDefs: {},
     party: [...DEFAULT_UNLOCKED],
+    formation: createDefaultFormationState(DEFAULT_UNLOCKED),
     presets: [[...DEFAULT_UNLOCKED], [], []],
     presetIndex: 0,
     progress: { normal: 0, hard: 0, nightmare: 0 },
@@ -112,6 +114,7 @@ function loadStateImpl() {
       bounties: { ...base.bounties, ...(parsed.bounties || {}) },
       cards: { ...base.cards, ...(parsed.cards || {}) },
       cardCounts,
+      formation: normalizeFormationState(parsed.formation, parsed.party || base.party),
     };
     if (Number(parsed.equipmentSchemaVersion || 0) < 1 && !localStorage.getItem(EQUIPMENT_BACKUP_KEY)) {
       localStorage.setItem(EQUIPMENT_BACKUP_KEY, raw);
@@ -226,6 +229,7 @@ function normalizeImportedSave(parsed) {
     bounties: { ...base.bounties, ...(parsed.bounties || {}) },
     cards: { ...base.cards, ...(parsed.cards || {}) },
     cardCounts,
+    formation: normalizeFormationState(parsed.formation, parsed.party || base.party),
   };
   return normalizeCharacterProgressionState(normalizeEquipmentState(merged));
 }
