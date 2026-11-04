@@ -12,6 +12,7 @@ import { partyUnits } from '@/lib/cards';
 import { applyEvent, initialLive, simulateBattle } from '@/lib/battle';
 import { fmt } from '@/lib/format';
 import { logInfo } from '@/lib/logger';
+import { getNextStageAfterWin } from '@/lib/stageProgression';
 
 const STAMINA_COST = 6;
 const BATTLE_SPEED_KEY = 'oooo_battle_speed_v1';
@@ -183,8 +184,8 @@ export default function BattleArena({ mode, n }) {
         : `${t('stages.title')} ? ${t(`stages.${mode}`)} ${n}`;
 
   const backTo = mode === 'tower' || mode === 'event' ? '/' : '/stages';
-  const nextIsBoss = result === 'win' && mode === 'normal' && stage.boss && n < 100;
-  const nextStageNumber = nextIsBoss ? Math.min(100, n + 5) : n + 1;
+  const nextIsBoss = result === 'win' && mode !== 'tower' && mode !== 'event' && Boolean(stage.boss) && n < 100;
+  const nextStageNumber = getNextStageAfterWin(mode, n, Boolean(stage.boss));
 
   if (paid === false) {
     return (
