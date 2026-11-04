@@ -10,9 +10,10 @@ import { CLASSES } from '@/lib/gameData';
 import { fmt } from '@/lib/format';
 import { mainCharacterTeamBonusMultiplier } from '@/lib/cards';
 import CharacterDetailDialog from '@/components/dialogs/CharacterDetailDialog';
+import FormationManager from '@/components/formation/FormationManager';
 
 export default function Formation() {
-  const { t, lang, level, party, cards, defOf, powerOf, actions, presets, presetIndex, power } = useGame();
+  const { t, lang, level, party, cards, defOf, powerOf, actions, presets, presetIndex, power, formation } = useGame();
   const [detailId, setDetailId] = useState(null);
   const navigate = useNavigate();
   const [slot, setSlot] = useState(0);
@@ -49,6 +50,13 @@ export default function Formation() {
             </div>
           }
         />
+
+        <FormationManager party={party} lang={lang} defOf={defOf} powerOf={powerOf} formationState={formation} actions={actions} />
+
+        <div className="mt-5 mb-2 flex items-center gap-2">
+          <h3 className="text-[11px] font-semibold tracking-wide text-foreground/90">{lang === 'ja' ? '現在の編成メンバー' : lang === 'en' ? 'Current party roster' : '当前队伍名单'}</h3>
+          <span className="text-[8px] text-muted-foreground">{lang === 'ja' ? '陣形の配置設定とは独立しています' : lang === 'en' ? 'Independent from formation positions' : '与阵型站位配置相互独立'}</span>
+        </div>
 
         <section className="saga-panel-soft mt-3 flex flex-wrap items-center justify-between gap-2 px-3 py-2.5">
           <div>
