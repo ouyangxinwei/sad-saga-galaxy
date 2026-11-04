@@ -1,4 +1,6 @@
 // Canonical localized release catalog. Preserve historical entries; add new releases at the top.
+import { RELEASE_DATE } from './metadata.js';
+
 export const CHANGELOG = [
   {
     version: 'v0.53', date: '2026-11-04',
