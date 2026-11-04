@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { DEFAULT_FORMATION_ID, FORMATIONS, createDefaultFormationState, getFormationCombatBonuses, normalizeFormationState, setActiveFormation, setFormationPosition } from '../src/lib/formationSystem.js';
+import { DEFAULT_FORMATION_ID, FORMATIONS, createDefaultFormationState, getFormationCombatBonuses, getFormationStatBonuses, normalizeFormationState, setActiveFormation, setFormationPosition } from '../src/lib/formationSystem.js';
 
 const party = ['hero-a', 'hero-b', 'hero-c', 'hero-d', 'hero-e'];
 
@@ -71,4 +71,28 @@ test('does not grant team formation bonuses to characters outside the active fiv
   const bonus = getFormationCombatBonuses(state, 'not-in-party', party);
   assert.equal(bonus.criticalPp, 0);
   assert.equal(bonus.dodgePp, 0);
+});
+
+
+test('applies every formation stat modifier to the assigned five-member layout', () => {
+  const state = createDefaultFormationState(party);
+  const read = (formationId, cardId) => getFormationStatBonuses(setActiveFormation(state, formationId, party), cardId, party).statPct;
+
+  assert.deepEqual(read('star', 'hero-a'), { hp: 0, atk: 0.30, def: 0, spd: 0, mp: 0 });
+  assert.deepEqual(read('star', 'hero-b'), { hp: -0.10, atk: -0.10, def: -0.10, spd: -0.10, mp: -0.10 });
+  assert.deepEqual(read('four-corner-core', 'hero-c'), { hp: 0, atk: 0, def: 0, spd: 0, mp: 0.25 });
+  assert.equal(read('four-corner-core', 'hero-a').def, 0.05);
+  assert.deepEqual(read('spearhead', 'hero-a'), { hp: 0, atk: 0.25, def: 0, spd: 0.15, mp: 0 });
+  assert.equal(read('spearhead', 'hero-d').def, -0.10);
+  assert.deepEqual(read('diamond-guard', 'hero-a'), { hp: 0.20, atk: 0, def: 0.25, spd: 0, mp: 0 });
+  assert.deepEqual(read('long-serpent', 'hero-c'), { hp: 0, atk: 0, def: 0, spd: 0.10, mp: 0 });
+  assert.equal(read('cross-support', 'hero-a').mp, 0.25);
+  assert.deepEqual(read('staggered-skirmish', 'hero-c'), { hp: 0, atk: -0.05, def: 0, spd: 0, mp: 0 });
+  assert.deepEqual(read('balanced-ring', 'hero-e'), { hp: 0.05, atk: 0, def: 0.05, spd: 0, mp: 0.10 });
+});
+
+test('does not apply stat bonuses to characters outside the active formation assignments', () => {
+  const state = createDefaultFormationState(party);
+  const bonus = getFormationStatBonuses(state, 'not-in-party', party);
+  assert.deepEqual(bonus.statPct, { hp: 0, atk: 0, def: 0, spd: 0, mp: 0 });
 });
