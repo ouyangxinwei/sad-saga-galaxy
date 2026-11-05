@@ -1,3 +1,4 @@
+// Local diagnostics page: subscribes to the logger's in-browser event stream and switches between execution logs and warning diagnosis; clearing logs does not clear game saves.
 import { useCallback, useEffect, useState } from 'react';
 import { Bug, ChevronLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
