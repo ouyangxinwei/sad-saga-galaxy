@@ -1,3 +1,4 @@
+// Stage selection page: restores the user's last local mode/stage selection, derives unlocks from saved progress, and delegates battle/quick-clear effects to GameContext actions.
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AppShell from '@/components/common/AppShell';
