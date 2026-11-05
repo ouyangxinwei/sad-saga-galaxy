@@ -1,3 +1,4 @@
+// Equipment and relic page: presents inventory, slot assignment, effect descriptions, and before/after stat previews; authoritative equipment changes remain in the equipment/game actions.
 import { useState } from 'react';
 import AppShell from '@/components/common/AppShell';
 import PageHeader from '@/components/common/PageHeader';
