@@ -166,3 +166,52 @@ Formation 页面提交选择或换位 → GameContext 阵型 action → formatio
 - 改 Boss 跳关：检查 `stageProgression.js` 及普通/困难/超困难模式的专项测试。
 
 Phase 2 只补充注释和架构文档，不修改战斗数值、概率、结算顺序、存档或 UI 行为。
+
+
+## 10. Phase 3 — 角色成长、装备与资源系统阅读指南
+
+### 10.1 角色属性汇总（`src/lib/cards.js`）
+
+角色面板不是单一来源，主要计算链路为：
+
+`getCardDef → cardStats → characterStatBreakdown / partyUnits`
+
+- `getCardDef`：解析内置 HERO 或存档中的自定义角色定义。
+- `cardStats`：合并角色基础属性、角色实例成长、玩家等级成长、装备加成与突破固定属性。
+- `partyUnits`：把当前队伍转换成战斗单位，并在此处加入玩家团队加成、幸运与阵型效果。
+- `partyPower`：用于界面展示/比较的估算战力，不等于战斗模拟结果。
+
+排查属性不一致时，先确认比较的是个人面板还是最终战斗单位；不要把玩家团队加成重复加到 `cardStats`。
+
+### 10.2 独立角色成长（`src/lib/characterProgression.js`）
+
+`characterProgression.instances[instanceId]` 为每张重复角色卡保存独立成长记录。角色卡定义 ID 仍用于队伍与碎片归属，实例 ID 用于区分重复卡。
+
+- `normalizeCharacterProgressionState`：依据旧存档的持有数量补齐实例，并归一化已有记录；不会在这里删除实例。
+- `addCharacterExperience`：按当前等级经验需求升级；达到等级上限后保留剩余经验。
+- `grantPartyCharacterExperience`：只给上阵角色发经验，每个角色 ID 只选最强的一个实例。
+- `strongestCharacterInstance`：按等级、经验、突破次数等稳定规则选择最强实例，角色属性计算也使用该选择结果。
+- `breakthroughCharacter`：必须达到当前等级上限，并消耗角色自身碎片与金币；突破保留等级、上限增加 10，并累加职业对应固定属性。
+- `previewFusionCharacterProgression` / `fuseCharacterProgressionInstances`：融合时优先消耗较弱来源实例，并在被消耗来源与已有结果实例之间保留成长最高者。
+
+### 10.3 装备与遗物（`src/lib/equipment.js`）
+
+`getEquipmentDefinition → getEquippedItem → getEquipmentBonuses / getEquipmentEffects` 是读取链路；`normalizeEquipmentState` 与 `equipItem` 负责状态校验。
+
+- 装备槽位为 weapon、armor、relic；库存分别来自 equipmentInventory 与 relics。
+- 装备属性加成以加法汇总，最后按 LIMITS 限制部分概率/效果属性的上限。
+- `getEquipmentEffects` 只收集装备声明的事件效果，实际触发由战斗系统消费。
+- 归一化兼容旧版仅保存遗物字符串的 equipped 格式，并防止同一件物品被多个角色重复穿戴。
+
+改装备字段时，要同步检查静态装备目录、属性汇总、战斗事件消费和旧存档兼容测试。
+
+### 10.4 重置与资源兑换
+
+- `resetState.js`：`createResetState` 基于默认状态创建重置状态；`persistResetState` 负责序列化写入指定 storage key，并以布尔值报告写入是否成功。
+- `resourceExchange.js`：白名单定义可兑换资源；`getExchangeableBalance` 校验余额；`calculateResourceExchange` 纯计算并校验，不修改状态；`applyResourceExchange` 才真正扣除/增加资源并记录最多 30 条历史。
+
+排查资源数量时，区分“计算预览”与“正式应用”；兑换历史属于玩家状态的一部分，应检查对应存档归一化与测试。
+
+### 10.5 Phase 3 覆盖范围
+
+本阶段仅为角色属性、独立成长、突破/融合、装备、重置和资源兑换模块补充模块说明、关键函数注释与本阅读指南。不得改变成长公式、消耗数量、资源倍率、装备效果、状态结构、存档兼容或运行时行为。
