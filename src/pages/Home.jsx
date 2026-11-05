@@ -1,3 +1,4 @@
+// Home composition: combines the shared shell with player status, quick formation, fortune, and entry panels. State here only selects which home panel is open.
 import { useState } from 'react';
 import AppShell from '@/components/common/AppShell';
 import TopBar from '@/components/home/TopBar';
