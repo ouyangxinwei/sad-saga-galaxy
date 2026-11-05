@@ -3,6 +3,15 @@ import { RELEASE_DATE } from './metadata.js';
 
 export const CHANGELOG = [
   {
+    version: 'v0.71', date: '2026-11-05',
+    title: { zh: 'Android PWA 安装兼容性修复', ja: 'Android PWA インストール互換性の修正', en: 'Android PWA installation compatibility fix' },
+    items: {
+      zh: ['新增标准 192×192 与 512×512 PNG 应用图标，并提供适用于 Android 自适应桌面图标的 maskable 图标', '更新 Web App Manifest 图标声明，保留现有 SVG 图标作为兼容备用资源', '更新首页 favicon 与 Service Worker 预缓存资源，并升级缓存版本，避免继续使用旧安装资源', '不修改游戏逻辑、角色数据及 V20 本地存档结构'],
+      ja: ['標準の 192×192 / 512×512 PNG アプリアイコンを追加し、Android のアダプティブアイコン向け maskable アイコンを提供', 'Web App Manifest のアイコン定義を更新し、既存 SVG アイコンも互換用として保持', 'favicon と Service Worker の事前キャッシュ対象を更新し、キャッシュバージョンを引き上げて旧インストール素材の再利用を防止', 'ゲームロジック・キャラクターデータ・V20 ローカルセーブ構造は変更しない'],
+      en: ['Adds standard 192×192 and 512×512 PNG app icons plus a maskable icon for Android adaptive launchers', 'Updates Web App Manifest icon declarations while retaining the existing SVG icons as compatibility fallbacks', 'Updates the favicon and Service Worker precache assets, and bumps the cache version to avoid stale installation resources', 'Does not change game logic, character data, or the V20 local-save schema'],
+    },
+  },
+  {
     version: 'v0.70', date: '2026-11-05',
     title: { zh: '挂机系统：每小时自动结算与无限累计', ja: '放置システム：毎時間の自動精算と時間上限の撤廃', en: 'Idle system: hourly auto-settlement with unlimited accrual' },
     items: {

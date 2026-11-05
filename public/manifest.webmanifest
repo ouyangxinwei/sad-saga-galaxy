@@ -1,15 +1,33 @@
 {
-  "id": "./",
+  "id": "/sad-saga-galaxy/",
   "name": "oooo app",
   "short_name": "oooo",
   "description": "A standalone single-player game.",
-  "start_url": "./",
-  "scope": "./",
+  "start_url": "/sad-saga-galaxy/",
+  "scope": "/sad-saga-galaxy/",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#101426",
   "theme_color": "#101426",
   "icons": [
+    {
+      "src": "./oooo-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./oooo-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./oooo-icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
     {
       "src": "./oooo-icon-192.svg",
       "sizes": "192x192",

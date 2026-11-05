@@ -1,5 +1,5 @@
 const CACHE_PREFIX = 'oooo-app-shell-';
-const CACHE_NAME = `${CACHE_PREFIX}v52`;
+const CACHE_NAME = `${CACHE_PREFIX}v53`;
 
 self.addEventListener('install', (event) => {
   const base = self.registration.scope;
@@ -8,6 +8,9 @@ self.addEventListener('install', (event) => {
     base,
     indexUrl,
     new URL('manifest.webmanifest', base).toString(),
+    new URL('oooo-icon-192.png', base).toString(),
+    new URL('oooo-icon-512.png', base).toString(),
+    new URL('oooo-icon-maskable-512.png', base).toString(),
     new URL('oooo-icon-192.svg', base).toString(),
     new URL('oooo-icon-512.svg', base).toString(),
   ];
