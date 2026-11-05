@@ -1,3 +1,13 @@
+/**
+ * 装备/遗物状态与属性效果模块。
+ *
+ * 负责装备槽位、库存校验、旧版遗物存档兼容、穿戴/卸下，以及把装备配置
+ * 汇总为角色属性加成和战斗事件效果。这里不执行战斗事件；触发时机和结算由 battle.js
+ * 与装备战斗运行时负责。
+ *
+ * 兼容重点：旧版 equipped 字符串代表遗物槽；归一化会迁移旧遗物持有关系，
+ * 并确保同一件装备不会同时穿在多个角色身上。
+ */
 import { EQUIPMENT_CATALOG, RELICS } from './gameData.js';
 
 export const EQUIPMENT_SCHEMA_VERSION = 1;
@@ -31,11 +41,13 @@ function inventoryForSlot(state, slot) {
   return state?.equipmentInventory?.[slot] || {};
 }
 
+/** 按槽位和物品 ID 查找静态装备定义；非法槽位或未知 ID 返回 null。 */
 export function getEquipmentDefinition(slot, itemId) {
   if (!EQUIPMENT_SLOTS.includes(slot) || !itemId) return null;
   return (EQUIPMENT_CATALOG[slot] || []).find((item) => item.id === itemId) || null;
 }
 
+/** 读取角色指定槽位装备，并兼容旧存档中 equipped[cardId] 为字符串的形式。 */
 export function getEquippedItem(state, cardId, slot) {
   if (!EQUIPMENT_SLOTS.includes(slot)) return null;
   const loadout = state?.equipped?.[cardId];
@@ -72,6 +84,7 @@ export function getEquipmentBonuses(state, cardId) {
   return result;
 }
 
+/** 归一化装备库存与穿戴关系，迁移旧遗物数据并清除无效/重复穿戴。 */
 export function normalizeEquipmentState(state) {
   const source = state?.equipped && typeof state.equipped === 'object' ? state.equipped : {};
   const isLegacy = Number(state?.equipmentSchemaVersion || 0) < EQUIPMENT_SCHEMA_VERSION;
@@ -107,6 +120,7 @@ export function normalizeEquipmentState(state) {
   return { ...state, equipmentSchemaVersion: EQUIPMENT_SCHEMA_VERSION, equipmentInventory, relics, equipped };
 }
 
+/** 穿戴或卸下装备；检查槽位、定义、库存及是否已被其他角色占用。 */
 export function equipItem(state, cardId, slot, itemId) {
   if (!cardId || !EQUIPMENT_SLOTS.includes(slot)) return { ok: false, reason: 'invalid_target', state };
   const normalized = normalizeEquipmentState(state);
@@ -126,6 +140,7 @@ export function equipItem(state, cardId, slot, itemId) {
   return { ok: true, reason: null, state: { ...normalized, equipped: { ...normalized.equipped, [cardId]: nextLoadout } } };
 }
 
+/** 收集已穿戴装备声明的战斗事件效果，交由战斗层在对应事件触发。 */
 export function getEquipmentEffects(state, cardId) {
   const effects = [];
   EQUIPMENT_SLOTS.forEach((slot) => {
