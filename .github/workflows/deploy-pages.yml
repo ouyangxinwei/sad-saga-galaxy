@@ -1,3 +1,4 @@
+# GitHub Pages pipeline for standalone-migration: install dependencies, run targeted checks, build with deployment metadata, upload dist/, then deploy only after the build job succeeds.
 name: Deploy standalone game to GitHub Pages
 
 on:
