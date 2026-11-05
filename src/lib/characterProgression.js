@@ -1,23 +1,38 @@
+/**
+ * 角色独立成长规则与实例数据层。
+ *
+ * 每一张重复角色卡都对应独立 progression record（instanceId）；角色定义 ID
+ * 仍用于队伍编成与碎片归属。此模块负责记录归一化、经验升级、突破、融合成长
+ * 继承和最强实例选择，不负责页面展示或存档写入。
+ *
+ * 关键边界：等级上限处的剩余经验保留；突破不重置等级；融合消耗较弱的来源实例，
+ * 并在来源/结果已有实例之间保留成长最高者。变更这些规则时同步检查专项测试。
+ */
 import { HEROES } from './gameData.js';
+/** progression 子结构自己的版本号，与应用版本及整个存档 schema 不是同一概念。 */
 export const CHARACTER_PROGRESSION_SCHEMA_VERSION = 1;
 export const INITIAL_CHARACTER_LEVEL = 1;
 export const INITIAL_CHARACTER_LEVEL_CAP = 60;
 
+/** 各职业原型每升一级的 HP/ATK/DEF/MP 线性成长率；数值以倍率增量表示。 */
 export const CHARACTER_CAREER_GROWTH = Object.freeze({
   attack: Object.freeze({ hp: 0.003, atk: 0.0055, def: 0.0025, mp: 0.0035 }),
   defense: Object.freeze({ hp: 0.0055, atk: 0.0025, def: 0.0055, mp: 0.0035 }),
   support: Object.freeze({ hp: 0.0035, atk: 0.0025, def: 0.0035, mp: 0.0055 }),
   balanced: Object.freeze({ hp: 0.004, atk: 0.004, def: 0.004, mp: 0.004 }),
 });
+/** 将角色职业映射到成长原型；未列出的职业使用 balanced。 */
 export const CHARACTER_CLASS_ARCHETYPES = Object.freeze({
   sword: 'attack', lancer: 'attack', archer: 'attack', rogue: 'attack', mage: 'attack',
   guardian: 'defense',
   priest: 'support', alchemist: 'support', stargazer: 'support',
 });
+/** 返回职业成长原型，未知 classId 安全回退为 balanced。 */
 export function getCharacterCareerArchetype(classId) {
   return CHARACTER_CLASS_ARCHETYPES[classId] || 'balanced';
 }
 
+/** 每次突破按成长原型追加的固定属性；累计值记录在角色实例上。 */
 export const CHARACTER_BREAKTHROUGH_REWARDS = Object.freeze({
   attack: Object.freeze({ hp: 20, atk: 6, def: 2, mp: 3 }),
   defense: Object.freeze({ hp: 35, atk: 2, def: 6, mp: 3 }),
@@ -76,6 +91,7 @@ export function createCharacterProgressionRecord(cardId, instanceId, instanceNum
  * fusion/removal flows will explicitly decide which instances are consumed in a
  * later progression phase.
  */
+/** 将旧卡牌持有数量补齐为独立实例，并修正已有实例字段；不会在此删除实例。 */
 export function normalizeCharacterProgressionState(state) {
   if (!state || typeof state !== 'object') return state;
 
@@ -132,6 +148,7 @@ export function normalizeCharacterProgressionState(state) {
   };
 }
 
+/** 当前等级升到下一级所需经验；参数为升级前等级。 */
 export const characterExpNeed = (level) => Math.round(70 + level * 26 + level * level * 0.9);
 
 /**
@@ -168,6 +185,7 @@ export function addCharacterExperience(record, amount) {
  * Party slots are keyed by card definition, so duplicate copies are not
  * double-awarded; tie-breakers are current EXP then breakthrough count.
  */
+/** 将战斗经验发给上阵角色各自最强的一个实例；同角色重复卡不会重复领奖。 */
 export function grantPartyCharacterExperience(state, amount) {
   if (!state || !Number.isFinite(Number(amount)) || Number(amount) <= 0) {
     return { state, levelsGained: 0, recipients: [] };
@@ -204,11 +222,13 @@ export function grantPartyCharacterExperience(state, amount) {
 }
 
 
+/** 计算下一次突破消耗：碎片随突破次数递增，金币按次数线性递增。 */
 export function characterBreakthroughCost(breakthroughCount = 0) {
   const count = Math.max(0, Math.floor(Number(breakthroughCount) || 0));
   return { shards: 3 + count * 2, gold: 1000 * (count + 1) };
 }
 
+/** 选择同一角色成长最高的实例；等级、经验、突破次数依次作为排序条件。 */
 export function strongestCharacterInstance(state, cardId) {
   const instances = state?.characterProgression?.instances || {};
   return Object.entries(instances).filter(([, record]) => record?.cardId === cardId).sort((a, b) =>
@@ -227,6 +247,7 @@ export function strongestCharacterInstance(state, cardId) {
  * result-card instance ID. If an existing result copy wins, it stays untouched
  * and normalization creates the newly fused copy at its initial growth.
  */
+/** 预览三合一等融合将消耗哪些来源实例，以及哪份成长记录会被保留。 */
 export function previewFusionCharacterProgression(state, sourceCardId, resultCardId, count = 3) {
   const instances = state?.characterProgression?.instances || {};
   const amount = Math.max(0, Math.floor(Number(count) || 0));
@@ -261,6 +282,7 @@ export function previewFusionCharacterProgression(state, sourceCardId, resultCar
   };
 }
 
+/** 正式执行成长记录融合；来源胜出时重绑为结果角色的新实例 ID。 */
 export function fuseCharacterProgressionInstances(state, sourceCardId, resultCardId, count = 3) {
   const progression = state?.characterProgression;
   if (!progression?.instances || !sourceCardId || !resultCardId) return state;
@@ -317,6 +339,7 @@ export function fuseCharacterProgressionInstances(state, sourceCardId, resultCar
   };
 }
 
+/** 对角色最强实例执行突破；必须满当前等级上限且碎片/金币充足。 */
 export function breakthroughCharacter(state, cardId) {
   const selected = strongestCharacterInstance(state, cardId);
   if (!selected) return { state, success: false, reason: 'missing-character' };
