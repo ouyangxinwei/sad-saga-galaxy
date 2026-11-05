@@ -1,5 +1,4 @@
 const WIX_MEDIA_HOSTS = {
-  "media.base44.com": "/images/public/",
   "static.wixstatic.com": "/media/",
 }
 
@@ -24,9 +23,9 @@ export function splitImageProps(props) {
 }
 
 export function getImagePreviewClassName(className, currentClassName, baselineClassName) {
-  const sourceClasses = new Set((className || "").split(/\s+/))
-  const baselineClasses = new Set(baselineClassName.split(/\s+/))
-  return currentClassName.split(/\s+/).filter((token) =>
+  const sourceClasses = new Set((className || "").split(/\\s+/))
+  const baselineClasses = new Set(baselineClassName.split(/\\s+/))
+  return currentClassName.split(/\\s+/).filter((token) =>
     !["inline-block", "relative"].includes(token) || !baselineClasses.has(token) || sourceClasses.has(token)
   ).join(" ")
 }
@@ -47,14 +46,14 @@ export function parseWixMediaUrl(src) {
     const pathPrefix = WIX_MEDIA_HOSTS[url.hostname]
     if (!pathPrefix) return null
 
-    const transformed = url.pathname.match(/^(.*)\/v1\/(?:fill|fit)\/[^/]+\/[^/]+$/i)
+    const transformed = url.pathname.match(/^(.*)\\/v1\\/(?:fill|fit)\\/[^/]+\\/[^/]+$/i)
     const basePath = transformed ? transformed[1] : url.pathname
     const filename = basePath.split("/").pop()
     if (
       !basePath.startsWith(pathPrefix) ||
       !filename ||
-      !/\.[a-z0-9]+$/i.test(filename) ||
-      /\.svg$/i.test(filename)
+      !/\\.[a-z0-9]+$/i.test(filename) ||
+      /\\.svg$/i.test(filename)
     ) {
       return null
     }
@@ -81,7 +80,7 @@ export function buildTransformUrl(
     )
   }
   // Preserve GIF delivery; negotiate AVIF/WebP for other images via Accept.
-  const encoding = /\.gif$/i.test(filename) ? "enc_webp" : "enc_auto"
+  const encoding = /\\.gif$/i.test(filename) ? "enc_webp" : "enc_auto"
   params.push(`q_${quality}`, "usm_0.66_1.00_0.01", encoding, "quality_auto")
   return `${baseUrl}/v1/${crop ? "fill" : "fit"}/${params.join(",")}/${filename}`
 }
