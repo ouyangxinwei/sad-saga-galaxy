@@ -1,3 +1,4 @@
+// Shared page frame: renders the decorative background and optional bottom navigation around page content. Page-specific layout remains owned by each route.
 import StarField from './StarField';
 import BottomNav from './BottomNav';
 
