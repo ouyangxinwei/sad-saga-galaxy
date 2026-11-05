@@ -102,3 +102,67 @@ Formation 页面提交选择或换位 → GameContext 阵型 action → formatio
 ## 8. Phase 1 覆盖范围
 
 本阶段为 App 入口、GameContext、save、logger、main 增加模块/关键函数说明，并新增本架构导读。只增加注释和文档，不改变业务计算、存档结构、UI 或运行时行为。
+
+
+## 9. Phase 2 — 战斗系统阅读指南
+
+### 9.1 战斗数据准备
+
+`cards.js → partyUnits(state, fortune)` 将当前队伍转换为战斗单位：
+- `cardStats` 计算角色个人面板属性。
+- 玩家等级团队加成只在组装战斗单位时应用一次。
+- 幸运效果、阵型基础属性、技能效果和概率加成在此汇总。
+- `formationBonus`、`formationEffects` 等字段随后由战斗模拟消费。
+
+不要把 `cardStats` 的个人面板与 `partyUnits` 的最终战斗属性混为一谈。
+
+### 9.2 战斗模拟主链路
+
+`simulateBattle → simulateImpl → orderBattleUnits → act → damage/heal → events`
+
+- `makeUnit`：补齐战斗运行时字段（MP、护盾、存活标记、概率上限等）。
+- `orderBattleUnits`：先按速度排序；阵型指定行动顺序时，仅调整我方单位在行动序列中的槽位。
+- `act`：触发装备回合事件、AI 选技能、扣除 MP、选择目标并结算动作。
+- `damage`：单次命中结算闪避、普通暴击、伤害减免、护盾、装备触发和死亡/复活。
+- 多段技能通过多次调用 `damage` 生成逐段事件，不能把多段误认为一次总伤害。
+- `applyEvent` 只把已经结算的事件投影到 UI live 状态，不重新计算伤害。
+
+### 9.3 普通概率与濒危概率
+
+- 普通暴击由战斗单位的 `crit`、技能 `critBonus` 和阵型追击加成参与计算。
+- 濒危暴击由 `desperateCombat.js` 判断：我方存活角色 HP 比例低于 20% 才具备资格。
+- 濒危闪避要求我方存活角色 HP 比例低于 10%。
+- 濒危暴击和濒危闪避的基础概率由角色基础属性相对全体角色平均值派生，并带有基于角色 ID 的稳定微调。
+- 战斗时才执行随机掷骰；角色详情展示模块只汇总概率，不执行随机判定。
+- 阵型概率加成以百分点字段单独传递，不应与属性百分比混用。
+
+### 9.4 阵型效果分层
+
+`formationSystem.js` 分别派生三类效果：
+1. `getFormationStatBonuses`：HP、ATK、DEF、SPD、MP。
+2. `getFormationEffectBonuses`：技能伤害/效果、减伤、MP 消耗、行动顺序。
+3. `getFormationCombatBonuses`：普通/濒危暴击、闪避及条件概率。
+
+`cards.js` 负责把这些效果注入战斗单位；`battle.js` 负责在正确的结算节点消费它们。
+
+### 9.5 关卡推进
+
+`stageProgression.js` 统一处理主线胜利后的进度与下一场关卡：
+- Boss 胜利后解锁后续四个小关。
+- 下一场实际战斗进入下一个 Boss 关。
+- 被跳过的小关不会在推进函数中自动产生战斗奖励。
+- tower/event 模式不走普通主线下一关逻辑。
+
+### 9.6 角色详情概率
+
+`characterCombatDisplay.js` 优先读取实际 battleUnit 最终概率，并保留基础、装备、幸运、阵型等来源拆分。条件闪避同时返回是否已激活，避免把条件加成错误显示为当前有效概率。
+
+### 9.7 修改战斗逻辑时的联动检查
+
+- 改属性来源：检查 `cards.js` 与角色详情统计，防止团队加成重复计算。
+- 改概率阈值/上限：检查 `desperateCombat.js`、`battle.js`、`characterCombatDisplay.js` 与概率专项测试。
+- 改阵型效果：检查 `formationSystem.js`、`cards.js`、`battle.js` 和角色详情展示。
+- 改事件结构：检查 `applyEvent` 与战斗 UI 的事件消费组件。
+- 改 Boss 跳关：检查 `stageProgression.js` 及普通/困难/超困难模式的专项测试。
+
+Phase 2 只补充注释和架构文档，不修改战斗数值、概率、结算顺序、存档或 UI 行为。

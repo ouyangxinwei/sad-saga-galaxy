@@ -1,3 +1,16 @@
+/**
+ * 角色卡牌与战斗单位组装层。
+ *
+ * 本模块连接静态 HERO 定义、角色成长、装备、幸运效果与阵型系统。
+ * cardStats 计算角色个人面板属性；partyUnits 将当前队伍转换成 battle.js
+ * 可直接使用的运行单位，并在这里汇总玩家等级团队加成和阵型加成。
+ *
+ * 重要边界：
+ * - cardStats 不叠加玩家等级的团队加成；该加成只在 partyUnits 组装战斗单位时应用。
+ * - partyPower 是展示/比较用途的战力估算，不等同于完整战斗模拟结果。
+ * - partyUnits 中的 formationBonus / formationEffects 是战斗侧消费的数据契约。
+ * 修改属性来源时应检查是否重复叠加，尤其是成长、装备、幸运和阵型效果。
+ */
 import { HEROES, RELICS, classOf, heroStats } from './gameData.js';
 import { getEquippedItem, getEquipmentBonuses, getEquipmentEffects } from './equipment.js';
 import { characterGrowthMultipliers, strongestCharacterInstance, characterClassIdFor, getCharacterBreakthroughBonuses } from './characterProgression.js';
@@ -38,6 +51,7 @@ export function relicOf(state, id) {
   return RELICS.find((r) => r.id === rid) || null;
 }
 
+/** 计算单个角色面板属性：基础属性 × 角色成长 × 玩家等级成长 × 装备，再叠加突破固定值。 */
 export function cardStats(state, id) {
   const def = getCardDef(state, id);
   if (!def) return null;
@@ -113,6 +127,7 @@ export function teamTotals(state) {
   );
 }
 
+/** 将当前上阵名单组装为战斗单位；在此汇总团队等级、幸运、阵型属性/概率/技能效果。 */
 export function partyUnits(state, fortune = null) {
   const f = fortune?.effect || {};
   const teamBonus = mainCharacterTeamBonusMultiplier(state);
@@ -192,6 +207,7 @@ export function partyUnits(state, fortune = null) {
   });
 }
 
+/** 按 cardPower 估算值选出最多五名角色；该结果不直接改变玩家当前 party。 */
 export function strongestParty(state) {
   const ids = Object.keys(state.cards || {}).filter((id) => getCardDef(state, id));
   return ids

@@ -1,3 +1,17 @@
+/**
+ * 阵型定义与战斗加成派生。
+ *
+ * FORMATIONS 是八种阵型的静态配置源：名称/说明为三语言数据，positions
+ * 定义五个站位的坐标与职责 role，effects 则按 team、position、conditions
+ * 分层描述属性、技能、行动顺序和概率增益。
+ *
+ * 持久化状态只记录当前阵型及每种阵型的角色槽位，不把计算后的战斗属性写回存档。
+ * normalizeFormationState 负责把旧档/无效角色/重复角色整理成当前五槽结构。
+ *
+ * 三类 bonus getter 刻意分开：基础属性、技能/防御/MP 效果、概率百分点。
+ * 这可避免百分比属性与概率百分点混用。修改效果定义时需同步检查 cards.js、
+ * battle.js 和角色详情展示逻辑。
+ */
 // Formation system V1.0 — definitions and persistent position configuration.
 // Phase 1 stores effect metadata but does not apply combat modifiers.
 
@@ -32,6 +46,7 @@ export function createDefaultFormationState(party = []) {
   return { schemaVersion: FORMATION_SCHEMA_VERSION, activeFormationId: DEFAULT_FORMATION_ID, assignmentsByFormation: Object.fromEntries(FORMATIONS.map(({ id }) => [id, [...slots]])) };
 }
 
+/** 校验阵型 ID 与五个角色槽位；过滤非当前队员和重复 ID，并用当前队伍补齐空位。 */
 export function normalizeFormationState(value, party = []) {
   const activeFormationId = FORMATION_MAP[value?.activeFormationId] ? value.activeFormationId : DEFAULT_FORMATION_ID;
   const currentParty = partySlots(party);
@@ -54,6 +69,7 @@ export function normalizeFormationState(value, party = []) {
   return { schemaVersion: FORMATION_SCHEMA_VERSION, activeFormationId, assignmentsByFormation };
 }
 
+/** 切换当前使用的阵型；每种阵型的独立站位配置保持不变。 */
 export function setActiveFormation(value, formationId, party = []) {
   if (!FORMATION_MAP[formationId]) return value;
   const normalized = normalizeFormationState(value, party);
@@ -61,6 +77,7 @@ export function setActiveFormation(value, formationId, party = []) {
   return { ...normalized, activeFormationId: formationId };
 }
 
+/** 在指定阵型中放置/移除角色；若角色已在另一槽位则交换，避免同一角色重复上阵。 */
 export function setFormationPosition(value, formationId, positionIndex, cardId, party = []) {
   if (!FORMATION_MAP[formationId] || !Number.isInteger(positionIndex) || positionIndex < 0 || positionIndex >= FORMATION_SLOT_COUNT) return value;
   const normalized = normalizeFormationState(value, party);
@@ -84,6 +101,7 @@ export function getFormationDefinition(formationId) {
 }
 
 // Phase 3-A: derive active formation stat modifiers for each assigned member.
+/** 派生角色的 HP/ATK/DEF/SPD/MP 百分比加成；未被分配到阵型的角色不享受队伍效果。 */
 export function getFormationStatBonuses(formationState, cardId, party = []) {
   const formation = FORMATION_MAP[formationState?.activeFormationId] || FORMATION_MAP[DEFAULT_FORMATION_ID];
   const assignments = formationState?.assignmentsByFormation?.[formation.id] || partySlots(party);
@@ -96,6 +114,7 @@ export function getFormationStatBonuses(formationState, cardId, party = []) {
 }
 
 // Skill, damage-reduction, and MP-cost modifiers remain separate from stats/chances.
+/** 派生技能伤害、技能效果、减伤、MP 消耗和行动顺序等非基础属性效果。 */
 export function getFormationEffectBonuses(formationState, cardId, party = []) {
   const formation = FORMATION_MAP[formationState?.activeFormationId] || FORMATION_MAP[DEFAULT_FORMATION_ID];
   const assignments = formationState?.assignmentsByFormation?.[formation.id] || partySlots(party);
@@ -117,6 +136,7 @@ export function getFormationEffectBonuses(formationState, cardId, party = []) {
 }
 
 // Chance modifiers remain separate from stat modifiers.
+/** 派生暴击/濒危暴击/闪避等概率百分点，并单独返回高速条件加成供详情与战斗共用。 */
 export function getFormationCombatBonuses(formationState, cardId, party = [], conditions = {}) {
   const formation = FORMATION_MAP[formationState?.activeFormationId] || FORMATION_MAP[DEFAULT_FORMATION_ID];
   const assignments = formationState?.assignmentsByFormation?.[formation.id] || partySlots(party);

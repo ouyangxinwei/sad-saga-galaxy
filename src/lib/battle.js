@@ -1,3 +1,18 @@
+/**
+ * 战斗模拟核心（Combat Simulation）。
+ *
+ * 本模块把我方/敌方单位转换为战斗运行态，按回合生成事件序列，
+ * 最后返回胜负、回合数、最终单位状态及可供 UI 播放的 events。
+ * 这里是战斗规则的执行层；角色基础属性和阵型加成由 cards.js /
+ * formationSystem.js 在创建战斗单位前准备。
+ *
+ * 主要链路：simulateBattle -> simulateImpl -> orderBattleUnits -> act
+ * -> damage/heal/防御效果 -> events -> applyEvent（UI 状态投影）。
+ *
+ * 注意：events 是战斗表现与结算之间的契约。新增/修改事件 kind 时，
+ * 必须同步检查 BattleArena 等消费端；不要只改事件生成而遗漏 UI 应用。
+ * 伤害、概率上限、装备触发和复活规则均属于业务规则，改动前先查专项测试。
+ */
 import { SKILLS } from './gameData.js';
 import { rollDesperateCrit, rollDesperateDodge } from './desperateCombat.js';
 import { traceSync, logInfo, logWarn } from './logger.js';
@@ -8,6 +23,7 @@ export function applyEquipmentDamageModifiers(n,a,t){return n*(1+Math.min(1,Math
 export function criticalDamageMultiplier(u){return 1.65+Math.min(1,Math.max(0,Number(u?.critDamagePct)||0));}
 export function healingMultiplier(u){return 1+Math.min(1.5,Math.max(0,Number(u?.healBonus)||0));}
 export function effectiveMpCost(s,u){return Math.max(0,Math.round(Math.max(0,Number(s?.mp)||0)*(1-Math.min(.5,Math.max(0,Number(u?.mpCostReductionPct)||0)))));}
+/** 根据速度排序，并在阵型指定时只重排我方行动槽；敌方相对位置沿用速度序列。 */
 export function orderBattleUnits(units) {
  const speedOrder=[...units].sort((a,b)=>b.spd-a.spd);
  const allies=speedOrder.filter(unit=>unit.side==='ally');
@@ -27,6 +43,7 @@ export function orderBattleUnits(units) {
  let allyIndex=0;
  return speedOrder.map(unit=>unit.side==='ally'?formationOrder[allyIndex++]:unit);
 }
+/** 将该单位已计算好的阵型技能增益应用到技能副本，不修改静态 SKILLS 定义。 */
 export function applyFormationSkillModifiers(skill, unit) {
  const skillDamagePct=Math.min(1,Math.max(-.9,Number(unit?.skillDamagePct)||0));
  const skillEffectPct=Math.min(1,Math.max(-.9,Number(unit?.skillEffectPct)||0));
@@ -150,6 +167,9 @@ function chooseSkillImpl(u,allies,foes,round){
  logInfo('BattleAI','chooseSkill',{unit:u.uid,round,chosenSkillId:chosen.id,candidates:opts.map(({id,baseScore,bonus,score,rolledScore})=>({id,baseScore,bonus,score,rolledScore})),equipmentAware:(u.equipmentEffects||[]).length>0});
  return chosen;
 }
+/** 单次命中结算：先处理闪避，再计算普通暴击/伤害减免/护盾，最后派发装备事件与死亡处理。
+ * 多段技能由 act 循环多次调用本函数，因此每次命中都会独立产生事件。
+ */
 function damage(a,t,s,events,units,round,rt,desperateCrit=false,hitIndex=1,hitCount=1){
  if(a?.side==='enemy'&&t?.side==='ally'&&rollDesperateDodge(t,rt.random)){events.push({kind:'dodge',sid:a.uid,tid:t.uid,actor:a.name,target:t.name,rate:t.desperateDodgeRate,formationDodgePp:(Number(t.formationBonus?.dodgePp)||0)+(Number(t.formationBonus?.highSpeedDodgePp)||0),hp:Math.round(t.hp),maxHp:Math.round(t.maxHp),hitIndex,hitCount});return;}
  const critChance=Math.min(.75,Math.max(0,(Number(a.crit)||0)+(Number(s.critBonus)||0)+(Number(a.formationFollowUpCriticalPp)||0)));const crit=Math.random()<critChance;let d=a.atk*s.power*rnd(.93,1.07)*(crit?criticalDamageMultiplier(a):1);
@@ -165,6 +185,7 @@ function heal(a,t,s,events,units,round,rt){
  events.push({kind:'heal',sid:a.uid,tid:t.uid,actor:a.name,target:t.name,amount:n,hp:Math.round(t.hp),maxHp:Math.round(t.maxHp),formationEnhanced:Boolean(s?.formationModifiers)});
  dispatchEquipmentEvent('onHeal',{owner:a,actor:a,target:t},units,events,rt,round);
 }
+/** 执行一个单位的完整回合：装备回合触发、AI 选技、MP 扣除、目标选择、效果结算及回合结束触发。 */
 function act(u,units,round,events,rt){
  const allies=units.filter(x=>x.side===u.side&&x.alive),foes=units.filter(x=>x.side!==u.side&&x.alive);if(!foes.length)return;
  dispatchEquipmentEvent('onTurnStart',{owner:u,actor:u},units,events,rt,round);
@@ -181,6 +202,7 @@ function act(u,units,round,events,rt){
  else if(resolvedSkill.mitigate){allies.forEach(x=>{x.dr=resolvedSkill.mitigate;x.drTurns=resolvedSkill.turns;});events.push({kind:'ward',name:u.name,value:resolvedSkill.mitigate,formationEnhanced:Boolean(resolvedSkill.formationModifiers)});}
  dispatchEquipmentEvent('onTurnEnd',{owner:u,actor:u},units,events,rt,round);
 }
+/** 战斗主循环。每轮记录实际行动顺序，逐个行动并更新持续状态，直至一方全灭或达到回合上限。 */
 function simulateImpl(ac,ec,maxRounds=40,options={}){
  const units=[...ac.map(u=>makeUnit({...u,side:'ally'})),...ec.map((u,i)=>makeUnit({...u,side:'enemy',uid:'e_'+i}))],events=[],rt=createEquipmentRuntime(units,options.random||Math.random);
  const alive=s=>units.some(u=>u.side===s&&u.alive);
@@ -201,6 +223,8 @@ function simulateImpl(ac,ec,maxRounds=40,options={}){
  return {events,result,rounds:round,final,units};
 }
 export function makeUnit(c){return traceSync('Battle.makeUnit',()=>makeUnitImpl(c),{unit:c?.uid||c?.name||'unknown'});}
+/** 对外战斗入口；通过 traceSync 记录战斗规模与耗时，返回纯模拟结果供调用方播放/结算。 */
 export function simulateBattle(a,e,maxRounds=40,options={}){return traceSync('Battle.simulateBattle',()=>simulateImpl(a,e,maxRounds,options),{allies:a?.length||0,enemies:e?.length||0,maxRounds});}
 export function initialLive(units){return traceSync('Battle.initialLive',()=>Object.fromEntries(units.map(u=>[u.uid,{hp:Math.round(u.hp),maxHp:Math.round(u.maxHp),mp:Math.round(u.mp),maxMp:u.maxMp,lp:u.lp,shield:0,alive:true}])),{units:units?.length||0});}
+/** 将单条战斗事件折算到 UI 使用的 live 快照；它不重新计算伤害，只消费事件中已结算的数值。 */
 export function applyEvent(live,ev){return traceSync('Battle.applyEvent',()=>{if(!ev)return live;const patch=(id,data)=>live[id]?{...live,[id]:{...live[id],...data}}:live;switch(ev.kind){case'damage':return patch(ev.tid,{hp:ev.hp,shield:ev.shield});case'heal':return patch(ev.tid,{hp:ev.hp});case'shield':return patch(ev.tid,{shield:ev.shield});case'death':case'perma':return patch(ev.tid,{alive:false,hp:0});case'revive':return {...patch(ev.tid,{alive:true,hp:ev.hp,lp:ev.lp}),...(ev.casterUid?{[ev.casterUid]:{...live[ev.casterUid],lp:ev.casterLp}}:{})};case'action':case'mp':return patch(ev.uid,{mp:ev.mp});default:return live;}},{eventKind:ev?.kind||'unknown'});}

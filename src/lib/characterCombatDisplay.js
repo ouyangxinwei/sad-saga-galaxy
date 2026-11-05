@@ -1,9 +1,21 @@
+/**
+ * 角色详情中的战斗概率展示模型。
+ *
+ * 本模块把角色基础概率、装备/幸运效果、阵型概率百分点与条件效果组合成
+ * UI 可直接展示的数据结构。优先使用 battleUnit 中的最终战斗值，确保详情
+ * 与实际战斗单位一致；没有 battleUnit 时才使用传入的来源值自行推导。
+ *
+ * rate 为最终概率，base/equipment/fortune/formation 等字段用于拆分说明；
+ * 条件闪避会明确返回 highSpeedActive，不能把未满足条件的加成当作当前生效值。
+ * 这里仅生成展示数据，不执行随机判定，也不修改角色或存档。
+ */
 const clamp = (value, min, max) => Math.min(max, Math.max(min, Number(value) || 0));
 
 /**
  * Build the chance values shown in character details from the same battle-unit
  * values used by combat. Conditional formation bonuses remain separate.
  */
+/** 生成普通暴击、濒危暴击、濒危闪避的最终值与来源拆分，供角色详情面板使用。 */
 export function getCharacterCombatChanceDisplay({
   definition,
   equipmentCrit = 0,
