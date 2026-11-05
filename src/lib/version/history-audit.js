@@ -1,3 +1,4 @@
+// Explicit record of known legacy release-catalog gaps and duplicates. This audit documents uncertainty; it must not be used to invent missing release notes.
 // Historical catalog audit. These are known legacy data issues, not guessed releases.
 export const VERSION_HISTORY_AUDIT = Object.freeze({
   firstDocumentedVersion: 'v0.18',
