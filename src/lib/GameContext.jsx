@@ -46,11 +46,10 @@ import { getProgressAfterStageWin } from './stageProgression';
 import { normalizeCharacterProgressionState, grantPartyCharacterExperience, breakthroughCharacter, fuseCharacterProgressionInstances } from './characterProgression';
 import { applyResourceExchange } from './resourceExchange';
 import { setActiveFormation as selectActiveFormation, setFormationPosition as assignFormationPosition, normalizeFormationState } from './formationSystem';
+import { getCompletedIdleHours, rollIdleResourceDrops } from './idleRewards';
 
 const GameCtx = createContext(null);
 const traceAction = (name, fn) => (...args) => traceSync('GameContext.' + name, () => fn(...args));
-
-const IDLE_CAP_MIN = 720;
 
 const TEST_SUPPORT_KEY = 'oooo_v13_test_support_v1';
 const TEST_TICKETS = 450;
@@ -241,6 +240,61 @@ export function GameProvider({ children }) {
     }
     return levels;
   };
+
+  // Automatically grant each completed idle hour. Every non-idle gem resource
+  // receives its own independent 30% roll for every hour.
+  const processIdleAutoRewards = useCallback(() => {
+    const current = ref.current;
+    const idleState = current.idle || {};
+    const storedSeconds = Math.max(0, Number(idleState.elapsedSeconds) || 0);
+    const runningSeconds = idleState.active ? Math.max(0, (Date.now() - Number(idleState.at || Date.now())) / 1000) : 0;
+    const totalSeconds = storedSeconds + runningSeconds;
+    const completedHours = getCompletedIdleHours(totalSeconds);
+    if (completedHours < 1) return false;
+
+    const now = Date.now();
+    const s = { ...current, enemyShards: { ...(current.enemyShards || {}) } };
+    const rates = idleRatesOf(s);
+    const drops = rollIdleResourceDrops(completedHours);
+    const stageDef = getStage(rates.mode, rates.stage);
+    const shardId = stageDef?.enemies?.[0]?.enemyId;
+    const clears = Math.max(0, Math.floor(rates.clearsPerHour)) * completedHours;
+    const materialCounts = {};
+    if (shardId) {
+      for (let i = 0; i < clears; i += 1) {
+        materialCounts[shardId] = (materialCounts[shardId] || 0) + 1 + Math.floor(Math.random() * 2);
+      }
+      Object.entries(materialCounts).forEach(([id, amount]) => {
+        s.enemyShards[id] = (s.enemyShards[id] || 0) + amount;
+      });
+    }
+
+    const levels = grant(s, {
+      gold: rates.goldPerHour * completedHours,
+      exp: rates.expPerHour * completedHours,
+      gems: drops.gems,
+      tickets: drops.tickets,
+    });
+    if (drops.clearGems > 0) {
+      s.clearGems = Math.max(0, Number(s.clearGems) || 0) + drops.clearGems;
+      s.clearGemStats = {
+        earnedFromWins: 0, earnedFromLosses: 0, spent: 0, earnedFromIdle: 0,
+        ...(s.clearGemStats || {}),
+        earnedFromIdle: (Number(s.clearGemStats?.earnedFromIdle) || 0) + drops.clearGems,
+      };
+      s.clearGemHistory = [...(s.clearGemHistory || []), {
+        at: now, type: 'idle', amount: drops.clearGems, mode: rates.mode, stage: rates.stage,
+      }].slice(-30);
+    }
+
+    s.idle = {
+      ...idleState,
+      at: now,
+      elapsedSeconds: Math.max(0, Math.floor(totalSeconds - completedHours * 3600)),
+    };
+    commit(() => s);
+    return { hours: completedHours, gold: rates.goldPerHour * completedHours, exp: rates.expPerHour * completedHours, clears, materials: materialCounts, drops, levels };
+  }, [commit]);
 
   const claimCheckin = useCallback(() => {
     const s = { ...ref.current };
@@ -488,7 +542,7 @@ export function GameProvider({ children }) {
     const rates = idleRatesOf(s);
     const storedSeconds = Math.max(0, Number(s.idle.elapsedSeconds) || 0);
     const runningSeconds = s.idle.active ? Math.max(0, (Date.now() - s.idle.at) / 1000) : 0;
-    const seconds = Math.min(IDLE_CAP_MIN * 60, Math.floor(storedSeconds + runningSeconds));
+    const seconds = Math.max(0, Math.floor(storedSeconds + runningSeconds));
     const minutes = Math.floor(seconds / 60);
     return {
       seconds,
@@ -496,7 +550,7 @@ export function GameProvider({ children }) {
       ...rates,
       gold: Math.floor((seconds * rates.goldPerHour) / 3600),
       exp: Math.floor((seconds * rates.expPerHour) / 3600),
-      clears: Math.min(8, Math.floor((seconds * rates.clearsPerHour) / 3600)),
+      clears: Math.floor((seconds * rates.clearsPerHour) / 3600),
     };
   }, []);
 
@@ -523,11 +577,10 @@ export function GameProvider({ children }) {
     // Batch settlement repeats the same preview reward N times, without advancing/unlocking stages.
     const now = Date.now();
     const storedSeconds = Math.max(0, Number(s.idle.elapsedSeconds) || 0);
-    const hitCap = p.seconds >= IDLE_CAP_MIN * 60;
     s.idle = {
       ...s.idle,
-      at: hitCap ? now : (s.idle.active ? s.idle.at + Math.max(0, p.seconds - storedSeconds) * 1000 : now),
-      elapsedSeconds: hitCap ? 0 : (s.idle.active ? 0 : Math.max(0, storedSeconds - p.seconds)),
+      at: s.idle.active ? s.idle.at + Math.max(0, p.seconds - storedSeconds) * 1000 : now,
+      elapsedSeconds: s.idle.active ? 0 : Math.max(0, storedSeconds - p.seconds),
     };
     const stageDef = getStage(p.mode, p.stage);
     const shardId = stageDef?.enemies?.[0]?.enemyId;
@@ -603,16 +656,17 @@ export function GameProvider({ children }) {
   }, [commit, notify, t]);
 
   const toggleIdle = useCallback(() => {
+    processIdleAutoRewards();
     const now = Date.now();
     commit((s) => {
       const storedSeconds = Math.max(0, Number(s.idle.elapsedSeconds) || 0);
       if (s.idle.active) {
-        const elapsed = Math.min(IDLE_CAP_MIN * 60, Math.floor(storedSeconds + Math.max(0, (now - s.idle.at) / 1000)));
+        const elapsed = Math.floor(storedSeconds + Math.max(0, (now - s.idle.at) / 1000));
         return { ...s, idle: { active: false, at: now, elapsedSeconds: elapsed } };
       }
-      return { ...s, idle: { active: true, at: now, elapsedSeconds: Math.min(IDLE_CAP_MIN * 60, storedSeconds) } };
+      return { ...s, idle: { active: true, at: now, elapsedSeconds: storedSeconds } };
     });
-  }, [commit]);
+  }, [commit, processIdleAutoRewards]);
 
   const refreshBounties = useCallback(() => {
     const slot = bountySlot();
@@ -996,7 +1050,9 @@ export function GameProvider({ children }) {
   }, [notify]);
 
   useEffect(() => {
+    processIdleAutoRewards();
     const timer = setInterval(() => {
+      processIdleAutoRewards();
       refreshBounties();
       const s = ref.current;
       const info = currentStamina(s);
@@ -1004,7 +1060,7 @@ export function GameProvider({ children }) {
       else setState((prev) => ({ ...prev }));
     }, 20000);
     return () => clearInterval(timer);
-  }, [commit, refreshBounties]);
+  }, [commit, processIdleAutoRewards, refreshBounties]);
 
   const fortuneDef =
     state.fortune.date === todayKey()
