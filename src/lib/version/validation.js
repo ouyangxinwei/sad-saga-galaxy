@@ -1,3 +1,4 @@
+// Read-only catalog validator: checks version/date/semver alignment, newest-first ordering, localized note completeness, known history gaps, and explicit Service Worker cache versioning.
 const VERSION_PATTERN = /^v0\.\d+$/;
 const PACKAGE_PATTERN = /^\d+\.\d+\.\d+$/;
 
