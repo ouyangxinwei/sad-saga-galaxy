@@ -56,7 +56,7 @@ function defaultStateImpl() {
     idleGemStats: { earnedFromWins: 0, earnedFromLosses: 0, spent: 0 },
     idleGemHistory: [],
     clearGems: 0,
-    clearGemStats: { earnedFromWins: 0, earnedFromLosses: 0, spent: 0 },
+    clearGemStats: { earnedFromWins: 0, earnedFromLosses: 0, spent: 0, earnedFromIdle: 0 }
     clearGemHistory: [],
     medals: 0,
     cards,
