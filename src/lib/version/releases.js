@@ -1,3 +1,4 @@
+// Localized release-note catalog: newest release first. Keep each release's zh/ja/en titles and item lists aligned; historical entries are retained for the in-app version history.
 // Canonical localized release catalog. Preserve historical entries; add new releases at the top.
 import { RELEASE_DATE } from './metadata.js';
 
