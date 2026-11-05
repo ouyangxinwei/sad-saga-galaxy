@@ -1,3 +1,4 @@
+// Settings and maintenance page: exposes language selection, local save export/import, and version information. Save validation and persistence are handled by the save layer.
 import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import AppShell from '@/components/common/AppShell';
