@@ -8,7 +8,7 @@ import { fmt } from '@/lib/format';
 export default function IdleDialog({ open, onClose }) {
   const { t, idle, idleGems, idleGemStats, actions, cleared, lang, defOf } = useGame();
   const preview = actions.idlePreview();
-  const cap = 720;
+  const cap = 60;
   const partyPassives = preview.bonus.details.map((item) => ({ ...item, name: defOf(item.id)?.name?.[lang] || defOf(item.id)?.name?.zh || item.id }));
   const [, setTick] = useState(0);
   const [batch, setBatch] = useState(10);
@@ -49,10 +49,10 @@ export default function IdleDialog({ open, onClose }) {
         <div className="flex items-center justify-between text-[10px] text-muted-foreground">
           <span>{t('idle.accrued')}</span>
           <span className="tabular-nums">
-            {Math.floor(preview.minutes / 60)}h {preview.minutes % 60}m {preview.seconds % 60}s / 12h
+            {Math.floor(preview.seconds / 60)}m {preview.seconds % 60}s / 60m
           </span>
         </div>
-        <Bar value={preview.minutes} max={cap} color="#6FA8FF" className="mt-1.5" height="h-1" />
+        <Bar value={preview.seconds / 60} max={cap} color="#6FA8FF" className="mt-1.5" height="h-1" />
 
         <div className="mb-3 flex items-center justify-between rounded-xl border border-white/[0.07] bg-black/20 px-3 py-2 text-[10px]">
           <span className="text-muted-foreground">{t('idle.stage')}</span>
@@ -90,6 +90,9 @@ export default function IdleDialog({ open, onClose }) {
               {preview.clearsPerHour}/h
             </span>
           </div>
+        </div>
+        <div className="mt-2 rounded-xl border border-white/[0.07] bg-black/20 px-3 py-2">
+          <p className="text-[9px] leading-relaxed text-muted-foreground">{t('idle.autoDrops')}</p>
         </div>
         <div className="mt-3 rounded-xl border border-primary/15 bg-primary/[0.035] p-3">
           <p className="text-[10px] tracking-wider text-primary">{t('idle.passiveTitle')}</p>
