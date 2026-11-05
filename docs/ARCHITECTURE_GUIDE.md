@@ -215,3 +215,51 @@ Phase 2 只补充注释和架构文档，不修改战斗数值、概率、结算
 ### 10.5 Phase 3 覆盖范围
 
 本阶段仅为角色属性、独立成长、突破/融合、装备、重置和资源兑换模块补充模块说明、关键函数注释与本阅读指南。不得改变成长公式、消耗数量、资源倍率、装备效果、状态结构、存档兼容或运行时行为。
+
+
+## 11. Phase 4 — 挂机、通关宝石与资源循环阅读指南
+
+### 11.1 挂机掉落纯计算（`src/lib/idleRewards.js`）
+
+`getCompletedIdleHours → rollIdleResourceDrops`：
+
+- `getCompletedIdleHours` 只统计完整小时，不足一小时的时间会继续累计。
+- `rollIdleResourceDrops` 按小时循环，并对 `gems`、`clearGems`、`tickets` 分别调用随机函数。
+- 每种资源的 30% 判定彼此独立；同一小时可以同时掉落多种资源，也可能全部未掉落。
+- 函数返回掉落数量汇总，不直接修改玩家状态；测试可注入 random 函数固定结果。
+
+### 11.2 挂机收益编排（`src/lib/GameContext.jsx`）
+
+`idleStageOf → idleBonusOf → idleRatesOf` 负责确定挂机收益档位与每小时收益：
+
+- 挂机收益按当前已推进的难度/关卡档位计算。
+- 只读取当前队伍前五个位置的挂机被动；挂机被动与战斗被动是两套机制。
+- `idlePreview` 只生成预览，不领取、不写入资源。
+- `claimIdle` 负责手动领取并统一提交资源变化。
+- `processIdleAutoRewards` 负责自动结算完整小时；定时 effect 会周期性调用它。
+- `toggleIdle` 在暂停/恢复计时前先处理已完成的整小时收益，剩余秒数继续累计。
+
+### 11.3 通关宝石快速结算（`src/lib/clearGemSystem.js`）
+
+- `normalizeClearGemBatch` 将请求值限制在系统支持的批量档位。
+- `getClearGemSettlementCount` 将请求数量限制为玩家实际持有数量。
+- `isStageCleared` 验证关卡是否在指定模式的已通关进度范围内。
+- 这些函数只负责规则校验与数量计算；实际资源扣除、奖励发放、统计和历史记录由 GameContext 的 `quickClear` 统一完成。
+
+### 11.4 战斗掉落与资源统计（`src/lib/GameContext.jsx`）
+
+`finishBattle` 是战斗结束后的奖励入口。胜利与失败分支分别更新对应的挂机宝石/通关宝石统计、历史记录及其他奖励；阅读时要区分“掉落判定”“资源余额变化”和“统计记录”三个动作，避免重复发放。
+
+### 11.5 存档生命周期（`src/lib/save.js`）
+
+- `defaultState`：创建 V20 默认玩家状态，包含资源、挂机计时、掉落统计与历史等默认字段。
+- `loadState`：读取本地 JSON，与默认状态合并并执行阵型、装备、角色成长归一化。
+- `persist`：将完整状态写入 V20 localStorage key；读取异常时的写入保护用于避免默认状态覆盖损坏的原始存档。
+- `replaceSave` / `resetState`：分别负责写入替换状态和创建重置状态。
+- `exportSaveData` / `inspectSaveData` / `restoreSaveData`：备份导出、只读检查与校验后恢复；恢复流程先验证和归一化，再触碰当前存档。
+
+### 11.6 Phase 4 阅读时的关键边界
+
+页面不直接修改资源余额；独立模块负责纯计算/校验，GameContext 编排业务状态变化，save.js 负责持久化。涉及挂机或资源的修改必须同时检查整小时累计、手动领取、自动领取、战斗奖励、快速通关和存档恢复路径。
+
+Phase 4 仅增加模块/函数注释与架构阅读文档，不改变挂机收益公式、30% 独立掉落概率、通关宝石批量规则、奖励数量、V20 存档字段、函数名称或 UI 行为。
