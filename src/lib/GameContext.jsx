@@ -1,3 +1,19 @@
+/**
+ * 游戏全局状态与业务用例中心（Application State / Use Cases）。
+ *
+ * GameProvider 持有当前玩家状态，并通过 Context 向页面提供业务操作。
+ * 页面应调用本模块暴露的 action，而不是直接修改 state 或操作 localStorage。
+ *
+ * 核心数据流：
+ * 页面事件 -> Context action -> 基于 ref.current 生成新状态
+ * -> commit() 归一化并更新 React state/ref -> effect 持久化到 save.js。
+ *
+ * state 用于驱动 React 渲染；ref.current 用于在连续业务操作中同步读取
+ * 最新状态，避免闭包拿到旧 state。任何状态写入都必须同步维护两者。
+ *
+ * 本文件包含跨模块编排（奖励、队伍、战斗结算、挂机等），具体算法尽量
+ * 放在独立 lib 模块。修改业务规则时，应同时检查对应模块与存档兼容。
+ */
 import { logInfo, logWarn, traceSync } from './logger';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { translate } from './i18n';
@@ -134,6 +150,7 @@ function idleRatesOf(s) {
   };
 }
 
+/** 将玩家状态和业务 action 注入整个应用树。 */
 export function GameProvider({ children }) {
   const [state, setState] = useState(loadState);
   const ref = useRef(state);
@@ -186,6 +203,8 @@ export function GameProvider({ children }) {
     setTimeout(() => setToasts((prev) => prev.filter((x) => x.id !== id)), 2800);
   }, []);
 
+  // 所有常规状态变更的统一入口：生成新状态、归一化成长/阵型数据，
+  // 再同步 ref 与 React state；持久化由上方 state effect 统一负责。
   const commit = useCallback((fn) => traceSync('GameContext.commit', () => {
     const draft = fn({ ...ref.current });
     const next = normalizeCharacterProgressionState({ ...draft, formation: normalizeFormationState(draft.formation, draft.party) });
@@ -215,6 +234,8 @@ export function GameProvider({ children }) {
   );
 
   // grant resources + exp, returns levels gained
+  // 将资源与经验应用到传入的草稿状态；此函数不单独 commit，
+  // 调用方负责在完成整笔业务结算后统一提交，避免中途状态不一致。
   const grant = (s, r) => {
     if (r.gold) s.gold += Math.round(r.gold);
     if (r.gems) s.gems += Math.round(r.gems);
@@ -243,6 +264,7 @@ export function GameProvider({ children }) {
 
   // Automatically grant each completed idle hour. Every non-idle gem resource
   // receives its own independent 30% roll for every hour.
+  /** 结算已完成的整小时挂机收益；掉落判定委托给 idleRewards 模块。 */
   const processIdleAutoRewards = useCallback(() => {
     const current = ref.current;
     const idleState = current.idle || {};
@@ -469,6 +491,7 @@ export function GameProvider({ children }) {
     [commit, notify, t],
   );
 
+  /** 战斗结束后的统一结算入口：更新进度、奖励、掉落与相关统计。 */
   const finishBattle = useCallback(
     ({ mode, n, stage, win }) => {
       const s = {

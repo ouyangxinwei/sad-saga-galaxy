@@ -1,3 +1,14 @@
+/**
+ * 玩家本地存档边界（Persistence Layer）。
+ *
+ * 本模块负责默认状态、读取/写入、存档替换与导入导出。
+ * 游戏业务代码应通过这里导出的函数访问存档，不要在页面中散落
+ * localStorage key 或自行拼装迁移逻辑。
+ *
+ * SAVE_SCHEMA_VERSION 表示存档结构版本，不等同于应用 package 版本。
+ * 修改默认字段或结构时，必须考虑旧版本存档的归一化与导入兼容；
+ * 写入失败或存档异常时，应优先保护原始存档，避免覆盖可恢复数据。
+ */
 import { logWarn, traceSync } from './logger.js';
 import { normalizeEquipmentState } from './equipment.js';
 import { RESET_GEMS, createResetState, persistResetState } from './resetState.js';
@@ -33,6 +44,7 @@ export function generateBounties(slot = bountySlot()) {
   return list;
 }
 
+/** 创建一份全新的初始玩家状态；新增持久化字段应在此提供默认值。 */
 function defaultStateImpl() {
   const cards = {};
   const cardCounts = {};
@@ -89,6 +101,7 @@ function defaultStateImpl() {
   return normalizeCharacterProgressionState(state);
 }
 
+/** 读取并归一化本地存档；异常时保护原始数据并返回可运行的默认状态。 */
 function loadStateImpl() {
   saveWritesBlocked = false;
   try {
@@ -126,6 +139,7 @@ function loadStateImpl() {
     return defaultState();
   }
 }
+/** 将完整状态序列化写入本地存储；返回布尔值供调用方判断是否成功。 */
 function persistImpl(state) {
   if (saveWritesBlocked) return false;
   try {
@@ -159,6 +173,7 @@ export function loadState() { return traceSync('Save.loadState', () => loadState
 export function persist(state) { return traceSync('Save.persist', () => persistImpl(state), { hasState: Boolean(state) }); }
 export function clearSave() { return traceSync('Save.clearSave', () => clearSaveImpl()); }
 
+/** 按经过时间计算自然恢复后的体力，不直接修改传入的存档对象。 */
 export function currentStamina(state, now = Date.now()) {
   const elapsed = Math.max(0, now - (state.staminaAt || now));
   const gained = Math.floor(elapsed / STAMINA_MS);
@@ -192,6 +207,7 @@ export function nextStageTarget(state) {
 export const SAVE_EXPORT_FORMAT = 'sad-saga-galaxy-save';
 export const SAVE_SCHEMA_VERSION = 20;
 
+/** 校验备份文件格式与 schema 版本；只解析，不触碰当前玩家存档。 */
 function parseSavePayload(input) {
   let parsed;
   try { parsed = typeof input === 'string' ? JSON.parse(input) : input; }
@@ -213,6 +229,7 @@ function parseSavePayload(input) {
   return { save, appVersion, exportedAt, schemaVersion };
 }
 
+/** 将旧版/外部存档补齐到当前字段结构，并运行装备、角色成长归一化。 */
 function normalizeImportedSave(parsed) {
   const base = defaultState();
   const cardCounts = { ...base.cardCounts, ...(parsed.cardCounts || {}) };
@@ -274,6 +291,7 @@ export function inspectSaveData(input) {
   } };
 }
 
+/** 先完整校验和迁移，再一次性写入；校验失败时当前存档保持不变。 */
 export function restoreSaveData(input) {
   let inspected;
   try { inspected = inspectSaveData(input); }

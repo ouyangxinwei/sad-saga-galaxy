@@ -1,3 +1,13 @@
+/**
+ * 轻量诊断日志与同步/异步调用追踪模块。
+ *
+ * 日志用于排查业务调用链，不参与游戏结算，也不应成为游戏运行的前置条件。
+ * 日志默认保存在当前浏览器 localStorage，最多保留 MAX_LOGS 条；
+ * 存储失败时应降级处理，不能阻断玩家操作。
+ *
+ * traceSync 通过 traceId 关联嵌套调用，并记录 START、完成、慢调用和异常。
+ * 注意：该模块的日志数据不是玩家存档，清理日志不应影响游戏进度。
+ */
 const STORAGE_KEY = 'saga_galaxy_debug_logs_v1';
 const MAX_LOGS = 2000;
 let memoryLogs = null;
@@ -55,6 +65,10 @@ function readLogs() {
   detectIncomplete();
   return memoryLogs;
 }
+/**
+ * 统一构造并分发一条日志。diagnosticCollector 存在时仅收集警告/错误，
+ * 供诊断任务临时使用，避免把诊断过程写入常规日志。
+ */
 function emit(level, moduleName, functionName, event, traceId, detail = {}, duration = null) {
   try {
     const entry = {
@@ -90,6 +104,11 @@ export function logInfo(moduleName, functionName, detail = {}) {
 export function logWarn(moduleName, functionName, detail = {}) {
   return emit('WARN', moduleName, functionName, 'WARN', traceStack[traceStack.length - 1] || 'untracked', detail);
 }
+/**
+ * 包装一次同步或异步调用并记录完整生命周期。
+ * callback 抛错时记录 ERROR 后原样重新抛出，不吞掉业务异常；
+ * callback 返回 Promise 时，在 Promise settle 后记录最终结果。
+ */
 export function traceSync(name, callback, detail = {}) {
   const parts = name.split('.');
   const moduleName = parts[0];
