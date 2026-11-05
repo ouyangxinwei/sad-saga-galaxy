@@ -27,14 +27,17 @@ let saveWritesBlocked = false;
 export const STAMINA_MAX = 60;
 export const STAMINA_MS = 180000; // 1 per 3 min
 
+/** 生成每日签到/日期型状态使用的本地日期键（YYYY-MM-DD）。 */
 export function todayKey(d = new Date()) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
+/** 将当前时间映射为 4 小时一个周期的悬赏刷新槽位。 */
 export function bountySlot(ts = Date.now()) {
   return Math.floor(ts / (4 * 3600 * 1000));
 }
 
+/** 根据周期槽位确定性生成该周期的悬赏列表，便于同一周期保持稳定。 */
 export function generateBounties(slot = bountySlot()) {
   const list = [];
   for (let i = 0; i < 3; i += 1) {
@@ -159,8 +162,11 @@ function clearSaveImpl() {
   }
 }
 
+/** 对外提供默认状态工厂；内部实现负责填充 V20 默认字段并归一化。 */
 export function defaultState() { return traceSync('Save.defaultState', () => defaultStateImpl()); }
+/** 创建重置后的新状态；是否写入存档由 replaceSave 负责。 */
 export function resetState() { return traceSync('Save.resetState', () => createResetState(defaultStateImpl())); }
+/** 将完整替换状态写入存档；成功后解除此前的写入保护标记。 */
 export function replaceSave(state) {
   return traceSync('Save.replaceSave', () => {
     const saved = persistResetState(localStorage, SAVE_KEY, state);
@@ -169,7 +175,9 @@ export function replaceSave(state) {
     return saved;
   }, { hasState: Boolean(state) });
 }
+/** 读取本地存档并执行字段合并/归一化，供 GameProvider 初始化使用。 */
 export function loadState() { return traceSync('Save.loadState', () => loadStateImpl()); }
+/** 将当前完整状态持久化；写入保护开启时会拒绝覆盖原始存档。 */
 export function persist(state) { return traceSync('Save.persist', () => persistImpl(state), { hasState: Boolean(state) }); }
 export function clearSave() { return traceSync('Save.clearSave', () => clearSaveImpl()); }
 
@@ -272,6 +280,7 @@ export function summarizeSaveState(state) {
   };
 }
 
+/** 生成包含格式标识、应用版本、导出时间和深拷贝存档的可移植备份对象。 */
 export function exportSaveData(state, appVersion = 'unknown') {
   return {
     format: SAVE_EXPORT_FORMAT, formatVersion: 1, appVersion,
@@ -281,6 +290,7 @@ export function exportSaveData(state, appVersion = 'unknown') {
   };
 }
 
+/** 只校验、归一化并汇总外部备份，不写入当前 localStorage。 */
 export function inspectSaveData(input) {
   const parsed = parseSavePayload(input);
   const state = normalizeImportedSave(parsed.save);
@@ -292,6 +302,7 @@ export function inspectSaveData(input) {
 }
 
 /** 先完整校验和迁移，再一次性写入；校验失败时当前存档保持不变。 */
+/** 先检查备份，再尝试一次性写入；失败时返回原因，不替换内存中的状态。 */
 export function restoreSaveData(input) {
   let inspected;
   try { inspected = inspectSaveData(input); }
