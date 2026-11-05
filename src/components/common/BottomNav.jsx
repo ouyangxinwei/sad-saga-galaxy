@@ -1,3 +1,4 @@
+// Global mobile navigation: maps route destinations to localized labels and derives the active item from the current pathname.
 import { Link, useLocation } from 'react-router-dom';
 import GameIcon from './GameIcon';
 import { useGame } from '@/lib/GameContext';
