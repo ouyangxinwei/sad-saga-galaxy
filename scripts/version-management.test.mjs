@@ -11,9 +11,9 @@ const validEntry = (version = 'v0.2') => ({
 });
 
 test('current release metadata and public lookup API are consistent', () => {
-  assert.equal(APP_VERSION, 'v0.58');
+  assert.equal(APP_VERSION, 'v0.70');
   assert.equal(RELEASE_DATE, '2026-11-04');
-  assert.equal(getReleaseByVersion('v0.58')?.version, 'v0.58');
+  assert.equal(getReleaseByVersion('v0.70')?.version, 'v0.70');
   assert.equal(getReleaseByVersion(APP_VERSION)?.version, APP_VERSION);
   assert.equal(getReleaseNotes(APP_VERSION, 'en')?.items.length > 0, true);
   assert.equal(getVersionOverview().version, APP_VERSION);
@@ -56,7 +56,7 @@ test('validator rejects incorrect order and unknown historical gaps', () => {
 
 test('legacy v0.29 duplicate and v0.28 gap remain explicit audit warnings', () => {
   const result = validateVersionCatalog({
-    appVersion: APP_VERSION, releaseDate: RELEASE_DATE, packageVersion: '0.58.0',
+    appVersion: APP_VERSION, releaseDate: RELEASE_DATE, packageVersion: '0.70.0',
     changelog: CHANGELOG, supportedLanguages: languages, cacheName: 'oooo-app-shell-v36',
     knownDuplicateVersions: VERSION_HISTORY_AUDIT.knownDuplicateVersions,
     knownMissingVersions: VERSION_HISTORY_AUDIT.missingVersions,
