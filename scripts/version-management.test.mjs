@@ -12,7 +12,7 @@ const validEntry = (version = 'v0.2') => ({
 
 test('current release metadata and public lookup API are consistent', () => {
   assert.equal(APP_VERSION, 'v0.70');
-  assert.equal(RELEASE_DATE, '2026-11-04');
+  assert.equal(RELEASE_DATE, '2026-11-05');
   assert.equal(getReleaseByVersion('v0.70')?.version, 'v0.70');
   assert.equal(getReleaseByVersion(APP_VERSION)?.version, APP_VERSION);
   assert.equal(getReleaseNotes(APP_VERSION, 'en')?.items.length > 0, true);
