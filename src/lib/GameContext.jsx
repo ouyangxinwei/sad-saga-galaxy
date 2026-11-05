@@ -96,6 +96,7 @@ const IDLE_PASSIVES = {
   stargazer: [{ type: 'gold', rate: 0.03 }, { type: 'exp', rate: 0.03 }, { type: 'progress', rate: 0.03 }],
 };
 
+/** 汇总当前队伍前五个位置的挂机被动；此处不读取战斗被动。 */
 function idleBonusOf(s) {
   const totals = { gold: 0, exp: 0, progress: 0 };
   const details = [];
@@ -120,6 +121,7 @@ function idleBonusOf(s) {
 }
 
 // Base idle rates remain unchanged; current party passives are additive.
+/** 根据各难度的通关进度确定挂机收益对应的关卡档位。 */
 function idleStageOf(s) {
   const progress = s.progress || {};
   let best = { mode: 'normal', stage: 1, tier: 1 };
@@ -135,6 +137,7 @@ function idleStageOf(s) {
   return best;
 }
 
+/** 计算基础挂机每小时收益，并叠加当前队伍被动加成。 */
 function idleRatesOf(s) {
   const checkpoint = idleStageOf(s);
   const tier = checkpoint.tier;
@@ -265,6 +268,7 @@ export function GameProvider({ children }) {
   // Automatically grant each completed idle hour. Every non-idle gem resource
   // receives its own independent 30% roll for every hour.
   /** 结算已完成的整小时挂机收益；掉落判定委托给 idleRewards 模块。 */
+  /** 自动结算已完成的整小时挂机收益；每种挂机资源均独立进行概率判定。 */
   const processIdleAutoRewards = useCallback(() => {
     const current = ref.current;
     const idleState = current.idle || {};
@@ -492,6 +496,7 @@ export function GameProvider({ children }) {
   );
 
   /** 战斗结束后的统一结算入口：更新进度、奖励、掉落与相关统计。 */
+  /** 战斗奖励总入口：分别处理胜负奖励、宝石掉落、碎片与通关进度。 */
   const finishBattle = useCallback(
     ({ mode, n, stage, win }) => {
       const s = {
@@ -560,6 +565,7 @@ export function GameProvider({ children }) {
     [commit],
   );
 
+  /** 只预览累计挂机时长与可领取收益，不推进计时或写入资源。 */
   const idlePreview = useCallback(() => {
     const s = ref.current;
     const rates = idleRatesOf(s);
@@ -577,6 +583,7 @@ export function GameProvider({ children }) {
     };
   }, []);
 
+  /** 手动领取挂机收益：计算可领取区间、资源与掉落后统一提交状态。 */
   const claimIdle = useCallback((requestedBatch = 1) => {
     const p = idlePreview();
     if (p.seconds < 1) {
@@ -635,6 +642,7 @@ export function GameProvider({ children }) {
     return rewards;
   }, [commit, idlePreview, notify, t]);
 
+  /** 消耗通关宝石对已通关关卡执行批量快速结算，并更新对应奖励统计。 */
   const quickClear = useCallback(({ mode, stage: stageN, batch = 10 } = {}) => {
     const s = {
       ...ref.current,
@@ -678,6 +686,7 @@ export function GameProvider({ children }) {
     return rewards;
   }, [commit, notify, t]);
 
+  /** 开始/暂停挂机计时；切换前先结算已经完成的整小时自动收益。 */
   const toggleIdle = useCallback(() => {
     processIdleAutoRewards();
     const now = Date.now();
