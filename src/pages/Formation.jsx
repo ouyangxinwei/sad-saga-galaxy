@@ -1,3 +1,4 @@
+// Formation management page: coordinates party slots, presets, filters, and character detail; stat and party mutations are delegated to the shared game actions.
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AppShell from '@/components/common/AppShell';
