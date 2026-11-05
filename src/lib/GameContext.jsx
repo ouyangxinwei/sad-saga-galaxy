@@ -258,7 +258,7 @@ export function GameProvider({ children }) {
     const drops = rollIdleResourceDrops(completedHours);
     const stageDef = getStage(rates.mode, rates.stage);
     const shardId = stageDef?.enemies?.[0]?.enemyId;
-    const clears = Math.max(0, Math.floor(rates.clearsPerHour)) * completedHours;
+    const clears = Math.max(0, Math.floor(rates.clearsPerHour * completedHours));
     const materialCounts = {};
     if (shardId) {
       for (let i = 0; i < clears; i += 1) {
