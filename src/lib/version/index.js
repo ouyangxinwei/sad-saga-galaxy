@@ -1,3 +1,4 @@
+// Version module public API: re-exports release metadata/catalog/audit and provides read-only lookup helpers for the current release, localized notes, and overview.
 // Public API for the standalone Version Management module.
 export { APP_VERSION, RELEASE_DATE, RELEASE_CHANNEL, VERSION_SYSTEM_VERSION } from './metadata.js';
 export { CHANGELOG } from './releases.js';
