@@ -3,6 +3,16 @@ import { RELEASE_DATE } from './metadata.js';
 
 export const CHANGELOG = [
   {
+    version: 'v0.70', date: '2026-11-05',
+    title: { zh: '挂机系统：每小时自动结算与无限累计', ja: '放置システム：毎時間の自動精算と時間上限の撤廃', en: 'Idle system: hourly auto-settlement with unlimited accrual' },
+    items: {
+      zh: ['挂机持续运行时，每满 1 小时自动把金币、经验和敌人材料发放到背包；不再有 12 小时累计上限，离线期间的完整小时会在重新打开游戏后补算', '钻石、清关宝石、抽卡券分别独立进行 30% 的每小时掉落判定；同一小时可同时获得多种资源，每种成功掉落 +1', '自动结算不消耗挂机宝石；挂机宝石继续用于原有手动 10/20 次批量结算，手动结算规则保留', '挂机收益仍由当前编成的五人队伍被动加成；保留 V20 本地存档兼容，并同步中文、日文、英文说明'],
+      ja: ['放置中は1時間ごとにゴールド・経験値・敵素材を自動付与。12時間の蓄積上限を撤廃し、オフライン中の完了時間もゲーム再起動時に精算', 'ダイヤ・クリアジェム・召喚券はそれぞれ独立して毎時間30%でドロップ判定。同じ時間に複数種類が同時に獲得でき、成功した種類ごとに+1', '自動精算では放置ジェムを消費しない。放置ジェムは従来の手動10/20回一括精算に引き続き使用', '放置報酬のパッシブ補正は現在編成中の5人を使用。V20ローカルセーブとの互換性を維持し、中国語・日本語・英語を更新'],
+      en: ['While idle is active, gold, EXP, and enemy materials are granted automatically for every completed hour. The 12-hour cap is removed; completed offline hours are settled when the game is reopened', 'Gems, Clear Gems, and summon tickets each receive an independent 30% drop roll per hour. Multiple types can drop in the same hour; each successful type grants +1', 'Automatic settlement spends no Idle Gems. Idle Gems remain the cost for the existing manual 10/20-batch settlement', 'Idle passive bonuses still use the five characters in the current party. V20 local saves remain compatible, with Chinese, Japanese, and English updated'],
+    },
+  },
+
+  {
     version: 'v0.69', date: '2026-11-04',
     title: { zh: '普通、困难与超困难模式五关一 Boss 推进统一', ja: 'ノーマル・ハード・超ハードの5ステージ単位ボス進行を統一', en: 'Unified five-stage boss progression across campaign difficulties' },
     items: {
