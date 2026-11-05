@@ -1,3 +1,4 @@
+// Synthesis page: presents card acquisition, fusion, conversion, and rebirth views. Preview calculations are read-only; confirmed mutations are delegated to GameContext actions.
 import { useState } from 'react';
 import AppShell from '@/components/common/AppShell';
 import PageHeader from '@/components/common/PageHeader';
