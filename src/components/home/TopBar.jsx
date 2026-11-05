@@ -1,3 +1,4 @@
+// Home utility bar: exposes the home-screen dialogs/actions; visible labels are resolved through the shared localization context.
 import GameIcon from '@/components/common/GameIcon';
 import { useGame } from '@/lib/GameContext';
 import { LANGS } from '@/lib/i18n';
