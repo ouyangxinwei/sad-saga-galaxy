@@ -11,6 +11,16 @@
  * - partyUnits 中的 formationBonus / formationEffects 是战斗侧消费的数据契约。
  * 修改属性来源时应检查是否重复叠加，尤其是成长、装备、幸运和阵型效果。
  */
+/**
+ * 角色卡牌与属性汇总层。
+ *
+ * 本文件把静态角色定义、角色独立成长、装备、遗物/幸运效果和阵型数据
+ * 汇总为角色详情面板或战斗单位可消费的数据。它本身不负责发放经验、
+ * 执行突破/融合，也不执行战斗随机判定；这些职责分别位于成长模块和 battle.js。
+ *
+ * 阅读顺序建议：getCardDef/copiesOf -> cardStats -> characterStatBreakdown
+ * -> partyPower/partyUnits。排查属性不一致时，先区分个人面板与队伍战斗属性。
+ */
 import { HEROES, RELICS, classOf, heroStats } from './gameData.js';
 import { getEquippedItem, getEquipmentBonuses, getEquipmentEffects } from './equipment.js';
 import { characterGrowthMultipliers, strongestCharacterInstance, characterClassIdFor, getCharacterBreakthroughBonuses } from './characterProgression.js';
@@ -19,6 +29,7 @@ import { getFormationCombatBonuses, getFormationEffectBonuses, getFormationStatB
 
 export const HERO_MAP = Object.fromEntries(HEROES.map((h) => [h.id, h]));
 
+/** 根据卡牌 ID 解析静态 HERO 或存档中的自定义角色定义；不存在时返回 null。 */
 export function getCardDef(state, id) {
   if (!id) return null;
   const h = HERO_MAP[id];
@@ -28,12 +39,14 @@ export function getCardDef(state, id) {
   return null;
 }
 
+/** 读取角色持有数量，并兼容旧存档中仅有 cards 标记、没有 cardCounts 的情况。 */
 export function copiesOf(state, id) {
   const n = state?.cardCounts?.[id];
   if (typeof n === 'number') return n;
   return state?.cards?.[id] ? 1 : 0;
 }
 
+/** 玩家等级与转生对角色 HP/ATK/DEF 的全局成长倍率；不包含角色实例等级。 */
 export function levelMult(state) {
   return 1 + (state.level - 1) * 0.022 + (state.rebirth || 0) * 0.35;
 }
@@ -111,6 +124,7 @@ export function cardPower(state, id) {
   return Math.round(st.hp * 0.3 + st.atk * 5 + st.def * 2.5 + st.spd * 2);
 }
 
+/** 计算用于界面展示/比较的队伍估算战力；它不是战斗模拟结果或胜负预测。 */
 export function partyPower(state) {
   return (state.party || []).reduce((sum, id) => sum + cardPower(state, id), 0);
 }
@@ -128,6 +142,7 @@ export function teamTotals(state) {
 }
 
 /** 将当前上阵名单组装为战斗单位；在此汇总团队等级、幸运、阵型属性/概率/技能效果。 */
+/** 将当前队伍转换为 battle.js 使用的战斗单位，并在此处汇总团队与阵型加成。 */
 export function partyUnits(state, fortune = null) {
   const f = fortune?.effect || {};
   const teamBonus = mainCharacterTeamBonusMultiplier(state);
