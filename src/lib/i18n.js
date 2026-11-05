@@ -1,3 +1,4 @@
+// Localization catalog: LANGS defines the supported language choices, LANG_LOCALE maps them to browser locale tags, and S stores UI strings by stable key and language. Keep zh/ja/en entries aligned and preserve interpolation placeholders such as {count}.
 export const LANGS = [
   { id: 'zh', label: '中文' },
   { id: 'ja', label: '日本語' },
