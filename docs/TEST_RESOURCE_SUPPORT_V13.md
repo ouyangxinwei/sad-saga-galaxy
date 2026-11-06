@@ -45,12 +45,12 @@ These are test allowances based on the agreed estimated cadence, not changes to 
 
 ## 5. Cumulative changelog V01–V13
 
-- **V01** — Initial migration audit and identification of the Base44 integration surface.
+- **V01** — Initial migration audit and identification of the oooo integration surface.
 - **V02** — Initial dependency/platform-boundary review and preliminary keep/review/remove-candidate classification.
 - **V03** — Expanded static source/import review across 120 tracked `src/` files, UI wrappers, game route graph, save mechanism, and build configuration.
-- **V04** — Rechecked the standalone app entry, dormant Base44 auth/MFA/OAuth subsystem, User metadata, SDK/API references, and local save path. Classified removal candidates and retained game-critical local functionality.
-- **V05** — Retired dormant Base44 authentication/MFA/OAuth files and Base44 SDK/Vite packages; removed Base44 project metadata; renamed package and README to `oooo app`; replaced Base44 favicon/title; reviewed seven routes and v20 save contract; added PWA manifest, custom SVG icons, scoped service-worker registration, offline navigation fallback, runtime asset caching, and bundle precaching.
-- **V06** — Verified the production Actions build/deployment and reviewed seven route definitions and residual Base44 integration references. Browser Console/Network and manual route interaction remained unverified.
+- **V04** — Rechecked the standalone app entry, dormant oooo auth/MFA/OAuth subsystem, User metadata, SDK/API references, and local save path. Classified removal candidates and retained game-critical local functionality.
+- **V05** — Retired dormant oooo authentication/MFA/OAuth files and oooo SDK/Vite packages; removed oooo project metadata; renamed package and README to `oooo app`; replaced oooo favicon/title; reviewed seven routes and v20 save contract; added PWA manifest, custom SVG icons, scoped service-worker registration, offline navigation fallback, runtime asset caching, and bundle precaching.
+- **V06** — Verified the production Actions build/deployment and reviewed seven route definitions and residual oooo integration references. Browser Console/Network and manual route interaction remained unverified.
 - **V07** — Deferred real-browser v20 legacy-save read/write testing by user instruction. Existing local save key/schema and game logic were left unchanged; cloud save is a separate future design item.
 - **V08** — Reviewed PWA manifest and service-worker behavior; changed favicon and manifest references to Vite's `%BASE_URL%` token; documented installation/offline test procedures and remaining real-device validation items.
 - **V09** — Performed a source-level gameplay regression review of seven routes, main navigation, formation, synthesis, forge, battle simulation/rewards, settings persistence path, and responsive layout classes. Added a repeatable manual test matrix; actual browser interactions remain pending.
