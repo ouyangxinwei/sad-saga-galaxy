@@ -4,6 +4,13 @@ import { RARITY_COLOR } from '@/lib/gameData';
 import { STATUS_DEFINITIONS } from '@/lib/abnormalStatus';
 import { fmt, pct } from '@/lib/format';
 
+const DEFENSE_COPY = {
+  zh: { remaining: '剩余 {n} 回合', resistance: '抗性', immune: '免疫' },
+  ja: { remaining: '残り {n} ターン', resistance: '耐性', immune: '無効' },
+  en: { remaining: '{n} turns left', resistance: 'Resist', immune: 'Immune' },
+};
+const STATUS_TYPES = ['poison', 'blind', 'paralysis', 'sleep', 'confusion'];
+
 export default function UnitStatus({ unit, state, compact = false, lang = 'zh' }) {
   const st = state || {};
   const maxHp = st.maxHp || unit.maxHp || unit.hp;
@@ -17,6 +24,9 @@ export default function UnitStatus({ unit, state, compact = false, lang = 'zh' }
   const maxMp = unit.maxMp || 100;
   const mp = st.mp ?? unit.mp ?? 0;
   const activeStatuses = st.activeStatuses || unit.activeStatuses || [];
+  const copy = DEFENSE_COPY[lang] || DEFENSE_COPY.en;
+  const resistances = STATUS_TYPES.filter((type) => Number(unit.statusResistance?.[type]) > 0);
+  const immunities = Array.isArray(unit.statusImmunities) ? unit.statusImmunities : [];
 
   return (
     <div className={`flex min-w-0 flex-col items-center ${alive ? '' : 'opacity-35 saturate-0'}`}>
@@ -67,10 +77,28 @@ export default function UnitStatus({ unit, state, compact = false, lang = 'zh' }
           {activeStatuses.map((status) => {
             const definition = STATUS_DEFINITIONS[status.type];
             if (!definition) return null;
-            return <span key={status.type} title={definition.label[lang] || definition.label.zh} className="rounded border border-rose-300/25 bg-rose-400/10 px-1 py-0.5 text-[7px] leading-none text-rose-200">{definition.short[lang] || definition.short.zh}{status.type === 'confusion' ? ` ${status.level}` : ''}</span>;
+            const label = definition.label[lang] || definition.label.zh;
+            const description = definition.description?.[lang] || definition.description?.en || '';
+            const remaining = Math.max(0, Number(status.remainingDuration) || 0);
+            const durationText = copy.remaining.replace('{n}', String(remaining));
+            return <span key={status.type} title={`${label} — ${description} · ${durationText}`} className="rounded border border-rose-300/25 bg-rose-400/10 px-1 py-0.5 text-[7px] leading-none text-rose-200">{definition.short[lang] || definition.short.zh}{status.type === 'confusion' ? ` ${status.level}` : ''} · {remaining}</span>;
           })}
         </div>
       ) : null}
+      {(resistances.length > 0 || immunities.length > 0) && (
+        <div className="mt-1 flex max-w-full flex-wrap justify-center gap-0.5">
+          {resistances.map((type) => {
+            const definition = STATUS_DEFINITIONS[type];
+            const value = Math.round(Number(unit.statusResistance[type]) * 100);
+            return <span key={`resist-${type}`} title={`${copy.resistance}: ${definition.label[lang] || definition.label.zh} ${value}%`} className="rounded border border-sky-300/25 bg-sky-400/10 px-1 py-0.5 text-[7px] leading-none text-sky-200">{definition.short[lang] || definition.short.zh} {value}%</span>;
+          })}
+          {immunities.map((type) => {
+            const definition = STATUS_DEFINITIONS[type];
+            if (!definition) return null;
+            return <span key={`immune-${type}`} title={`${copy.immune}: ${definition.label[lang] || definition.label.zh}`} className="rounded border border-amber-300/25 bg-amber-400/10 px-1 py-0.5 text-[7px] leading-none text-amber-200">{copy.immune} {definition.short[lang] || definition.short.zh}</span>;
+          })}
+        </div>
+      )}
       {isAlly && maxLp > 0 && (
         <div className="mt-0.5 flex items-center gap-[2px]">
           {Array.from({ length: maxLp }, (_, i) => (
