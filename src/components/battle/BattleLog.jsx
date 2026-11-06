@@ -45,6 +45,10 @@ function lineOf(ev, lang, t) {
       return { tone: 'heal', text: t('battle.statusRemoved', { target: ev.name, status: t(`battle.status.${ev.statusType}`), reason: ev.reason === 'damage' ? t('battle.status.damageWake') : ev.reason === 'expired' ? t('battle.status.expired') : ev.reason === 'death' ? t('battle.status.deathClear') : ev.reason === 'cleanse' ? t('battle.status.cleansed') : t('battle.status.battleEnd') }) };
     case 'status_blocked':
       return { tone: 'damage', text: t('battle.statusBlocked', { target: ev.name, status: t(`battle.status.${ev.statusType}`) }) };
+    case 'status_resisted':
+      return { tone: 'dodge', text: lang === 'zh' ? `${ev.name} 的异常抗性抵消了${t(`battle.status.${ev.statusType}`)}（抗性 ${Math.round(ev.resistance*100)}%）` : lang === 'ja' ? `${ev.name} は耐性で${t(`battle.status.${ev.statusType}`)}を防いだ` : `${ev.name} resists ${t(`battle.status.${ev.statusType}`)} (${Math.round(ev.resistance*100)}%)` };
+    case 'status_immune':
+      return { tone: 'dodge', text: lang === 'zh' ? `${ev.name} 免疫${t(`battle.status.${ev.statusType}`)}` : lang === 'ja' ? `${ev.name} は${t(`battle.status.${ev.statusType}`)}を無効化した` : `${ev.name} is immune to ${t(`battle.status.${ev.statusType}`)}` };
     case 'poison_damage':
       return { tone: 'damage', text: t('battle.poisonDamage', { target: ev.name, amount: ev.amount.toLocaleString('en-US') }) };
     case 'miss':
