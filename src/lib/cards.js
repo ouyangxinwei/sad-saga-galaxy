@@ -84,6 +84,7 @@ export function cardStats(state, id) {
     critDamagePct: equipment.critDamagePct,
     damageDealtPct: equipment.damageDealtPct,
     damageReductionPct: equipment.damageReductionPct,
+    statusResistance: equipment.statusResistance,
     healBonus: equipment.healPct,
     mpCostReductionPct: equipment.mpCostReductionPct,
   };
