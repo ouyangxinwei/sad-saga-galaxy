@@ -251,6 +251,8 @@ const ENEMY_LADDER = [...ENEMIES].sort(
   (a, b) => ENEMY_ORDER.indexOf(a.rarity) - ENEMY_ORDER.indexOf(b.rarity),
 );
 
+export const BOSS_STATUS_IMMUNITIES = Object.freeze({ machine:['poison'], dragon:['sleep'], wraith:['confusion'], angel:['blind'], demon:['paralysis'], core:['poison'], beast:['blind'], abyss:['sleep'] });
+
 export function getStage(mode, n) {
   const modeDef = MODE_MAP[mode] || MODE_MAP.normal;
   const tier = modeDef.index * STAGES_PER_MODE + n - 1;
@@ -268,7 +270,7 @@ export function getStage(mode, n) {
     } else {
       picked = ENEMY_LADDER[(tier * 5 + i * 7 + 3) % poolSize];
     }
-    enemies.push({ enemyId: picked.id, scale });
+    enemies.push({ enemyId: picked.id, scale, isBoss: Boolean(boss && i === 0), statusImmunities: boss && i === 0 ? [...(BOSS_STATUS_IMMUNITIES[picked.type] || [])] : [] });
   }
   return {
     mode,
@@ -358,7 +360,7 @@ export const FORTUNES = [
 
 export const RELICS = [
   { id: 'r_sword', name: { zh: '星刃残片', ja: '星刃の残片', en: 'Starblade Shard' }, atk: 0.12, hp: 0, spd: 0, stats: { atkPct: 0.12 }, combat: { critDamagePct: 0.10 }, cost: 400, icon: 'Swords' , effects: [{"id":"r_sword","event":"onCritical","chance":0.2,"cooldown":2,"maxPerTurn":1,"when":"owner","effect":{"type":"bonus_damage","value":0.32},"label":{"zh":"星刃共鸣","ja":"星刃共鸣","en":"Starblade resonance"}}] },
-  { id: 'r_aegis', name: { zh: '悲叹之盾', ja: '悲嘆の盾', en: 'Shield of Sorrow' }, atk: 0, hp: 0.18, def: 0.1, stats: { hpPct: 0.18, defPct: 0.10 }, combat: { damageReductionPct: 0.08 }, cost: 400, icon: 'Shield' , effects: [{"id":"r_aegis","event":"onDamageTaken","chance":0.24,"cooldown":2,"maxPerTurn":1,"when":"owner","effect":{"type":"shield","value":0.12},"label":{"zh":"悲叹守护","ja":"悲叹守护","en":"Sorrow guard"}}] },
+  { id: 'r_aegis', name: { zh: '悲叹之盾', ja: '悲嘆の盾', en: 'Shield of Sorrow' }, atk: 0, hp: 0.18, def: 0.1, stats: { hpPct: 0.18, defPct: 0.10 }, combat: { damageReductionPct: 0.08, statusResistance: 0.10 }, cost: 400, icon: 'Shield' , effects: [{"id":"r_aegis","event":"onDamageTaken","chance":0.24,"cooldown":2,"maxPerTurn":1,"when":"owner","effect":{"type":"shield","value":0.12},"label":{"zh":"悲叹守护","ja":"悲叹守护","en":"Sorrow guard"}}] },
   { id: 'r_wing', name: { zh: '银河之翼', ja: '銀河の翼', en: 'Galactic Wing' }, atk: 0.06, hp: 0.06, spd: 0.12, stats: { atkPct: 0.06, hpPct: 0.06, spdPct: 0.12 }, combat: { mpCostReductionPct: 0.06 }, cost: 700, icon: 'Feather' , effects: [{"id":"r_wing","event":"onTurnStart","chance":0.22,"cooldown":2,"maxPerTurn":1,"when":"owner","effect":{"type":"restore_mp","value":12},"label":{"zh":"银河回响","ja":"银河回响","en":"Galactic echo"}}] },
   { id: 'r_orb', name: { zh: '星核宝珠', ja: '星核の珠', en: 'Core Orb' }, atk: 0.2, hp: 0.1, spd: 0, stats: { atkPct: 0.20, hpPct: 0.10 }, combat: { damageDealtPct: 0.06 }, cost: 1100, icon: 'Orbit' , effects: [{"id":"r_orb","event":"onAttack","chance":0.18,"cooldown":2,"maxPerTurn":1,"when":"owner","effect":{"type":"bonus_damage","value":0.34},"label":{"zh":"星核脉冲","ja":"星核脉冲","en":"Core pulse"}}] },
   { id: 'r_crown', name: { zh: '旧王冠冕', ja: '旧王の冠', en: 'Crown of Old Kings' }, atk: 0.16, hp: 0.2, def: 0.08, stats: { atkPct: 0.16, hpPct: 0.20, defPct: 0.08 }, combat: { damageDealtPct: 0.04, damageReductionPct: 0.04 }, cost: 1600, icon: 'Crown' , effects: [{"id":"r_crown","event":"onKill","chance":0.28,"cooldown":2,"maxPerTurn":1,"when":"owner","effect":{"type":"restore_mp","value":14},"label":{"zh":"王权余烬","ja":"王权余烬","en":"Royal ember"}}] },
@@ -373,9 +375,9 @@ export const WEAPONS = [
 ];
 
 export const ARMORS = [
-  { id: 'a_iron', slot: 'armor', name: { zh: '星纹重甲', ja: '星紋の重鎧', en: 'Astral Plate' }, stats: { hpPct: 0.15, defPct: 0.12 }, combat: { damageReductionPct: 0.05 }, icon: 'Shield' , effects: [{"id":"a_iron","event":"onDamageTaken","chance":0.22,"cooldown":2,"maxPerTurn":1,"when":"owner","effect":{"type":"shield","value":0.1},"label":{"zh":"星纹壁垒","ja":"星纹壁垒","en":"Astral bulwark"}}] },
-  { id: 'a_wind', slot: 'armor', name: { zh: '逐风轻甲', ja: '風追いの軽鎧', en: 'Windrunner Armor' }, stats: { hpPct: 0.06, spdPct: 0.10 }, combat: { damageReductionPct: 0.02 }, icon: 'Feather' , effects: [{"id":"a_wind","event":"onDamageTaken","chance":0.18,"cooldown":2,"maxPerTurn":1,"when":"owner","effect":{"type":"counter","value":0.28},"label":{"zh":"逐风反击","ja":"逐风反击","en":"Windrunner counter"}}] },
-  { id: 'a_medic', slot: 'armor', name: { zh: '圣愈法衣', ja: '聖癒の法衣', en: 'Sanctuary Robe' }, stats: { hpPct: 0.10, defPct: 0.05 }, combat: { healPct: 0.10 }, icon: 'Heart' , effects: [{"id":"a_medic","event":"onHeal","chance":0.3,"cooldown":2,"maxPerTurn":1,"when":"owner","effect":{"type":"heal_lowest","value":0.12},"label":{"zh":"圣愈余辉","ja":"圣愈余辉","en":"Sanctuary afterglow"}}] },
+  { id: 'a_iron', slot: 'armor', name: { zh: '星纹重甲', ja: '星紋の重鎧', en: 'Astral Plate' }, stats: { hpPct: 0.15, defPct: 0.12 }, combat: { damageReductionPct: 0.05, statusResistance: 0.10 }, icon: 'Shield' , effects: [{"id":"a_iron","event":"onDamageTaken","chance":0.22,"cooldown":2,"maxPerTurn":1,"when":"owner","effect":{"type":"shield","value":0.1},"label":{"zh":"星纹壁垒","ja":"星纹壁垒","en":"Astral bulwark"}}] },
+  { id: 'a_wind', slot: 'armor', name: { zh: '逐风轻甲', ja: '風追いの軽鎧', en: 'Windrunner Armor' }, stats: { hpPct: 0.06, spdPct: 0.10 }, combat: { damageReductionPct: 0.02, statusResistance: { blind: 0.20 } }, icon: 'Feather' , effects: [{"id":"a_wind","event":"onDamageTaken","chance":0.18,"cooldown":2,"maxPerTurn":1,"when":"owner","effect":{"type":"counter","value":0.28},"label":{"zh":"逐风反击","ja":"逐风反击","en":"Windrunner counter"}}] },
+  { id: 'a_medic', slot: 'armor', name: { zh: '圣愈法衣', ja: '聖癒の法衣', en: 'Sanctuary Robe' }, stats: { hpPct: 0.10, defPct: 0.05 }, combat: { healPct: 0.10, statusResistance: { poison: 0.15, sleep: 0.15 } }, icon: 'Heart' , effects: [{"id":"a_medic","event":"onHeal","chance":0.3,"cooldown":2,"maxPerTurn":1,"when":"owner","effect":{"type":"heal_lowest","value":0.12},"label":{"zh":"圣愈余辉","ja":"圣愈余辉","en":"Sanctuary afterglow"}}] },
 ];
 
 export const EQUIPMENT_CATALOG = { weapon: WEAPONS, armor: ARMORS, relic: RELICS };
