@@ -17,6 +17,10 @@ export default function Settings() {
   const [importText, setImportText] = useState('');
   const [importConfirming, setImportConfirming] = useState(false);
   const fileInputRef = useRef(null);
+  const importIsHigher = importPreview
+    ? importPreview.rebirth > rebirth
+      || (importPreview.rebirth === rebirth && importPreview.level > level)
+    : false;
 
   return (
     <AppShell>
@@ -82,6 +86,21 @@ export default function Settings() {
             <div className="mt-3 rounded-xl border border-primary/20 bg-white/[0.025] p-3">
               <p className="text-[10px] text-primary">{t('save.previewTitle')}</p>
               <p className="mt-1 break-all text-[9px] text-muted-foreground">{importPreview.fileName}</p>
+              <div className="mt-2 grid grid-cols-2 gap-2 rounded-lg border border-white/[0.07] bg-black/10 p-2 text-[9.5px]">
+                <div>
+                  <p className="text-muted-foreground">{t('save.currentProgress')}</p>
+                  <p className="mt-1">{t('player.rebirth')}: <strong className="text-accent">R{rebirth}</strong></p>
+                  <p>{t('player.level')}: <strong className="text-primary">Lv.{level}</strong></p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">{t('save.importProgress')}</p>
+                  <p className="mt-1">{t('player.rebirth')}: <strong className="text-accent">R{importPreview.rebirth}</strong></p>
+                  <p>{t('player.level')}: <strong className="text-primary">Lv.{importPreview.level}</strong></p>
+                </div>
+                <p className={importIsHigher ? 'col-span-2 text-emerald-300' : 'col-span-2 text-rose-300'}>
+                  {t(importIsHigher ? 'save.importAllowed' : 'save.importRejected')}
+                </p>
+              </div>
               <div className="mt-2 grid grid-cols-2 gap-2 text-[9.5px]">
                 <p>{t('save.appVersion')}: <strong>{importPreview.appVersion}</strong></p>
                 <p>{t('save.schemaVersion')}: <strong>{importPreview.saveSchemaVersion}</strong></p>
@@ -121,7 +140,7 @@ export default function Settings() {
                     }
                   }}>{t('save.confirmRestore')}</GoldButton>
                 </div>
-              ) : <GoldButton className="mt-3 w-full py-2" onClick={() => setImportConfirming(true)}>{t('save.restore')}</GoldButton>}
+              ) : <GoldButton className="mt-3 w-full py-2" disabled={!importIsHigher} onClick={() => setImportConfirming(true)}>{t('save.restore')}</GoldButton>}
             </div>
           ) : null}
         </section>
