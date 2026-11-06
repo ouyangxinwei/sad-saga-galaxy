@@ -25,6 +25,6 @@
 - Full combat tests, production build, and GitHub Pages deployment: pending.
 
 ## Commit and deployment
-- Implementation commit: pending
-- Actions run: pending
-- Deployment status: pending
+- Implementation commit: `df4dd262b0872b98e7fba64aaf4dd1f8af8edaab`
+- Actions run: [#42294603292](https://github.com/ouyangxinwei/sad-saga-galaxy/actions/runs/42294603292)
+- Deployment status: successful for implementation SHA `df4dd262b0872b98e7fba64aaf4dd1f8af8edaab`; build, validation, and GitHub Pages deploy jobs passed.
