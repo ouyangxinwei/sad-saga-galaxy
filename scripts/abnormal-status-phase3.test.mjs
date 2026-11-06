@@ -14,7 +14,10 @@ test('equipped armor and relic resistance stacks additively', () => {
 });
 test('resistance lowers only status application chance', () => {
   const unit = makeUnit({ uid: 'ally', hp: 100, maxHp: 100, statusResistance: { poison: 0.25 } });
-  assert.deepEqual(getStatusApplicationRule(unit, 'poison', 0.2), { immune: false, resistance: 0.25, chance: 0.15 });
+  const rule = getStatusApplicationRule(unit, 'poison', 0.2);
+  assert.equal(rule.immune, false);
+  assert.equal(rule.resistance, 0.25);
+  assert.ok(Math.abs(rule.chance - 0.15) < 1e-12, `expected 0.15, received ${rule.chance}`);
 });
 test('boss immunity takes precedence over equipment resistance', () => {
   const boss = makeUnit({ uid: 'boss', hp: 100, maxHp: 100, isBoss: true, statusImmunities: ['sleep'], statusResistance: { sleep: 0.6 } });
