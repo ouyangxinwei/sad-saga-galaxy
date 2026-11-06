@@ -19,7 +19,7 @@ import { applyAbnormalStatus, getAbnormalStatus, getActionBlockingStatus, getPhy
 import { traceSync, logInfo, logWarn } from './logger.js';
 const rnd=(a,b)=>a+Math.random()*(b-a);
 const BASIC={name:{zh:'普通攻击',ja:'通常攻撃',en:'Basic Attack'},kind:'attack',target:'single',power:1,mp:0};
-function makeUnitImpl(c){return {...c,maxHp:c.maxHp||c.hp,hp:c.hp,shield:0,mp:c.maxMp??100,maxMp:c.maxMp??100,alive:true,taunt:0,dr:0,drTurns:0,lp:c.lp??0,maxLp:c.maxLp??0,crit:Math.min(.75,c.crit??.08),desperateCritRate:Math.min(.35,Math.max(0,Number(c.desperateCritRate)||0)),desperateDodgeRate:Math.min(.45,Math.max(0,Number(c.desperateDodgeRate)||0)),critDamagePct:c.critDamagePct??0,damageDealtPct:c.damageDealtPct??0,damageReductionPct:c.damageReductionPct??0,mpCostReductionPct:Math.min(.5,c.mpCostReductionPct??0),role:c.role||c.classId,skills:c.skills?.length?c.skills:['claw'],equipmentEffects:Array.isArray(c.equipmentEffects)?c.equipmentEffects:[],activeStatuses:normalizeActiveStatuses(c.activeStatuses)};}
+function makeUnitImpl(c){const raw=c.statusResistance||{};const statusResistance=Object.fromEntries(['poison','blind','paralysis','sleep','confusion'].map(type=>[type,Math.min(.6,Math.max(0,Number(typeof raw==='number'?raw:raw[type])||0))]));return {...c,maxHp:c.maxHp||c.hp,hp:c.hp,shield:0,mp:c.maxMp??100,maxMp:c.maxMp??100,alive:true,taunt:0,dr:0,drTurns:0,lp:c.lp??0,maxLp:c.maxLp??0,crit:Math.min(.75,c.crit??.08),desperateCritRate:Math.min(.35,Math.max(0,Number(c.desperateCritRate)||0)),desperateDodgeRate:Math.min(.45,Math.max(0,Number(c.desperateDodgeRate)||0)),critDamagePct:c.critDamagePct??0,damageDealtPct:c.damageDealtPct??0,damageReductionPct:c.damageReductionPct??0,mpCostReductionPct:Math.min(.5,c.mpCostReductionPct??0),statusResistance,isBoss:Boolean(c.isBoss),statusImmunities:Array.isArray(c.statusImmunities)?[...new Set(c.statusImmunities.filter(type=>['poison','blind','paralysis','sleep','confusion'].includes(type)))]:[],role:c.role||c.classId,skills:c.skills?.length?c.skills:['claw'],equipmentEffects:Array.isArray(c.equipmentEffects)?c.equipmentEffects:[],activeStatuses:normalizeActiveStatuses(c.activeStatuses)};}
 export function applyEquipmentDamageModifiers(n,a,t){return n*(1+Math.min(1,Math.max(0,Number(a?.damageDealtPct)||0)))*(1-Math.min(.75,Math.max(0,Number(t?.damageReductionPct)||0)));}
 export function criticalDamageMultiplier(u){return 1.65+Math.min(1,Math.max(0,Number(u?.critDamagePct)||0));}
 export function healingMultiplier(u){return 1+Math.min(1.5,Math.max(0,Number(u?.healBonus)||0));}
@@ -76,6 +76,7 @@ function die(target,units,events,killer,round,rt){
 }
 function removeSleepAfterDamage(target,events){if(getAbnormalStatus(target?.activeStatuses,'sleep'))removeBattleStatus(target,'sleep',events,'damage');}
 function clearBattleStatuses(unit,events,reason){for(const status of [...(unit.activeStatuses||[])])removeBattleStatus(unit,status.type,events,reason);}
+export function getStatusApplicationRule(unit,type,baseChance){const chance=Math.min(1,Math.max(0,Number(baseChance)||0));if((unit?.statusImmunities||[]).includes(type))return {immune:true,resistance:1,chance:0};const resistance=Math.min(.6,Math.max(0,Number(unit?.statusResistance?.[type])||0));return {immune:false,resistance,chance:chance*(1-resistance)};}
 export function applyBattleStatus(unit,type,options={},events=[]){
  if(!unit?.alive)return null;
  const result=applyAbnormalStatus(unit.activeStatuses,type,options);
@@ -206,7 +207,9 @@ function damage(a,t,s,events,units,round,rt,desperateCrit=false,hitIndex=1,hitCo
   const statusEffect=s?.statusEffect;
   if(statusEffect&&!statusAppliedTargets.has(t.uid)){
    statusAppliedTargets.add(t.uid);
-   if(rt.random()<Math.min(1,Math.max(0,Number(statusEffect.chance)||0)))applyBattleStatus(t,statusEffect.type,{sourceId:a.uid,round},events);
+   const rule=getStatusApplicationRule(t,statusEffect.type,statusEffect.chance);
+   if(rule.immune)events.push({kind:'status_immune',uid:t.uid,name:t.name,statusType:statusEffect.type,isBoss:Boolean(t.isBoss)});
+   else {const roll=rt.random();if(roll<rule.chance)applyBattleStatus(t,statusEffect.type,{sourceId:a.uid,round},events);else if(rule.resistance>0&&roll<Math.min(1,Math.max(0,Number(statusEffect.chance)||0)))events.push({kind:'status_resisted',uid:t.uid,name:t.name,statusType:statusEffect.type,resistance:rule.resistance});}
   }
   dispatchEquipmentEvent('onDamageTaken',{owner:t,actor:a,target:t},units,events,rt,round);
  }
