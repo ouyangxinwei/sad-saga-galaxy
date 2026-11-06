@@ -4,6 +4,15 @@ import { RELEASE_DATE } from './metadata.js';
 
 export const CHANGELOG = [
   {
+    version: 'v0.76', date: '2026-11-07',
+    title: { zh: '异常状态系统 Phase 4：状态说明与防御信息', ja: '状態異常システム Phase 4：状態説明と防御情報', en: 'Abnormal Status Phase 4: status details and defenses' },
+    items: {
+      zh: ['战斗中的异常状态标记显示剩余回合数；混乱状态同时显示等级', '状态标记提示补充中文、日文、英文效果说明，帮助玩家理解行动限制与持续伤害', '我方角色显示装备提供的异常抗性百分比', 'Boss 显示对应的异常免疫标记，区分抗性与完全免疫', '修正 Phase 3 抗性测试中的浮点数精度断言；新增 Phase 4 展示数据测试', '不修改异常状态数值、战斗概率、永久存档结构或角色成长'],
+      ja: ['戦闘中の状態異常マーカーに残りターン数を表示し、混乱にはレベルも表示', '行動制限や継続ダメージを理解しやすいよう、中国語・日本語・英語の効果説明を追加', '味方キャラクターに装備由来の状態異常耐性率を表示', 'ボスに該当する状態異常の無効マーカーを表示し、耐性と完全無効を区別', 'Phase 3 の耐性テストにおける浮動小数点比較を修正し、Phase 4 表示データのテストを追加', '状態異常の数値、戦闘確率、永続セーブ構造、キャラクター成長は変更しない'],
+      en: ['Active ailment markers show remaining rounds; Confusion also shows its level', 'Adds Chinese, Japanese, and English effect explanations so action restrictions and damage-over-time are clear', 'Displays equipment-based ailment resistance percentages on allied units', 'Displays each boss immunity separately from ordinary resistance', 'Fixes floating-point precision in a Phase 3 resistance assertion and adds Phase 4 presentation-data tests', 'Does not change ailment values, battle probabilities, persistent saves, or character progression'],
+    },
+  },
+  {
     version: 'v0.75', date: '2026-11-07',
     title: { zh: '异常状态系统 Phase 3：装备抗性与 Boss 免疫', ja: '状態異常システム Phase 3：装備耐性とボス無効化', en: 'Abnormal Status Phase 3: equipment resistance and boss immunity' },
     items: {
