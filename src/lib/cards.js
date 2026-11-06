@@ -181,6 +181,7 @@ export function partyUnits(state, fortune = null) {
         critDamagePct: st.critDamagePct,
         damageDealtPct: st.damageDealtPct,
         damageReductionPct: st.damageReductionPct + formationEffects.damageReductionPct,
+        statusResistance: st.statusResistance,
         skillEffectPct: formationEffects.skillEffectPct,
         skillDamagePct: formationEffects.skillDamagePct,
         mp: Math.max(1, Math.round(st.mp * teamBonus * (1 + formationStatPct.mp))),
