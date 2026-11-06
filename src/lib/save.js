@@ -333,6 +333,8 @@ export function exportSaveData(state, appVersion = 'unknown') {
 /** 只校验、归一化并汇总外部备份，不写入当前 localStorage。 */
 export function inspectSaveData(input) {
   const parsed = parseSavePayload(input);
+  // Validate the original fields before normalization can supply defaults.
+  getSaveProgress(parsed.save);
   const state = normalizeImportedSave(parsed.save);
   return { success: true, state, metadata: {
     appVersion: parsed.appVersion || 'Legacy JSON',
@@ -347,8 +349,39 @@ export function restoreSaveData(input) {
   let inspected;
   try { inspected = inspectSaveData(input); }
   catch (error) { return { success: false, reason: error?.message || 'invalid-save' }; }
+
+  // Read and validate the existing save before considering any replacement.
+  // A missing save is treated as a fresh game (R0 / Lv1); a corrupt or
+  // unreadable save is protected and must never be overwritten automatically.
+  let currentRaw;
+  try { currentRaw = localStorage.getItem(SAVE_KEY); }
+  catch (error) {
+    return { success: false, reason: 'current-save-read-failed', message: error?.message || String(error) };
+  }
+
+  let currentState;
   try {
-    // Validate and migrate fully before touching the current local save.
+    if (currentRaw == null) {
+      currentState = defaultState();
+    } else {
+      const currentPayload = parseSavePayload(currentRaw);
+      getSaveProgress(currentPayload.save);
+      currentState = currentPayload.save;
+    }
+
+    if (compareSaveProgress(inspected.state, currentState) <= 0) {
+      return { success: false, reason: 'progress-not-higher' };
+    }
+  } catch (error) {
+    return {
+      success: false,
+      reason: 'current-save-invalid',
+      message: error?.message || String(error),
+    };
+  }
+
+  try {
+    // The original save is untouched until validation and progress checks pass.
     localStorage.setItem(SAVE_KEY, JSON.stringify(inspected.state));
     saveWritesBlocked = false;
     return { success: true, state: inspected.state, metadata: inspected.metadata };
