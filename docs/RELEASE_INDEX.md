@@ -1,15 +1,15 @@
 # Release Index
 
-Current application release: **V0.73**  
-Release date: **2026-11-06**  
+Current application release: **V0.74**  
+Release date: **2026-11-07**  
 Version Management module: **2.0.0**  
-Package version: **0.73.0**  
-PWA cache namespace: **v55**  
+Package version: **0.74.0**  
+PWA cache namespace: **v56**  
 Target branch: `standalone-migration`
 
 ## Current release
-- **V0.73 — Abnormal Status System Phase 1** ([release record](releases/V073_ABNORMAL_STATUS_PHASE1.md))
-- Adds the five core battle ailments, status lifecycle handling, battle UI markers, localized logs, and focused automated tests.
+- **V0.74 — Abnormal Status System Phase 2** ([release record](releases/V074_ABNORMAL_STATUS_PHASE2.md))
+- Connects status infliction to existing player/enemy skills, adds cleansing behavior, and teaches battle AI to value cleansing actions.
 - No permanent save-schema changes.
 
 ## Catalog coverage

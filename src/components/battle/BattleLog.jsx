@@ -42,7 +42,7 @@ function lineOf(ev, lang, t) {
     case 'status_applied':
       return { tone: 'action', text: t('battle.statusApplied', { target: ev.name, status: t(`battle.status.${ev.status.type}`), level: ev.status.type === 'confusion' ? ` Lv.${ev.status.level}` : '' }) };
     case 'status_removed':
-      return { tone: 'heal', text: t('battle.statusRemoved', { target: ev.name, status: t(`battle.status.${ev.statusType}`), reason: ev.reason === 'damage' ? t('battle.status.damageWake') : ev.reason === 'expired' ? t('battle.status.expired') : ev.reason === 'death' ? t('battle.status.deathClear') : t('battle.status.battleEnd') }) };
+      return { tone: 'heal', text: t('battle.statusRemoved', { target: ev.name, status: t(`battle.status.${ev.statusType}`), reason: ev.reason === 'damage' ? t('battle.status.damageWake') : ev.reason === 'expired' ? t('battle.status.expired') : ev.reason === 'death' ? t('battle.status.deathClear') : ev.reason === 'cleanse' ? t('battle.status.cleansed') : t('battle.status.battleEnd') }) };
     case 'status_blocked':
       return { tone: 'damage', text: t('battle.statusBlocked', { target: ev.name, status: t(`battle.status.${ev.statusType}`) }) };
     case 'poison_damage':

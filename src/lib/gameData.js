@@ -109,7 +109,7 @@ export const SKILLS = {
   nova: { name: { zh: '新星爆发', ja: 'ノヴァ', en: 'Nova Burst' }, kind: 'attack', target: 'all', power: 0.86, mp: 38 },
   meteor: { name: { zh: '陨星坠落', ja: '隕星', en: 'Meteor Fall' }, kind: 'attack', target: 'all', power: 0.95, mp: 42 },
   assassin: { name: { zh: '无音刺杀', ja: '無音の刺殺', en: 'Silent Kill' }, kind: 'attack', target: 'single', power: 1.72, mp: 16, critBonus: 0.25 },
-  shadow: { name: { zh: '影分身', ja: '影分身', en: 'Shadow Split' }, kind: 'attack', target: 'single', power: 1.1, mp: 10, hits: 2 },
+  shadow: { name: { zh: '影分身', ja: '影分身', en: 'Shadow Split' }, kind: 'attack', damageType: 'physical', target: 'single', power: 1.1, mp: 10, hits: 2, statusEffect: { type: 'poison', chance: 0.1 } },
   mend: { name: { zh: '愈合之光', ja: '癒しの光', en: 'Mending Light' }, kind: 'support', target: 'single', heal: 2.6, mp: 16 },
   sanctuary: { name: { zh: '圣域祈愿', ja: '聖域の祈り', en: 'Sanctuary' }, kind: 'support', target: 'all', heal: 1.15, mp: 38 },
   elixir: { name: { zh: '随机万灵药', ja: '万霊薬', en: 'Erratic Elixir' }, kind: 'support', target: 'random', heal: 1.8, mp: 26, targets: 2 },

@@ -152,6 +152,7 @@ function equipmentAiProfile(unit) {
 export function scoreSkills(u,allies,foes,round=1){
  const profile=equipmentAiProfile(u);
  const wounded=allies.filter(a=>a.alive&&a.hp<a.maxHp*.72);
+ const afflicted=allies.filter(a=>a.alive&&(a.activeStatuses||[]).length>0);
  const averageMissing=wounded.length?wounded.reduce((sum,a)=>sum+(1-a.hp/a.maxHp),0)/wounded.length:0;
  return (u.skills||[]).flatMap(id=>{
   const skill=SKILLS[id];
@@ -163,9 +164,9 @@ export function scoreSkills(u,allies,foes,round=1){
    if(skill.target==='all'&&foes.length>=2)bonus+=profile.aoe*Math.min(1.5,(foes.length-1)*.5);
    if(skill.hits>1&&profile.offense)bonus+=profile.offense*.18;
   }else if(skill.kind==='support'){
-   if(!wounded.length)baseScore=0;
-   else if(skill.target==='all')baseScore=72+wounded.length*14;
-   else if(skill.target==='random')baseScore=68;
+   if(!wounded.length&&!(skill.cleanse&&afflicted.length))baseScore=0;
+   else if(skill.target==='all')baseScore=(wounded.length?72+wounded.length*14:0)+(skill.cleanse&&afflicted.length?58+Math.min(30,(afflicted.length-1)*10):0);
+   else if(skill.target==='random')baseScore=(wounded.length?68:0)+(skill.cleanse&&afflicted.length?50+Math.min(20,(afflicted.length-1)*8):0);
    else baseScore=58+(1-wounded[0].hp/wounded[0].maxHp)*42;
    if(baseScore>0&&profile.healing)bonus+=profile.healing*(.45+averageMissing);
   }else if(skill.kind==='defense'){

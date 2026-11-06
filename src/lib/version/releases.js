@@ -4,6 +4,15 @@ import { RELEASE_DATE } from './metadata.js';
 
 export const CHANGELOG = [
   {
+    version: 'v0.74', date: '2026-11-07',
+    title: { zh: '异常状态系统 Phase 2：技能施加与净化', ja: '状態異常システム Phase 2：スキル付与と浄化', en: 'Abnormal Status Phase 2: skill infliction and cleansing' },
+    items: {
+      zh: ['为现有攻击技能补充物理/魔法分类，使失明只影响明确标记的物理攻击', '星矢可致盲、苍蓝雷击可麻痹、新星爆发可催眠、无音刺杀可混乱、腐蚀药剂与影分身可中毒', '敌方撕裂、虚空咆哮和碎星重击也加入中毒/混乱/麻痹效果；多段攻击每个目标每次技能最多判定一次', '圣域祈愿可治疗并净化全队异常状态；随机万灵药可治疗并净化最多两名需要帮助的队员', '战斗 AI 会考虑队友异常状态，优先评估净化技能；完善净化日志与专项自动化测试', '不增加永久存档字段，不改角色成长、装备数值和现有技能伤害倍率'],
+      ja: ['既存攻撃スキルに物理/魔法分類を追加し、暗闇は物理指定攻撃のみに影響', '星の矢は暗闇、蒼雷は麻痺、ノヴァは睡眠、無音の刺殺は混乱、腐食薬と影分身は毒を付与', '敵の引裂・虚空の咆哮・砕星重撃にも毒/混乱/麻痺を追加。多段攻撃は対象ごとに1スキルにつき付与判定1回', '聖域の祈りは全員を回復し状態異常を浄化。万霊薬は支援が必要な味方を最大2人回復・浄化', '戦闘 AI が味方の状態異常を考慮して浄化スキルを評価。浄化ログと専用自動テストを追加', '永続セーブ項目、キャラクター成長、装備数値、既存スキルのダメージ倍率は変更しない'],
+      en: ['Classifies existing attack skills as physical or magical so Blind affects only explicitly physical attacks', 'Star Arrow inflicts Blind, Azure Bolt Paralysis, Nova Burst Sleep, Silent Kill Confusion, and Acid Flask/Shadow Split Poison', 'Enemy Rend, Void Howl, and Star Crush can also inflict Poison/Confusion/Paralysis; multi-hit skills make at most one status roll per target per action', 'Sanctuary heals and cleanses the whole party; Erratic Elixir heals and cleanses up to two randomly selected allies who need support', 'Battle AI now considers party ailments when evaluating cleansing skills; adds localized cleanse logs and focused automated tests', 'No permanent save fields, character progression, equipment stats, or existing skill damage multipliers are changed'],
+    },
+  },
+  {
     version: 'v0.73', date: '2026-11-06',
     title: { zh: '异常状态系统 Phase 1：五种战斗状态核心机制', ja: '状態異常システム Phase 1：5 種類の戦闘状態コア機能', en: 'Abnormal Status Phase 1: five core battle ailments' },
     items: {

@@ -305,6 +305,7 @@ export const S = {
   'battle.status.expired': { zh: '持续时间结束', ja: '効果時間終了', en: 'duration expired' },
   'battle.status.deathClear': { zh: '倒下时清除', ja: '戦闘不能時に解除', en: 'cleared on defeat' },
   'battle.status.battleEnd': { zh: '战斗结束', ja: '戦闘終了', en: 'battle ended' },
+  'battle.status.cleansed': { zh: '净化技能', ja: '浄化スキル', en: 'cleansing skill' },
   'battle.poisonDamage': { zh: '{target} 受到中毒伤害：-{amount} HP', ja: '{target} は毒ダメージを受けた：-{amount} HP', en: '{target} takes poison damage: -{amount} HP' },
   'battle.blindMiss': { zh: '{actor} 受到失明影响，攻击未命中 {target}', ja: '{actor} は暗闇で {target} への攻撃を外した', en: '{actor} misses {target} due to blindness' },
   'battle.confusionSkip': { zh: '{target} 精神混乱，未能行动', ja: '{target} は混乱して行動できなかった', en: '{target} is confused and loses the action' },
