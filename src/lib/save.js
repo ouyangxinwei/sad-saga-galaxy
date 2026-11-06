@@ -280,6 +280,46 @@ export function summarizeSaveState(state) {
   };
 }
 
+/**
+ * 提取用于跨设备导入保护的玩家进度。
+ *
+ * 只使用顶层玩家 rebirth / level，不使用角色实例等级。
+ * 两个字段都必须是非负安全整数；不对缺失或异常值做默认补齐，
+ * 避免无效存档通过进度比较。
+ */
+export function getSaveProgress(state) {
+  if (!state || typeof state !== 'object' || Array.isArray(state)) {
+    throw new Error('invalid-save-progress');
+  }
+
+  const { rebirth, level } = state;
+  if (!Number.isSafeInteger(rebirth) || rebirth < 0
+    || !Number.isSafeInteger(level) || level < 0) {
+    throw new Error('invalid-save-progress');
+  }
+
+  return { rebirth, level };
+}
+
+/**
+ * 按 (rebirth, level) 字典序比较两份存档的玩家进度。
+ *
+ * 返回值：1 = importedState 更高；0 = 相同；-1 = 更低。
+ * 转生次数优先级高于等级；仅在转生次数相同时比较玩家等级。
+ */
+export function compareSaveProgress(importedState, currentState) {
+  const imported = getSaveProgress(importedState);
+  const current = getSaveProgress(currentState);
+
+  if (imported.rebirth !== current.rebirth) {
+    return imported.rebirth > current.rebirth ? 1 : -1;
+  }
+  if (imported.level !== current.level) {
+    return imported.level > current.level ? 1 : -1;
+  }
+  return 0;
+}
+
 /** 生成包含格式标识、应用版本、导出时间和深拷贝存档的可移植备份对象。 */
 export function exportSaveData(state, appVersion = 'unknown') {
   return {
