@@ -212,8 +212,12 @@ export const S = {
   'save.confirmRestore': { zh: '确认覆盖并恢复', ja: '上書きして復元', en: 'Confirm & Restore' },
   'save.importSuccess': { zh: '存档恢复成功', ja: 'セーブデータを復元しました', en: 'Save restored successfully' },
   'save.importFailed': { zh: '存档恢复失败，当前存档未更改。', ja: '復元に失敗しました。現在のセーブは変更されていません。', en: 'Restore failed. Your current save was not changed.' },
+  'save.progressNotHigher': { zh: '导入存档的转生次数和等级没有高于当前存档，已拒绝导入；当前进度未更改。', ja: 'インポートするセーブの転生回数とレベルが現在のデータを上回っていないため、復元を拒否しました。現在の進行状況は変更されていません。', en: 'The imported save does not have higher rebirth/level progress. Restore was rejected; your current progress is unchanged.' },
+  'save.currentSaveInvalid': { zh: '当前存档异常，已停止导入以保护现有数据。', ja: '現在のセーブデータに異常があるため、既存データを保護する目的で復元を中止しました。', en: 'The current save is invalid. Restore was stopped to protect your existing data.' },
+  'save.currentSaveReadFailed': { zh: '无法读取当前存档，已停止导入以保护现有数据。', ja: '現在のセーブデータを読み取れないため、既存データを保護する目的で復元を中止しました。', en: 'The current save could not be read. Restore was stopped to protect your existing data.' },
   'save.invalid': { zh: '文件不是有效的游戏存档 JSON。', ja: '有効なゲームセーブ JSON ではありません。', en: 'This is not a valid game save JSON file.' },
   'save.unsupported': { zh: '该存档版本暂不支持恢复。', ja: 'このセーブバージョンは復元できません。', en: 'This save version is not supported.' },
+  'save.fileReadFailed': { zh: '无法读取所选文件，请重新选择文件。', ja: '選択したファイルを読み取れません。もう一度選択してください。', en: 'Could not read the selected file. Please choose it again.' },
   'save.storageFailed': { zh: '写入失败，当前存档保持不变。', ja: '保存に失敗しました。現在のデータは変更されていません。', en: 'Write failed. Your current save remains unchanged.' },
   'save.exportFailed': { zh: '存档导出失败。', ja: 'セーブデータのエクスポートに失敗しました。', en: 'Save export failed.' },
 
