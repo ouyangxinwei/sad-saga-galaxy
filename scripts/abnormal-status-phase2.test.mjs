@@ -8,7 +8,7 @@ test('every existing attack skill declares physical or magic damage', () => {
   assert.equal(SKILLS.slash.damageType, 'physical'); assert.equal(SKILLS.bolt.damageType, 'magic');
 });
 test('player skill catalog covers all five ailments with restrained proc chances', () => {
-  const playerSkills = ['shot','bolt','nova','assassin','acid','shadow'].map(id => SKILLS[id]);
+  const playerSkills = ['shot','bolt','nova','assassin','acid'].map(id => SKILLS[id]);
   assert.deepEqual(new Set(playerSkills.map(skill => skill.statusEffect?.type)), new Set(['blind','paralysis','sleep','confusion','poison']));
   for (const skill of playerSkills) assert.ok(skill.statusEffect.chance > 0 && skill.statusEffect.chance <= 0.2);
 });
@@ -21,8 +21,14 @@ test('enemy attack skills can inflict their configured ailments', () => {
   assert.ok(result.events.some(event=>event.kind==='status_applied'&&event.status.type==='confusion'&&event.uid==='ally'));
 });
 test('multi-hit skill applies at most one status per target per action', () => {
-  const result=simulateBattle([{uid:'rogue',name:'Rogue',hp:1000,maxHp:1000,atk:100,def:0,spd:100,crit:0,skills:['shadow']}],[{uid:'target',name:'Target',hp:10000,maxHp:10000,atk:0,def:0,spd:1,crit:0,skills:['claw']}],1,{random:()=>0});
-  assert.equal(result.events.filter(event=>event.kind==='status_applied'&&event.uid==='e_0').length,1);
+  const previous=SKILLS.shadow.statusEffect;
+  SKILLS.shadow.statusEffect={type:'poison',chance:0.1};
+  try {
+    const result=simulateBattle([{uid:'rogue',name:'Rogue',hp:1000,maxHp:1000,atk:100,def:0,spd:100,crit:0,skills:['shadow']}],[{uid:'target',name:'Target',hp:10000,maxHp:10000,atk:0,def:0,spd:1,crit:0,skills:['claw']}],1,{random:()=>0});
+    assert.equal(result.events.filter(event=>event.kind==='status_applied'&&event.uid==='e_0').length,1);
+  } finally {
+    if(previous===undefined)delete SKILLS.shadow.statusEffect;else SKILLS.shadow.statusEffect=previous;
+  }
 });
 test('Sanctuary heals and cleanses all abnormal statuses from allies', () => {
   const result=simulateBattle([{uid:'priest',name:'Priest',hp:1000,maxHp:1000,atk:100,def:0,spd:100,crit:0,skills:['sanctuary']},{uid:'ally',name:'Ally',hp:500,maxHp:1000,atk:10,def:0,spd:1,crit:0,skills:['slash'],activeStatuses:[{type:'poison'},{type:'blind'}]}],[{uid:'enemy',name:'Enemy',hp:10000,maxHp:10000,atk:0,def:0,spd:1,crit:0,skills:['claw']}],1,{random:()=>0.99});

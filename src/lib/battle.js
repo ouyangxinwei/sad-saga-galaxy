@@ -192,7 +192,8 @@ function chooseSkillImpl(u,allies,foes,round){
  * 多段技能由 act 循环多次调用本函数，因此每次命中都会独立产生事件。
  */
 function damage(a,t,s,events,units,round,rt,desperateCrit=false,hitIndex=1,hitCount=1,statusAppliedTargets=new Set()){
- if(s?.damageType==='physical'&&rt.random()>=getPhysicalAccuracyMultiplier(a)){events.push({kind:'miss',sid:a.uid,tid:t.uid,actor:a.name,target:t.name,reason:'blind',hitIndex,hitCount});return;}
+ const accuracyMultiplier=getPhysicalAccuracyMultiplier(a);
+ if(s?.damageType==='physical'&&accuracyMultiplier<1&&rt.random()>=accuracyMultiplier){events.push({kind:'miss',sid:a.uid,tid:t.uid,actor:a.name,target:t.name,reason:'blind',hitIndex,hitCount});return;}
  if(a?.side==='enemy'&&t?.side==='ally'&&rollDesperateDodge(t,rt.random)){events.push({kind:'dodge',sid:a.uid,tid:t.uid,actor:a.name,target:t.name,rate:t.desperateDodgeRate,formationDodgePp:(Number(t.formationBonus?.dodgePp)||0)+(Number(t.formationBonus?.highSpeedDodgePp)||0),hp:Math.round(t.hp),maxHp:Math.round(t.maxHp),hitIndex,hitCount});return;}
  const critChance=Math.min(.75,Math.max(0,(Number(a.crit)||0)+(Number(s.critBonus)||0)+(Number(a.formationFollowUpCriticalPp)||0)));const crit=Math.random()<critChance;let d=a.atk*s.power*rnd(.93,1.07)*(crit?criticalDamageMultiplier(a):1);
  d=Math.max(1,d-t.def*(1-(s.pierce||0))*.45);if(t.dr)d*=1-t.dr;d=Math.max(1,applyEquipmentDamageModifiers(d,a,t));if(desperateCrit)d*=3;
