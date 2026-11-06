@@ -28,6 +28,6 @@
 - GitHub Actions validation: pending.
 
 ## Commit and deployment
-- Implementation commit: pending
+- Implementation commit: `345b8fb84184673cd6ded881dd17b9bd045715af`
 - Actions run: pending
 - Deployment status: pending
