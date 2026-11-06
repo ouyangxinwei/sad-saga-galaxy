@@ -191,7 +191,7 @@ function chooseSkillImpl(u,allies,foes,round){
 /** 单次命中结算：先处理闪避，再计算普通暴击/伤害减免/护盾，最后派发装备事件与死亡处理。
  * 多段技能由 act 循环多次调用本函数，因此每次命中都会独立产生事件。
  */
-function damage(a,t,s,events,units,round,rt,desperateCrit=false,hitIndex=1,hitCount=1){
+function damage(a,t,s,events,units,round,rt,desperateCrit=false,hitIndex=1,hitCount=1,statusAppliedTargets=new Set()){
  if(s?.damageType==='physical'&&rt.random()>=getPhysicalAccuracyMultiplier(a)){events.push({kind:'miss',sid:a.uid,tid:t.uid,actor:a.name,target:t.name,reason:'blind',hitIndex,hitCount});return;}
  if(a?.side==='enemy'&&t?.side==='ally'&&rollDesperateDodge(t,rt.random)){events.push({kind:'dodge',sid:a.uid,tid:t.uid,actor:a.name,target:t.name,rate:t.desperateDodgeRate,formationDodgePp:(Number(t.formationBonus?.dodgePp)||0)+(Number(t.formationBonus?.highSpeedDodgePp)||0),hp:Math.round(t.hp),maxHp:Math.round(t.maxHp),hitIndex,hitCount});return;}
  const critChance=Math.min(.75,Math.max(0,(Number(a.crit)||0)+(Number(s.critBonus)||0)+(Number(a.formationFollowUpCriticalPp)||0)));const crit=Math.random()<critChance;let d=a.atk*s.power*rnd(.93,1.07)*(crit?criticalDamageMultiplier(a):1);
@@ -201,7 +201,14 @@ function damage(a,t,s,events,units,round,rt,desperateCrit=false,hitIndex=1,hitCo
  dispatchEquipmentEvent('onAttack',{owner:a,actor:a,target:t},units,events,rt,round);
  if(crit||desperateCrit)dispatchEquipmentEvent('onCritical',{owner:a,actor:a,target:t},units,events,rt,round);
  removeSleepAfterDamage(t,events);
- if(t.hp<=0)die(t,units,events,a,round,rt);else dispatchEquipmentEvent('onDamageTaken',{owner:t,actor:a,target:t},units,events,rt,round);
+ if(t.hp<=0)die(t,units,events,a,round,rt);else {
+  const statusEffect=s?.statusEffect;
+  if(statusEffect&&!statusAppliedTargets.has(t.uid)){
+   statusAppliedTargets.add(t.uid);
+   if(rt.random()<Math.min(1,Math.max(0,Number(statusEffect.chance)||0)))applyBattleStatus(t,statusEffect.type,{sourceId:a.uid,round},events);
+  }
+  dispatchEquipmentEvent('onDamageTaken',{owner:t,actor:a,target:t},units,events,rt,round);
+ }
 }
 function heal(a,t,s,events,units,round,rt){
  const amount=Math.round(a.atk*s.heal*healingMultiplier(a)*rnd(.95,1.05)),n=Math.min(t.maxHp-t.hp,amount);t.hp+=n;
@@ -231,12 +238,12 @@ function act(u,units,round,events,rt){
  if(sk.kind==='attack'){
   const taunts=foes.filter(f=>f.taunt>0),pool=taunts.length?taunts:foes;
   const targets=confusedTarget?[confusedTarget]:sk.target==='all'?[...foes]:[lowHp(pool)||foes[0]];
-  const desperateCrit=rollDesperateCrit(u,rt.random),hitCount=Math.max(1,Number(sk.hits)||1);
-  for(let h=0;h<hitCount;h++)targets.forEach(target=>{if(target?.alive)damage(u,target,resolvedSkill,events,units,round,rt,desperateCrit,h+1,hitCount);});
+  const desperateCrit=rollDesperateCrit(u,rt.random),hitCount=Math.max(1,Number(sk.hits)||1),statusAppliedTargets=new Set();
+  for(let h=0;h<hitCount;h++)targets.forEach(target=>{if(target?.alive)damage(u,target,resolvedSkill,events,units,round,rt,desperateCrit,h+1,hitCount,statusAppliedTargets);});
  }else if(sk.kind==='support'){
   let targets;
-  if(confusedTarget)targets=[confusedTarget];else if(sk.target==='all')targets=allies;else if(sk.target==='random')targets=allies.filter(x=>x.alive&&x.hp<x.maxHp).sort(()=>Math.random()-.5).slice(0,sk.targets||2);else targets=[lowRatio(allies)||u];
-  if(!targets.length)targets=[u];targets.forEach(target=>target&&heal(u,target,resolvedSkill,events,units,round,rt));
+  if(confusedTarget)targets=[confusedTarget];else if(sk.target==='all')targets=allies;else if(sk.target==='random')targets=allies.filter(x=>x.alive&&(x.hp<x.maxHp||(sk.cleanse&&(x.activeStatuses||[]).length>0))).sort((a,b)=>((b.activeStatuses||[]).length-(a.activeStatuses||[]).length)||((a.hp/a.maxHp)-(b.hp/b.maxHp))).slice(0,sk.targets||2);else targets=[lowRatio(allies)||u];
+  if(!targets.length)targets=[u];targets.forEach(target=>{if(!target)return;heal(u,target,resolvedSkill,events,units,round,rt);if(sk.cleanse)for(const status of [...(target.activeStatuses||[])])removeBattleStatus(target,status.type,events,'cleanse');});
  }else if(sk.taunt){const amount=Math.round(u.maxHp*(resolvedSkill.shield||.3));u.shield+=amount;u.taunt=sk.taunt;events.push({kind:'shield',tid:u.uid,target:u.name,amount,shield:u.shield,formationEnhanced:Boolean(resolvedSkill.formationModifiers)});events.push({kind:'taunt',tid:u.uid,target:u.name});}
  else if(resolvedSkill.shield){const target=lowRatio(allies)||u,amount=Math.round(target.maxHp*resolvedSkill.shield);target.shield+=amount;events.push({kind:'shield',tid:target.uid,target:target.name,amount,shield:target.shield,formationEnhanced:Boolean(resolvedSkill.formationModifiers)});}
  else if(resolvedSkill.mitigate){allies.forEach(x=>{x.dr=resolvedSkill.mitigate;x.drTurns=resolvedSkill.turns;});events.push({kind:'ward',name:u.name,value:resolvedSkill.mitigate,formationEnhanced:Boolean(resolvedSkill.formationModifiers)});}
