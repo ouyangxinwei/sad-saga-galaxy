@@ -6,9 +6,9 @@
 
 ## 1. Changelog
 
-- **V01** — Initial migration audit: identified the Base44 integration surface, application structure, and local save mechanism.
+- **V01** — Initial migration audit: identified the oooo integration surface, application structure, and local save mechanism.
 - **V02** — First dependency/platform-boundary review: documented the initial keep/review/remove-candidate groups and explicitly marked the scan as incomplete.
-- **V03** — Expanded the scan across all 120 tracked `src/` files, including all 53 files under `src/components/ui/`; traced the game route entry points, toast dependency chain, Base44 auth chain, UI-wrapper-only references, and root build/lint configuration. No runtime source, dependency manifest, or configuration was changed.
+- **V03** — Expanded the scan across all 120 tracked `src/` files, including all 53 files under `src/components/ui/`; traced the game route entry points, toast dependency chain, oooo auth chain, UI-wrapper-only references, and root build/lint configuration. No runtime source, dependency manifest, or configuration was changed.
 
 ## 2. Scope and method
 
@@ -20,7 +20,7 @@ The Git tree for `standalone-migration` contained 136 tracked files at the time 
 - All files in `src/components/ui/`
 - `package.json`, Vite/Tailwind/PostCSS/ESLint configuration, `index.html`, `src/index.css`, `components.json`, and README
 
-Imports were traced statically from the application entry and game routes. The review also checked direct package imports, local component-to-component imports, CSS/config usage, and Base44 API call sites.
+Imports were traced statically from the application entry and game routes. The review also checked direct package imports, local component-to-component imports, CSS/config usage, and oooo API call sites.
 
 **Limitations:** this is a manual/static import-graph review, not a parser-generated exhaustive graph. Dynamic imports, runtime-generated module paths, package side effects, browser behavior, and dependency compatibility have not been tested. A package with no visible import in the reviewed source is classified as a removal candidate, not proof that removal is safe in every future development workflow.
 
@@ -64,21 +64,21 @@ This distinction matters:
 - If the migration intends to preserve the entire generated UI component library for future use, retain those packages.
 - If the standalone deliverable is intentionally reduced to the current game routes, the orphan wrappers and their exclusively used packages can be considered for removal in a later, separately approved cleanup.
 
-### 3.3 Base44 and authentication chain
+### 3.3 oooo and authentication chain
 
 The current app is not yet standalone because `App.jsx` wraps the game in `AuthProvider` and renders `AuthenticatedApp`, which waits for auth/public-settings state and may redirect to login.
 
-Confirmed Base44 integration points include:
+Confirmed oooo integration points include:
 
-- `vite.config.js` imports and registers `@base44/vite-plugin`.
-- `src/api/base44Client.js` imports `createClient` from `@base44/sdk`.
-- `src/lib/app-params.js` imports `getAccessToken` from `@base44/sdk` and reads Base44 environment parameters.
-- `src/lib/AuthContext.jsx` uses the Base44 client and app parameters.
-- `src/lib/authMfa.js` calls Base44 auth endpoints and writes Base44 tokens.
-- `src/lib/PageNotFound.jsx` calls `base44.auth.me()` through React Query.
-- Login/register/password reset/OAuth components reference Base44 auth modules. These pages are not among the seven game routes currently registered in `App.jsx`, but they remain tracked source files.
+- `vite.config.js` imports and registers `@oooo/vite-plugin`.
+- `src/api/ooooClient.js` imports `createClient` from `@oooo/sdk`.
+- `src/lib/app-params.js` imports `getAccessToken` from `@oooo/sdk` and reads oooo environment parameters.
+- `src/lib/AuthContext.jsx` uses the oooo client and app parameters.
+- `src/lib/authMfa.js` calls oooo auth endpoints and writes oooo tokens.
+- `src/lib/PageNotFound.jsx` calls `oooo.auth.me()` through React Query.
+- Login/register/password reset/OAuth components reference oooo auth modules. These pages are not among the seven game routes currently registered in `App.jsx`, but they remain tracked source files.
 
-Therefore, removing only the login pages or only the SDK package would not complete the standalone migration. The app root, auth provider, 404 route, Vite plugin, and Base44 helper modules must be addressed together in a future implementation step.
+Therefore, removing only the login pages or only the SDK package would not complete the standalone migration. The app root, auth provider, 404 route, Vite plugin, and oooo helper modules must be addressed together in a future implementation step.
 
 ### 3.4 Save data
 
@@ -90,7 +90,7 @@ The save schema is version 20. The standalone migration should preserve this key
 
 ### 3.5 PWA and branding observations
 
-- `index.html` still uses the Base44 hosted logo as favicon and the title `Base44 APP`.
+- `index.html` still uses the oooo hosted logo as favicon and the title `oooo APP`.
 - `index.html` references `/manifest.json`, but no `manifest.json` appeared in the tracked Git tree reviewed for this audit.
 - No service worker file appeared in the reviewed tracked tree.
 - These are migration tasks to verify/fix; this audit did not add a manifest, icon, or service worker.
@@ -123,9 +123,9 @@ The classification below is for the **current standalone game-route target**, no
 
 | Package | Current evidence | Re-evaluation condition |
 |---|---|---|
-| `@base44/sdk` | Imported by Base44 client and app-params; auth modules and auth pages depend on these | Remove only after replacing auth/app-params/Base44 API call sites |
-| `@base44/vite-plugin` | Registered in `vite.config.js` | Remove when standalone Vite config no longer needs Base44 proxy/editor features |
-| `@tanstack/react-query` | Provider in App; `PageNotFound.jsx` uses `useQuery` for Base44 user lookup | Can be removed if 404 becomes local-only and no other active query usage remains |
+| `@oooo/sdk` | Imported by oooo client and app-params; auth modules and auth pages depend on these | Remove only after replacing auth/app-params/oooo API call sites |
+| `@oooo/vite-plugin` | Registered in `vite.config.js` | Remove when standalone Vite config no longer needs oooo proxy/editor features |
+| `@tanstack/react-query` | Provider in App; `PageNotFound.jsx` uses `useQuery` for oooo user lookup | Can be removed if 404 becomes local-only and no other active query usage remains |
 | `@radix-ui/react-toast` | Active toast implementation | Keep unless the toast implementation is replaced |
 | `class-variance-authority` | Active toast component; also many orphan UI wrappers | Keep while active toast uses it |
 
@@ -133,9 +133,9 @@ The classification below is for the **current standalone game-route target**, no
 
 These packages did not show a direct import from the active game route dependency chain or a required reference in the reviewed root build configuration. Some are referenced by unreferenced UI wrappers or inactive auth pages. Removal should be paired with a decision to drop/preserve those files and followed by a real build.
 
-**Base44/auth-specific candidates after the auth decoupling step**
-- `@base44/sdk`
-- `@base44/vite-plugin`
+**oooo/auth-specific candidates after the auth decoupling step**
+- `@oooo/sdk`
+- `@oooo/vite-plugin`
 
 **Inactive UI wrapper / auth page dependency candidates**
 - `@radix-ui/react-accordion`
@@ -202,10 +202,10 @@ If the intention is to retain all generated `src/components/ui/*` wrappers for l
 
 ## 5. Standalone migration implementation order
 
-1. **Decouple the app root:** replace the Base44 auth-gated `AuthenticatedApp` flow with direct local game routing while retaining `GameProvider`, `QueryClientProvider` only if still needed, `Router`, `ScrollToTop`, and the active toast provider as appropriate.
-2. **Replace the 404 page:** remove the `base44.auth.me()` call from `PageNotFound.jsx` and make it a local 404 page.
-3. **Remove Base44 Vite integration:** update Vite configuration only after confirming no Base44 proxy/editor behavior is required by the standalone target.
-4. **Retire auth-only code:** remove or isolate the Base44 auth pages, auth context, MFA, app params, and SDK client only after checking remaining references.
+1. **Decouple the app root:** replace the oooo auth-gated `AuthenticatedApp` flow with direct local game routing while retaining `GameProvider`, `QueryClientProvider` only if still needed, `Router`, `ScrollToTop`, and the active toast provider as appropriate.
+2. **Replace the 404 page:** remove the `oooo.auth.me()` call from `PageNotFound.jsx` and make it a local 404 page.
+3. **Remove oooo Vite integration:** update Vite configuration only after confirming no oooo proxy/editor behavior is required by the standalone target.
+4. **Retire auth-only code:** remove or isolate the oooo auth pages, auth context, MFA, app params, and SDK client only after checking remaining references.
 5. **Decide UI library scope:** keep the full UI wrapper library and dependencies, or intentionally reduce it to the components used by the game.
 6. **Clean package.json:** remove only the dependencies proven unnecessary for the selected scope.
 7. **Restore standalone branding/PWA assets:** title, favicon, manifest, icons, and service worker decision.
@@ -222,4 +222,4 @@ If the intention is to retain all generated `src/components/ui/*` wrappers for l
 
 ## 7. Conclusion
 
-The source scan is now broad enough to define a safe implementation plan. The main migration blocker is not the game engine or local save layer; it is the Base44 authentication/platform wrapper around the app entry and the Base44-dependent 404 route. The dependency list can be reduced substantially, but only after deciding whether the standalone version preserves the unused generated UI component library.
+The source scan is now broad enough to define a safe implementation plan. The main migration blocker is not the game engine or local save layer; it is the oooo authentication/platform wrapper around the app entry and the oooo-dependent 404 route. The dependency list can be reduced substantially, but only after deciding whether the standalone version preserves the unused generated UI component library.
