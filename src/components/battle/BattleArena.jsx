@@ -112,6 +112,8 @@ export default function BattleArena({ mode, n }) {
           role: 'enemy',
           rarity: edef.rarity,
           type: edef.type,
+          isBoss: Boolean(e.isBoss),
+          statusImmunities: e.statusImmunities || [],
         };
       }),
     [stage, lang],
