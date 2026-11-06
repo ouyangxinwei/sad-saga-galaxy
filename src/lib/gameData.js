@@ -117,7 +117,7 @@ export const SKILLS = {
   bulwark: { name: { zh: '壁垒护盾', ja: '防壁シールド', en: 'Bulwark Shield' }, kind: 'defense', target: 'ally', shield: 0.55, mp: 22 },
   ward: { name: { zh: '星轨守护', ja: '星軌の守り', en: 'Star Ward' }, kind: 'defense', target: 'ally', mitigate: 0.3, turns: 3, mp: 30 },
   acid: { name: { zh: '腐蚀药剂', ja: '腐食薬', en: 'Acid Flask' }, kind: 'attack', damageType: 'magic', target: 'all', power: 0.7, mp: 28, statusEffect: { type: 'poison', chance: 0.18 } },
-  claw: { name: { zh: '撕裂', ja: '引裂', en: 'Rend' }, kind: 'attack', damageType: 'physical', target: 'single', power: 1.4, mp: 0, statusEffect: { type: 'poison', chance: 0.08 } },
+  claw: { name: { zh: '撕裂', ja: '引裂', en: 'Rend' }, kind: 'attack', damageType: 'physical', target: 'single', power: 1.4, mp: 0 },
   howl: { name: { zh: '虚空咆哮', ja: '虚空の咆哮', en: 'Void Howl' }, kind: 'attack', damageType: 'magic', target: 'all', power: 0.66, mp: 30, statusEffect: { type: 'confusion', chance: 0.12 } },
   crush: { name: { zh: '碎星重击', ja: '砕星重撃', en: 'Star Crush' }, kind: 'attack', damageType: 'physical', target: 'single', power: 1.8, mp: 20, statusEffect: { type: 'paralysis', chance: 0.12 } },
 };

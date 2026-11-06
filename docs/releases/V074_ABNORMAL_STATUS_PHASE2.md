@@ -18,7 +18,6 @@ Every existing attack skill declares `damageType: 'physical'` or `damageType: 'm
 | Shadow Split | Physical | Poison | 10% |
 
 ## Enemy status-infliction skills
-- Rend: 8% Poison
 - Void Howl: 12% Confusion
 - Star Crush: 12% Paralysis
 
