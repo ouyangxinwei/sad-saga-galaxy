@@ -15,7 +15,8 @@
     "test:version-management": "node --test scripts/version-management.test.mjs",
     "test:formation": "node --test scripts/formation-system.test.mjs",
     "test:combat": "node --test scripts/desperate-combat.test.mjs scripts/character-detail-chances.test.mjs scripts/stage-progression.test.mjs",
-    "test:save-progress": "node --test scripts/save-progress.test.mjs"
+    "test:save-progress": "node --test scripts/save-progress.test.mjs",
+    "test:save-backup": "node --test scripts/save-backup.test.mjs"
   },
   "dependencies": {
     "@hello-pangea/dnd": "^17.0.0",
