@@ -37,9 +37,9 @@ Status is rolled only after a successful hit. Blind misses and existing dodge ev
 
 ## Validation
 Focused status tests cover skill classification, player/enemy infliction, multi-hit handling, cleansing, AI scoring, and Blind interaction.
-GitHub Actions validation and deployment: pending.
+GitHub Actions validation: **passed** in run [#524](https://github.com/ouyangxinwei/sad-saga-galaxy/actions/runs/42281664909). All targeted test suites and the production build passed; GitHub Pages deployment also completed successfully.
 
 ## Commit and deployment
-- Commit: pending
-- Actions run: pending
-- Deployment status: pending
+- Implementation commit: `3e3c54d3bb23e942c29b7433337c5b1f72188ad6`
+- Actions run: [42281664909](https://github.com/ouyangxinwei/sad-saga-galaxy/actions/runs/42281664909)
+- Deployment status: **successful**
