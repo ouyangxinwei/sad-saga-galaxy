@@ -1,30 +1,30 @@
 # Standalone Migration & PWA Audit V05
 
 > Branch: `standalone-migration`  
-> Scope: final retirement of the Base44 account boundary, no-login route verification, v20 local-save compatibility review, product branding, and initial PWA/offline implementation.  
+> Scope: final retirement of the oooo account boundary, no-login route verification, v20 local-save compatibility review, product branding, and initial PWA/offline implementation.  
 > Save compatibility policy: preserve `saga_galaxy_save_v20` and schema version 20.  
 > Branch policy: no changes to `main`.
 
 ## 1. Changelog
 
-- **V01** — Initial migration audit and identification of the Base44 integration surface.
+- **V01** — Initial migration audit and identification of the oooo integration surface.
 - **V02** — Initial dependency/platform-boundary review and preliminary keep/review/remove-candidate classification.
 - **V03** — Expanded static source/import review across 120 tracked `src/` files, UI wrappers, game route graph, save mechanism, and build configuration.
-- **V04** — Rechecked the standalone app entry, dormant Base44 auth/MFA/OAuth subsystem, User metadata, SDK/API references, and local save path. Classified removal candidates and retained game-critical local functionality.
-- **V05** — Retired the dormant Base44 authentication/MFA/OAuth files and Base44 SDK/Vite packages; removed Base44 project metadata; renamed the package and README to `oooo app`; replaced the Base44 favicon/title; verified the seven game routes are directly registered without an auth guard; rechecked the v20 localStorage key/schema; added a standalone PWA manifest, custom SVG icons, scoped service-worker registration, offline navigation fallback, runtime asset caching, and first-install precaching of Vite JS/CSS bundles.
+- **V04** — Rechecked the standalone app entry, dormant oooo auth/MFA/OAuth subsystem, User metadata, SDK/API references, and local save path. Classified removal candidates and retained game-critical local functionality.
+- **V05** — Retired the dormant oooo authentication/MFA/OAuth files and oooo SDK/Vite packages; removed oooo project metadata; renamed the package and README to `oooo app`; replaced the oooo favicon/title; verified the seven game routes are directly registered without an auth guard; rechecked the v20 localStorage key/schema; added a standalone PWA manifest, custom SVG icons, scoped service-worker registration, offline navigation fallback, runtime asset caching, and first-install precaching of Vite JS/CSS bundles.
 
-## 2. Base44 and authentication cleanup
+## 2. oooo and authentication cleanup
 
-The current application source tree no longer contains Base44 SDK/API/authentication modules or dormant auth pages. The tracked tree no longer contains files or paths matching Base44/auth/login/register/OAuth/MFA names. Historical audit documents retain the term Base44 as migration history and are intentionally not rewritten.
+The current application source tree no longer contains oooo SDK/API/authentication modules or dormant auth pages. The tracked tree no longer contains files or paths matching oooo/auth/login/register/OAuth/MFA names. Historical audit documents retain the term oooo as migration history and are intentionally not rewritten.
 
 Removed in the preceding cleanup commits:
 - Login, Register, ForgotPassword, ResetPassword, OAuthConsent pages.
 - AuthLayout, GoogleIcon, ProtectedRoute, UserNotRegisteredError components.
 - AuthContext, authMfa, authReturnTo, app-params helpers.
-- Base44 API client and Base44 User/config metadata.
-- `@base44/sdk` and `@base44/vite-plugin` dependencies.
+- oooo API client and oooo User/config metadata.
+- `@oooo/sdk` and `@oooo/vite-plugin` dependencies.
 
-The current `src/App.jsx` imports no auth provider, auth hook, protected route, or Base44 client. No account registration, login, or remote auth server is required by the current app entry.
+The current `src/App.jsx` imports no auth provider, auth hook, protected route, or oooo client. No account registration, login, or remote auth server is required by the current app entry.
 
 ## 3. Direct route entry review
 
@@ -61,7 +61,7 @@ No save key, schema, serialization, migration, or game-state code was changed in
 - HTML title: `oooo app`.
 - Application name: `oooo app`.
 - Package name: `oooo-app`.
-- Favicon: local `oooo-icon.svg`; no external Base44 logo URL.
+- Favicon: local `oooo-icon.svg`; no external oooo logo URL.
 - README: rewritten for local standalone development and GitHub Pages deployment.
 - Removed the previous stale manifest reference during branding cleanup; restored it as a valid local `manifest.webmanifest` link as part of the PWA implementation.
 
@@ -86,7 +86,7 @@ Service worker behavior:
 
 ## 7. Build and deployment validation
 
-The earlier Base44 package-removal commit `a44735d33a3c693539f5a1c299c0f1dff87c6b15` completed GitHub Actions run #30 successfully, including build and deploy.
+The earlier oooo package-removal commit `a44735d33a3c693539f5a1c299c0f1dff87c6b15` completed GitHub Actions run #30 successfully, including build and deploy.
 
 The V05 implementation changed the HTML entry, package name, README, app bootstrap, manifest, icons, and service worker. A new GitHub Actions run is required for this exact final tree. Its status must be checked before describing the V05 build or deployment as successful.
 
@@ -96,7 +96,7 @@ The V05 implementation changed the HTML entry, package name, README, app bootstr
 - No change to game rules, battle calculations, character data, or the seven game route components.
 - No change to `saga_galaxy_save_v20` or schema version 20.
 - No account/auth server replacement was added because the product is intentionally local and account-free.
-- No Base44 SDK/API calls remain in the current app source path.
+- No oooo SDK/API calls remain in the current app source path.
 - Third-party UI/game dependencies were not broadly removed as part of this task.
 - Browser-based route, old-save round-trip, installability, and offline regression testing remain outstanding.
 
