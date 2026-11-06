@@ -30,6 +30,10 @@ jobs:
         run: npm install
       - name: Run targeted formation configuration tests
         run: npm run test:formation
+      - name: Run save progress comparison tests
+        run: npm run test:save-progress
+      - name: Run save backup and restore tests
+        run: npm run test:save-backup
       - name: Run targeted desperate combat tests
         run: npm run test:combat
       - name: Build production site
