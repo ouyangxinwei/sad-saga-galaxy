@@ -63,12 +63,17 @@ export default function Settings() {
               const file = event.target.files?.[0];
               if (!file) return;
               setImportError(''); setImportPreview(null); setImportConfirming(false);
+              let fileReadCompleted = false;
               try {
                 const raw = await file.text();
+                fileReadCompleted = true;
                 const result = actions.inspectSave(raw);
                 setImportText(raw); setImportPreview({ ...result.metadata, fileName: file.name });
               } catch (error) {
-                setImportError(error?.message === 'unsupported-version' ? t('save.unsupported') : t('save.invalid'));
+                const messageKey = !fileReadCompleted
+                  ? 'save.fileReadFailed'
+                  : error?.message === 'unsupported-version' ? 'save.unsupported' : 'save.invalid';
+                setImportError(t(messageKey));
               } finally { event.target.value = ''; }
             }} />
           <GhostButton className="mt-2 w-full py-2" onClick={() => fileInputRef.current?.click()}>{t('save.chooseFile')}</GhostButton>
@@ -99,8 +104,21 @@ export default function Settings() {
                   <GhostButton className="py-2" onClick={() => setImportConfirming(false)}>{t('common.cancel')}</GhostButton>
                   <GoldButton className="py-2" onClick={() => {
                     const result = actions.restoreSave(importText);
-                    if (result.success) { setImportPreview(null); setImportText(''); setImportConfirming(false); setImportError(''); }
-                    else { setImportError(result.reason === 'storage-write-failed' ? t('save.storageFailed') : t('save.importFailed')); setImportConfirming(false); }
+                    if (result.success) {
+                      setImportPreview(null);
+                      setImportText('');
+                      setImportConfirming(false);
+                      setImportError('');
+                    } else {
+                      const messageKey = {
+                        'progress-not-higher': 'save.progressNotHigher',
+                        'current-save-invalid': 'save.currentSaveInvalid',
+                        'current-save-read-failed': 'save.currentSaveReadFailed',
+                        'storage-write-failed': 'save.storageFailed',
+                      }[result.reason] || 'save.importFailed';
+                      setImportError(t(messageKey));
+                      setImportConfirming(false);
+                    }
                   }}>{t('save.confirmRestore')}</GoldButton>
                 </div>
               ) : <GoldButton className="mt-3 w-full py-2" onClick={() => setImportConfirming(true)}>{t('save.restore')}</GoldButton>}
