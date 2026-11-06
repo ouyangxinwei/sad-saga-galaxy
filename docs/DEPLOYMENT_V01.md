@@ -9,7 +9,7 @@
 ## Changes
 
 - Vite production base set to `/sad-saga-galaxy/`.
-- Restored the `@/` source alias explicitly in Vite config; the Base44 Vite plugin previously supplied platform conveniences, and `jsconfig.json` alone does not configure Vite's runtime resolver.
+- Restored the `@/` source alias explicitly in Vite config; the oooo Vite plugin previously supplied platform conveniences, and `jsconfig.json` alone does not configure Vite's runtime resolver.
 - Switched React Router to `HashRouter` so direct navigation and refreshes on game subroutes work on static GitHub Pages hosting.
 - Added a GitHub Actions workflow that builds the standalone branch and deploys the `dist/` artifact to Pages.
 - Workflow runs on pushes to `standalone-migration` and can also be started manually.
