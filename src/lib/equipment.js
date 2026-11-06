@@ -21,6 +21,12 @@ export const EQUIPMENT_STAT_KEYS = Object.freeze([
 export const EQUIPMENT_COMBAT_KEYS = Object.freeze([
   'damageDealtPct', 'damageReductionPct', 'healPct', 'critDamagePct', 'mpCostReductionPct',
 ]);
+export const STATUS_RESISTANCE_CAP = 0.60;
+export const STATUS_RESISTANCE_TYPES = Object.freeze(['poison','blind','paralysis','sleep','confusion']);
+export function normalizeStatusResistance(value) {
+  const source = typeof value === 'number' ? Object.fromEntries(STATUS_RESISTANCE_TYPES.map(type => [type,value])) : (value || {});
+  return Object.fromEntries(STATUS_RESISTANCE_TYPES.map(type => [type,clamp(source[type],0,STATUS_RESISTANCE_CAP)]));
+}
 
 const LIMITS = Object.freeze({
   crit: [0, 0.75],
@@ -64,6 +70,7 @@ export function getEquipmentBonuses(state, cardId) {
     hpPct: 0, atkPct: 0, defPct: 0, spdPct: 0, crit: 0,
     critDamagePct: 0, healPct: 0, mpCostReductionPct: 0,
     damageDealtPct: 0, damageReductionPct: 0,
+    statusResistance: Object.fromEntries(STATUS_RESISTANCE_TYPES.map(type => [type,0])),
   };
   EQUIPMENT_SLOTS.forEach((slot) => {
     const itemId = getEquippedItem(state, cardId, slot);
@@ -75,12 +82,15 @@ export function getEquipmentBonuses(state, cardId) {
     const stats = { ...legacyStats, ...(item.stats || {}) };
     safeAdd(result, stats, EQUIPMENT_STAT_KEYS);
     safeAdd(result, item.combat, EQUIPMENT_COMBAT_KEYS.filter((key) => key !== 'critDamagePct' && key !== 'healPct' && key !== 'mpCostReductionPct'));
+    const resistance = normalizeStatusResistance(item.combat?.statusResistance);
+    STATUS_RESISTANCE_TYPES.forEach(type => { result.statusResistance[type] += resistance[type]; });
     // These shared keys are deliberately additive across the stat and combat channels.
     if (item.combat?.critDamagePct != null) result.critDamagePct += Number(item.combat.critDamagePct) || 0;
     if (item.combat?.healPct != null) result.healPct += Number(item.combat.healPct) || 0;
     if (item.combat?.mpCostReductionPct != null) result.mpCostReductionPct += Number(item.combat.mpCostReductionPct) || 0;
   });
   Object.entries(LIMITS).forEach(([key, [min, max]]) => { result[key] = clamp(result[key], min, max); });
+  STATUS_RESISTANCE_TYPES.forEach(type => { result.statusResistance[type] = clamp(result.statusResistance[type],0,STATUS_RESISTANCE_CAP); });
   return result;
 }
 
