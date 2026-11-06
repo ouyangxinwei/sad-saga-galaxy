@@ -1062,7 +1062,20 @@ export function GameProvider({ children }) {
   const inspectSave = useCallback((raw) => inspectSaveData(raw), []);
   const restoreSave = useCallback((raw) => {
     const result = restoreSaveData(raw);
-    if (!result.success) { notify(t('save.importFailed')); return result; }
+
+    // A failed restore must not touch ref.current or React state. The save layer
+    // has already protected localStorage; this layer only publishes success.
+    if (!result.success) {
+      const messageKey = {
+        'progress-not-higher': 'save.progressNotHigher',
+        'current-save-invalid': 'save.currentSaveInvalid',
+        'current-save-read-failed': 'save.currentSaveReadFailed',
+        'storage-write-failed': 'save.storageFailed',
+      }[result.reason] || 'save.importFailed';
+      notify(t(messageKey));
+      return result;
+    }
+
     ref.current = result.state;
     setState(result.state);
     notify(t('save.importSuccess'));
