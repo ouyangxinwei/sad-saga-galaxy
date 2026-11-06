@@ -1,6 +1,6 @@
 // Standalone PWA Service Worker. The cache name is versioned so a new release installs a fresh app shell and activation removes older caches with this prefix. Keep the manifest, icons, HTML entry, and bundled assets in the precache aligned with public assets.
 const CACHE_PREFIX = 'oooo-app-shell-';
-const CACHE_NAME = `${CACHE_PREFIX}v54`;
+const CACHE_NAME = `${CACHE_PREFIX}v55`;
 
 self.addEventListener('install', (event) => {
   const base = self.registration.scope;

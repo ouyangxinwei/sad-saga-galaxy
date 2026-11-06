@@ -1,9 +1,10 @@
 import SigilArt from '@/components/common/SigilArt';
 import GameIcon from '@/components/common/GameIcon';
 import { RARITY_COLOR } from '@/lib/gameData';
+import { STATUS_DEFINITIONS } from '@/lib/abnormalStatus';
 import { fmt, pct } from '@/lib/format';
 
-export default function UnitStatus({ unit, state, compact = false }) {
+export default function UnitStatus({ unit, state, compact = false, lang = 'zh' }) {
   const st = state || {};
   const maxHp = st.maxHp || unit.maxHp || unit.hp;
   const hp = Math.max(0, st.hp ?? unit.hp ?? 0);
@@ -15,6 +16,7 @@ export default function UnitStatus({ unit, state, compact = false }) {
   const isAlly = unit.side === 'ally';
   const maxMp = unit.maxMp || 100;
   const mp = st.mp ?? unit.mp ?? 0;
+  const activeStatuses = st.activeStatuses || unit.activeStatuses || [];
 
   return (
     <div className={`flex min-w-0 flex-col items-center ${alive ? '' : 'opacity-35 saturate-0'}`}>
@@ -60,6 +62,15 @@ export default function UnitStatus({ unit, state, compact = false }) {
       <p className="text-[8px] tabular-nums text-muted-foreground">
         {fmt(hp)} / {fmt(maxHp)}
       </p>
+      {activeStatuses.length > 0 ? (
+        <div className="mt-1 flex max-w-full flex-wrap justify-center gap-0.5">
+          {activeStatuses.map((status) => {
+            const definition = STATUS_DEFINITIONS[status.type];
+            if (!definition) return null;
+            return <span key={status.type} title={definition.label[lang] || definition.label.zh} className="rounded border border-rose-300/25 bg-rose-400/10 px-1 py-0.5 text-[7px] leading-none text-rose-200">{definition.short[lang] || definition.short.zh}{status.type === 'confusion' ? ` ${status.level}` : ''}</span>;
+          })}
+        </div>
+      ) : null}
       {isAlly && maxLp > 0 && (
         <div className="mt-0.5 flex items-center gap-[2px]">
           {Array.from({ length: maxLp }, (_, i) => (

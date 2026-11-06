@@ -275,7 +275,7 @@ export default function BattleArena({ mode, n }) {
             </div>
             <div className="relative mt-2 grid grid-cols-3 gap-2">
               {enemyUnits.map((u) => (
-                <UnitStatus key={u.uid} unit={u} state={live[u.uid]} />
+                <UnitStatus key={u.uid} unit={u} state={live[u.uid]} lang={lang} />
               ))}
             </div>
 
@@ -293,7 +293,7 @@ export default function BattleArena({ mode, n }) {
             </div>
             <div className="relative mt-2 grid grid-cols-5 gap-1.5">
               {allyUnits.map((u) => (
-                <UnitStatus key={u.uid} unit={u} state={live[u.uid]} compact />
+                <UnitStatus key={u.uid} unit={u} state={live[u.uid]} compact lang={lang} />
               ))}
             </div>
           </div>

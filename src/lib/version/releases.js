@@ -4,6 +4,15 @@ import { RELEASE_DATE } from './metadata.js';
 
 export const CHANGELOG = [
   {
+    version: 'v0.73', date: '2026-11-06',
+    title: { zh: '异常状态系统 Phase 1：五种战斗状态核心机制', ja: '状態異常システム Phase 1：5 種類の戦闘状態コア機能', en: 'Abnormal Status Phase 1: five core battle ailments' },
+    items: {
+      zh: ['新增睡眠、麻痹、中毒、失明、混乱五种战斗异常状态；睡眠与麻痹会阻止行动，睡眠受到伤害后解除', '中毒每回合结束造成最大 HP 的 3% 伤害；失明将物理攻击命中率降低至 60%，不影响未标记为物理的攻击', '混乱分为三级：Lv.1 有 30% 概率失去行动，Lv.2 有 50% 概率攻击/治疗错误目标，Lv.3 失控并随机攻击其他单位', '同类状态重新施加时刷新持续时间；混乱重复施加时逐级提升，最高 Lv.3；状态持续时间按战斗回合计算', '战斗中显示状态标记与日志；死亡/复活及战斗结束时清除临时状态；不修改永久存档结构', '新增异常状态专项自动化测试，并保持中文、日文、英文同步'],
+      ja: ['睡眠・麻痺・毒・暗闇・混乱の 5 種類を追加。睡眠と麻痺は行動を阻止し、睡眠はダメージを受けると解除', '毒は各ターン終了時に最大 HP の 3% を与える。暗闇は物理攻撃の命中率を 60% に低下させ、物理指定のない攻撃には影響しない', '混乱は 3 段階：Lv.1 は 30% で行動不能、Lv.2 は 50% で攻撃/回復対象を誤り、Lv.3 は制御不能となり他ユニットをランダム攻撃', '同じ状態を再付与すると持続時間を更新。混乱は再付与ごとに上昇し最大 Lv.3。持続時間は戦闘ターン単位', '戦闘中に状態アイコンとログを表示。死亡・復活および戦闘終了時に一時状態を解除し、永続セーブ構造は変更しない', '状態異常の専用自動テストを追加し、中国語・日本語・英語を同期'],
+      en: ['Adds Sleep, Paralysis, Poison, Blind, and Confusion. Sleep and Paralysis prevent actions; Sleep is removed after taking damage', 'Poison deals 3% of maximum HP at the end of each round. Blind lowers explicitly physical attack accuracy to 60% and does not affect attacks without a physical damage type', 'Confusion has three levels: Lv.1 has a 30% chance to lose the action; Lv.2 has a 50% chance to misdirect an attack/heal; Lv.3 berserks and randomly attacks another unit', 'Reapplying the same status refreshes its duration; repeated Confusion application raises its level up to Lv.3. Durations are measured in battle rounds', 'Displays status markers and battle-log messages; temporary statuses clear on defeat/revival and at battle end; no permanent save-schema changes', 'Adds focused automated status tests and synchronizes Chinese, Japanese, and English'],
+    },
+  },
+  {
     version: 'v0.72', date: '2026-11-06',
     title: { zh: 'JSON 存档导入进度保护', ja: 'JSON セーブデータのインポート進行度保護', en: 'JSON save import progress protection' },
     items: {

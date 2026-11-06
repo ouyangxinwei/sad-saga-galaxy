@@ -39,6 +39,20 @@ function lineOf(ev, lang, t) {
       return { tone: ev.formationEnhanced ? 'formation' : 'shield', text: `${ev.name} · ${Math.round(ev.value * 100)}%${ev.formationEnhanced ? ` · ✧ ${battleText(lang, 'formation')}` : ''}` };
     case 'taunt':
       return { tone: 'action', text: `${ev.target} · ${t('battle.taunt')}` };
+    case 'status_applied':
+      return { tone: 'action', text: t('battle.statusApplied', { target: ev.name, status: t(`battle.status.${ev.status.type}`), level: ev.status.type === 'confusion' ? ` Lv.${ev.status.level}` : '' }) };
+    case 'status_removed':
+      return { tone: 'heal', text: t('battle.statusRemoved', { target: ev.name, status: t(`battle.status.${ev.statusType}`), reason: ev.reason === 'damage' ? t('battle.status.damageWake') : ev.reason === 'expired' ? t('battle.status.expired') : ev.reason === 'death' ? t('battle.status.deathClear') : t('battle.status.battleEnd') }) };
+    case 'status_blocked':
+      return { tone: 'damage', text: t('battle.statusBlocked', { target: ev.name, status: t(`battle.status.${ev.statusType}`) }) };
+    case 'poison_damage':
+      return { tone: 'damage', text: t('battle.poisonDamage', { target: ev.name, amount: ev.amount.toLocaleString('en-US') }) };
+    case 'miss':
+      return { tone: 'dodge', text: t('battle.blindMiss', { actor: ev.actor, target: ev.target }) };
+    case 'confusion_skip':
+      return { tone: 'damage', text: t('battle.confusionSkip', { target: ev.name }) };
+    case 'confusion_action':
+      return { tone: 'damage', text: t('battle.confusionAction', { target: ev.name, level: ev.level, action: ev.behavior === 'berserk' ? t('battle.confusionBerserk') : t('battle.confusionMisdirect'), victim: ev.target || '' }) };
     case 'death':
       return { tone: 'death', text: `${ev.target} ✕` };
     case 'revive':

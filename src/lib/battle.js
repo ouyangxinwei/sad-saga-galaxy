@@ -15,10 +15,11 @@
  */
 import { SKILLS } from './gameData.js';
 import { rollDesperateCrit, rollDesperateDodge } from './desperateCombat.js';
+import { applyAbnormalStatus, getAbnormalStatus, getActionBlockingStatus, getPhysicalAccuracyMultiplier, normalizeActiveStatuses, removeAbnormalStatus, resolveConfusionAction, tickAbnormalStatuses } from './abnormalStatus.js';
 import { traceSync, logInfo, logWarn } from './logger.js';
 const rnd=(a,b)=>a+Math.random()*(b-a);
 const BASIC={name:{zh:'普通攻击',ja:'通常攻撃',en:'Basic Attack'},kind:'attack',target:'single',power:1,mp:0};
-function makeUnitImpl(c){return {...c,maxHp:c.maxHp||c.hp,hp:c.hp,shield:0,mp:c.maxMp??100,maxMp:c.maxMp??100,alive:true,taunt:0,dr:0,drTurns:0,lp:c.lp??0,maxLp:c.maxLp??0,crit:Math.min(.75,c.crit??.08),desperateCritRate:Math.min(.35,Math.max(0,Number(c.desperateCritRate)||0)),desperateDodgeRate:Math.min(.45,Math.max(0,Number(c.desperateDodgeRate)||0)),critDamagePct:c.critDamagePct??0,damageDealtPct:c.damageDealtPct??0,damageReductionPct:c.damageReductionPct??0,mpCostReductionPct:Math.min(.5,c.mpCostReductionPct??0),role:c.role||c.classId,skills:c.skills?.length?c.skills:['claw'],equipmentEffects:Array.isArray(c.equipmentEffects)?c.equipmentEffects:[]};}
+function makeUnitImpl(c){return {...c,maxHp:c.maxHp||c.hp,hp:c.hp,shield:0,mp:c.maxMp??100,maxMp:c.maxMp??100,alive:true,taunt:0,dr:0,drTurns:0,lp:c.lp??0,maxLp:c.maxLp??0,crit:Math.min(.75,c.crit??.08),desperateCritRate:Math.min(.35,Math.max(0,Number(c.desperateCritRate)||0)),desperateDodgeRate:Math.min(.45,Math.max(0,Number(c.desperateDodgeRate)||0)),critDamagePct:c.critDamagePct??0,damageDealtPct:c.damageDealtPct??0,damageReductionPct:c.damageReductionPct??0,mpCostReductionPct:Math.min(.5,c.mpCostReductionPct??0),role:c.role||c.classId,skills:c.skills?.length?c.skills:['claw'],equipmentEffects:Array.isArray(c.equipmentEffects)?c.equipmentEffects:[],activeStatuses:normalizeActiveStatuses(c.activeStatuses)};}
 export function applyEquipmentDamageModifiers(n,a,t){return n*(1+Math.min(1,Math.max(0,Number(a?.damageDealtPct)||0)))*(1-Math.min(.75,Math.max(0,Number(t?.damageReductionPct)||0)));}
 export function criticalDamageMultiplier(u){return 1.65+Math.min(1,Math.max(0,Number(u?.critDamagePct)||0));}
 export function healingMultiplier(u){return 1+Math.min(1.5,Math.max(0,Number(u?.healBonus)||0));}
@@ -64,6 +65,7 @@ export function createEquipmentRuntime(units,random=Math.random){return {units,r
 const ALLOWED=new Set(['bonus_damage','counter','shield','heal_lowest','restore_mp']);
 function note(level,event,owner,tr,reason,extra={}){const d={event,owner:owner?.uid,itemId:tr?.itemId,triggerId:tr?.id,reason,...extra};(level==='WARN'?logWarn:logInfo)('EquipmentTrigger',event,d);}
 function die(target,units,events,killer,round,rt){
+ clearBattleStatuses(target,events,'death');
  target.alive=false;target.hp=0;target.taunt=0;events.push({kind:'death',tid:target.uid,target:target.name});
  if(killer)dispatchEquipmentEvent('onKill',{owner:killer,actor:killer,target},units,events,rt,round);
  if(target.lp<=0){events.push({kind:'perma',tid:target.uid,target:target.name});return;}
@@ -72,10 +74,28 @@ function die(target,units,events,killer,round,rt){
  caster.lp--;target.lp--;target.alive=true;target.hp=Math.round(target.maxHp*.4);
  events.push({kind:'revive',tid:target.uid,target:target.name,caster:caster.name,casterUid:caster.uid,casterLp:caster.lp,lp:target.lp,hp:target.hp,maxHp:Math.round(target.maxHp)});
 }
+function removeSleepAfterDamage(target,events){if(getAbnormalStatus(target?.activeStatuses,'sleep'))removeBattleStatus(target,'sleep',events,'damage');}
+function clearBattleStatuses(unit,events,reason){for(const status of [...(unit.activeStatuses||[])])removeBattleStatus(unit,status.type,events,reason);}
+export function applyBattleStatus(unit,type,options={},events=[]){
+ if(!unit?.alive)return null;
+ const result=applyAbnormalStatus(unit.activeStatuses,type,options);
+ if(!result.applied)return null;
+ unit.activeStatuses=result.statuses;
+ events.push({kind:'status_applied',uid:unit.uid,name:unit.name,status:{...result.status},refreshed:result.refreshed});
+ return result.status;
+}
+export function removeBattleStatus(unit,type,events=[],reason='effect'){
+ const result=removeAbnormalStatus(unit?.activeStatuses,type);
+ if(!result.removed)return null;
+ unit.activeStatuses=result.statuses;
+ events.push({kind:'status_removed',uid:unit.uid,name:unit.name,statusType:type,status:result.removed,reason});
+ return result.removed;
+}
 function directDamage(a,t,n,events,units,round,rt){
  if(!a?.alive||!t?.alive||n<=0)return;
  let d=Math.max(1,n-(Number(t.def)||0)*.45);if(t.dr)d*=1-t.dr;d=applyEquipmentDamageModifiers(d,a,t);d=Math.max(1,d);const abs=Math.min(t.shield||0,d);t.shield=(t.shield||0)-abs;d-=abs;t.hp=Math.max(0,t.hp-d);
  events.push({kind:'damage',sid:a.uid,tid:t.uid,actor:a.name,target:t.name,amount:Math.round(d),crit:false,shield:Math.round(t.shield),hp:Math.round(t.hp),maxHp:Math.round(t.maxHp),equipment:true});
+ removeSleepAfterDamage(t,events);
  if(t.hp<=0&&t.alive)die(t,units,events,a,round,rt);
 }
 function applyEffect(tr,o,c,units,events,rt,round){
@@ -171,6 +191,7 @@ function chooseSkillImpl(u,allies,foes,round){
  * 多段技能由 act 循环多次调用本函数，因此每次命中都会独立产生事件。
  */
 function damage(a,t,s,events,units,round,rt,desperateCrit=false,hitIndex=1,hitCount=1){
+ if(s?.damageType==='physical'&&rt.random()>=getPhysicalAccuracyMultiplier(a)){events.push({kind:'miss',sid:a.uid,tid:t.uid,actor:a.name,target:t.name,reason:'blind',hitIndex,hitCount});return;}
  if(a?.side==='enemy'&&t?.side==='ally'&&rollDesperateDodge(t,rt.random)){events.push({kind:'dodge',sid:a.uid,tid:t.uid,actor:a.name,target:t.name,rate:t.desperateDodgeRate,formationDodgePp:(Number(t.formationBonus?.dodgePp)||0)+(Number(t.formationBonus?.highSpeedDodgePp)||0),hp:Math.round(t.hp),maxHp:Math.round(t.maxHp),hitIndex,hitCount});return;}
  const critChance=Math.min(.75,Math.max(0,(Number(a.crit)||0)+(Number(s.critBonus)||0)+(Number(a.formationFollowUpCriticalPp)||0)));const crit=Math.random()<critChance;let d=a.atk*s.power*rnd(.93,1.07)*(crit?criticalDamageMultiplier(a):1);
  d=Math.max(1,d-t.def*(1-(s.pierce||0))*.45);if(t.dr)d*=1-t.dr;d=Math.max(1,applyEquipmentDamageModifiers(d,a,t));if(desperateCrit)d*=3;
@@ -178,6 +199,7 @@ function damage(a,t,s,events,units,round,rt,desperateCrit=false,hitIndex=1,hitCo
  events.push({kind:'damage',sid:a.uid,tid:t.uid,actor:a.name,target:t.name,amount:Math.round(d),crit,desperateCrit,formationEnhanced:Boolean(s?.formationModifiers),formationDamageReductionPct:Number(t.formationEffects?.damageReductionPct)||0,formationChancePp:(Number(a.formationBonus?.criticalPp)||0)+(Number(a.formationFollowUpCriticalPp)||0),formationDesperateCritPp:Number(a.formationBonus?.desperateCritPp)||0,shield:Math.round(t.shield),hp:Math.round(t.hp),maxHp:Math.round(t.maxHp),hitIndex,hitCount});
  dispatchEquipmentEvent('onAttack',{owner:a,actor:a,target:t},units,events,rt,round);
  if(crit||desperateCrit)dispatchEquipmentEvent('onCritical',{owner:a,actor:a,target:t},units,events,rt,round);
+ removeSleepAfterDamage(t,events);
  if(t.hp<=0)die(t,units,events,a,round,rt);else dispatchEquipmentEvent('onDamageTaken',{owner:t,actor:a,target:t},units,events,rt,round);
 }
 function heal(a,t,s,events,units,round,rt){
@@ -188,21 +210,57 @@ function heal(a,t,s,events,units,round,rt){
 /** 执行一个单位的完整回合：装备回合触发、AI 选技、MP 扣除、目标选择、效果结算及回合结束触发。 */
 function act(u,units,round,events,rt){
  const allies=units.filter(x=>x.side===u.side&&x.alive),foes=units.filter(x=>x.side!==u.side&&x.alive);if(!foes.length)return;
+ const blockingStatus=getActionBlockingStatus(u);
+ if(blockingStatus){events.push({kind:'status_blocked',uid:u.uid,name:u.name,statusType:blockingStatus.type});return;}
  dispatchEquipmentEvent('onTurnStart',{owner:u,actor:u},units,events,rt,round);
- const {sk,id}=traceSync('Battle.chooseSkill',()=>chooseSkillImpl(u,allies,foes,round),{unit:u.uid,round});
- const cost=effectiveMpCost(sk,u);u.mp=Math.max(0,u.mp-cost);events.push({kind:'action',uid:u.uid,name:u.name,sid:u.uid,skill:sk.name,skillId:id,mp:u.mp,mpCost:cost,formationName:u.formationEffects?.formationName,formationSkillDamagePct:Number(u.skillDamagePct)||0,formationSkillEffectPct:Number(u.skillEffectPct)||0,formationMpCostReductionPct:Number(u.formationEffects?.mpCostReductionPct)||0});
- const resolvedSkill=id==='basic'?sk:applyFormationSkillModifiers(sk,u);
+ const confusionAction=resolveConfusionAction(u,rt.random);
+ if(confusionAction==='skip'){
+  events.push({kind:'confusion_skip',uid:u.uid,name:u.name,level:1});
+  dispatchEquipmentEvent('onTurnEnd',{owner:u,actor:u},units,events,rt,round);
+  return;
+ }
+ const confusedCandidates=units.filter(target=>target.alive&&target!==u);
+ const confusedTarget=confusionAction==='misdirect'||confusionAction==='berserk'?confusedCandidates[Math.floor(rt.random()*confusedCandidates.length)]:null;
+ if(confusionAction)events.push({kind:'confusion_action',uid:u.uid,name:u.name,level:getAbnormalStatus(u.activeStatuses,'confusion')?.level||1,behavior:confusionAction,target:confusedTarget?.name});
+ const choice=confusionAction==='berserk'?{sk:BASIC,id:'confusion_basic'}:traceSync('Battle.chooseSkill',()=>chooseSkillImpl(u,allies,foes,round),{unit:u.uid,round});
+ const {sk,id}=choice;
+ const cost=effectiveMpCost(sk,u);u.mp=Math.max(0,u.mp-cost);events.push({kind:'action',uid:u.uid,name:u.name,sid:u.uid,skill:sk.name,skillId:id,mp:u.mp,mpCost:cost,confused:Boolean(confusionAction),formationName:u.formationEffects?.formationName,formationSkillDamagePct:Number(u.skillDamagePct)||0,formationSkillEffectPct:Number(u.skillEffectPct)||0,formationMpCostReductionPct:Number(u.formationEffects?.mpCostReductionPct)||0});
+ const resolvedSkill=id==='basic'||id==='confusion_basic'?sk:applyFormationSkillModifiers(sk,u);
  dispatchEquipmentEvent('onSkillUsed',{owner:u,actor:u,skill:sk,skillId:id},units,events,rt,round);
- if(sk.kind==='attack'){const taunts=foes.filter(f=>f.taunt>0),pool=taunts.length?taunts:foes,targets=sk.target==='all'?[...foes]:[lowHp(pool)||foes[0]];
- const desperateCrit=rollDesperateCrit(u,rt.random);
- const hitCount=Math.max(1,Number(sk.hits)||1);for(let h=0;h<hitCount;h++)targets.forEach(t=>{if(t?.alive)damage(u,t,resolvedSkill,events,units,round,rt,desperateCrit,h+1,hitCount);});}
- else if(sk.kind==='support'){let targets;if(sk.target==='all')targets=allies;else if(sk.target==='random')targets=allies.filter(x=>x.alive&&x.hp<x.maxHp).sort(()=>Math.random()-.5).slice(0,sk.targets||2);else targets=[lowRatio(allies)||u];if(!targets.length)targets=[u];targets.forEach(t=>t&&heal(u,t,resolvedSkill,events,units,round,rt));}
- else if(sk.taunt){const n=Math.round(u.maxHp*(resolvedSkill.shield||.3));u.shield+=n;u.taunt=sk.taunt;events.push({kind:'shield',tid:u.uid,target:u.name,amount:n,shield:u.shield,formationEnhanced:Boolean(resolvedSkill.formationModifiers)});events.push({kind:'taunt',tid:u.uid,target:u.name});}
- else if(resolvedSkill.shield){const t=lowRatio(allies)||u,n=Math.round(t.maxHp*resolvedSkill.shield);t.shield+=n;events.push({kind:'shield',tid:t.uid,target:t.name,amount:n,shield:t.shield,formationEnhanced:Boolean(resolvedSkill.formationModifiers)});}
+ if(sk.kind==='attack'){
+  const taunts=foes.filter(f=>f.taunt>0),pool=taunts.length?taunts:foes;
+  const targets=confusedTarget?[confusedTarget]:sk.target==='all'?[...foes]:[lowHp(pool)||foes[0]];
+  const desperateCrit=rollDesperateCrit(u,rt.random),hitCount=Math.max(1,Number(sk.hits)||1);
+  for(let h=0;h<hitCount;h++)targets.forEach(target=>{if(target?.alive)damage(u,target,resolvedSkill,events,units,round,rt,desperateCrit,h+1,hitCount);});
+ }else if(sk.kind==='support'){
+  let targets;
+  if(confusedTarget)targets=[confusedTarget];else if(sk.target==='all')targets=allies;else if(sk.target==='random')targets=allies.filter(x=>x.alive&&x.hp<x.maxHp).sort(()=>Math.random()-.5).slice(0,sk.targets||2);else targets=[lowRatio(allies)||u];
+  if(!targets.length)targets=[u];targets.forEach(target=>target&&heal(u,target,resolvedSkill,events,units,round,rt));
+ }else if(sk.taunt){const amount=Math.round(u.maxHp*(resolvedSkill.shield||.3));u.shield+=amount;u.taunt=sk.taunt;events.push({kind:'shield',tid:u.uid,target:u.name,amount,shield:u.shield,formationEnhanced:Boolean(resolvedSkill.formationModifiers)});events.push({kind:'taunt',tid:u.uid,target:u.name});}
+ else if(resolvedSkill.shield){const target=lowRatio(allies)||u,amount=Math.round(target.maxHp*resolvedSkill.shield);target.shield+=amount;events.push({kind:'shield',tid:target.uid,target:target.name,amount,shield:target.shield,formationEnhanced:Boolean(resolvedSkill.formationModifiers)});}
  else if(resolvedSkill.mitigate){allies.forEach(x=>{x.dr=resolvedSkill.mitigate;x.drTurns=resolvedSkill.turns;});events.push({kind:'ward',name:u.name,value:resolvedSkill.mitigate,formationEnhanced:Boolean(resolvedSkill.formationModifiers)});}
  dispatchEquipmentEvent('onTurnEnd',{owner:u,actor:u},units,events,rt,round);
 }
 /** 战斗主循环。每轮记录实际行动顺序，逐个行动并更新持续状态，直至一方全灭或达到回合上限。 */
+function processEndOfRoundStatuses(units,round,events,rt){
+ for(const unit of units){
+  if(!unit.alive||!unit.activeStatuses?.length)continue;
+  const poison=getAbnormalStatus(unit.activeStatuses,'poison');
+  if(poison){
+   const amount=Math.max(1,Math.round(unit.maxHp*0.03));
+   unit.hp=Math.max(0,unit.hp-amount);
+   events.push({kind:'poison_damage',uid:unit.uid,name:unit.name,amount,hp:Math.round(unit.hp),maxHp:Math.round(unit.maxHp)});
+   removeSleepAfterDamage(unit,events);
+   if(unit.hp<=0&&unit.alive){die(unit,units,events,null,round,rt);continue;}
+  }
+  const previous=unit.activeStatuses,ticked=tickAbnormalStatuses(previous);
+  if(ticked.statuses.length!==previous.length||ticked.statuses.some((status,index)=>status.remainingDuration!==previous[index]?.remainingDuration)){
+   unit.activeStatuses=ticked.statuses;
+   events.push({kind:'status_update',uid:unit.uid,activeStatuses:[...unit.activeStatuses]});
+  }
+  ticked.expired.forEach(status=>events.push({kind:'status_removed',uid:unit.uid,name:unit.name,statusType:status.type,status,reason:'expired'}));
+ }
+}
 function simulateImpl(ac,ec,maxRounds=40,options={}){
  const units=[...ac.map(u=>makeUnit({...u,side:'ally'})),...ec.map((u,i)=>makeUnit({...u,side:'enemy',uid:'e_'+i}))],events=[],rt=createEquipmentRuntime(units,options.random||Math.random);
  const alive=s=>units.some(u=>u.side===s&&u.alive);
@@ -217,14 +275,14 @@ function simulateImpl(ac,ec,maxRounds=40,options={}){
   previousActedSide=u.side;
   u.formationFollowUpCriticalPp=0;
  }
- units.forEach(u=>{u.mp=Math.min(u.maxMp,u.mp+14);if(u.drTurns>0&&--u.drTurns===0)u.dr=0;if(u.taunt>0)u.taunt--;});}
- const result=alive('enemy')?'lose':'win';dispatchEquipmentEvent('onBattleEnd',{owner:null,actor:null,result},units,events,rt,round);rt.cooldowns.clear();rt.turnCounts.clear();events.push({kind:'end',result});
- const final=Object.fromEntries(units.map(u=>[u.uid,{hp:Math.max(0,Math.round(u.hp)),maxHp:Math.round(u.maxHp),mp:Math.round(u.mp),maxMp:u.maxMp,lp:u.lp,shield:Math.round(u.shield),alive:u.alive}]));
+ units.forEach(u=>{u.mp=Math.min(u.maxMp,u.mp+14);if(u.drTurns>0&&--u.drTurns===0)u.dr=0;if(u.taunt>0)u.taunt--;});processEndOfRoundStatuses(units,round,events,rt);}
+ const result=alive('enemy')?'lose':'win';dispatchEquipmentEvent('onBattleEnd',{owner:null,actor:null,result},units,events,rt,round);units.forEach(unit=>clearBattleStatuses(unit,events,'battle_end'));rt.cooldowns.clear();rt.turnCounts.clear();events.push({kind:'end',result});
+ const final=Object.fromEntries(units.map(u=>[u.uid,{hp:Math.max(0,Math.round(u.hp)),maxHp:Math.round(u.maxHp),mp:Math.round(u.mp),maxMp:u.maxMp,lp:u.lp,shield:Math.round(u.shield),alive:u.alive,activeStatuses:[...(u.activeStatuses||[])]}]));
  return {events,result,rounds:round,final,units};
 }
 export function makeUnit(c){return traceSync('Battle.makeUnit',()=>makeUnitImpl(c),{unit:c?.uid||c?.name||'unknown'});}
 /** 对外战斗入口；通过 traceSync 记录战斗规模与耗时，返回纯模拟结果供调用方播放/结算。 */
 export function simulateBattle(a,e,maxRounds=40,options={}){return traceSync('Battle.simulateBattle',()=>simulateImpl(a,e,maxRounds,options),{allies:a?.length||0,enemies:e?.length||0,maxRounds});}
-export function initialLive(units){return traceSync('Battle.initialLive',()=>Object.fromEntries(units.map(u=>[u.uid,{hp:Math.round(u.hp),maxHp:Math.round(u.maxHp),mp:Math.round(u.mp),maxMp:u.maxMp,lp:u.lp,shield:0,alive:true}])),{units:units?.length||0});}
+export function initialLive(units){return traceSync('Battle.initialLive',()=>Object.fromEntries(units.map(u=>[u.uid,{hp:Math.round(u.hp),maxHp:Math.round(u.maxHp),mp:Math.round(u.mp),maxMp:u.maxMp,lp:u.lp,shield:0,alive:true,activeStatuses:[...(u.activeStatuses||[])]}])),{units:units?.length||0});}
 /** 将单条战斗事件折算到 UI 使用的 live 快照；它不重新计算伤害，只消费事件中已结算的数值。 */
-export function applyEvent(live,ev){return traceSync('Battle.applyEvent',()=>{if(!ev)return live;const patch=(id,data)=>live[id]?{...live,[id]:{...live[id],...data}}:live;switch(ev.kind){case'damage':return patch(ev.tid,{hp:ev.hp,shield:ev.shield});case'heal':return patch(ev.tid,{hp:ev.hp});case'shield':return patch(ev.tid,{shield:ev.shield});case'death':case'perma':return patch(ev.tid,{alive:false,hp:0});case'revive':return {...patch(ev.tid,{alive:true,hp:ev.hp,lp:ev.lp}),...(ev.casterUid?{[ev.casterUid]:{...live[ev.casterUid],lp:ev.casterLp}}:{})};case'action':case'mp':return patch(ev.uid,{mp:ev.mp});default:return live;}},{eventKind:ev?.kind||'unknown'});}
+export function applyEvent(live,ev){return traceSync('Battle.applyEvent',()=>{if(!ev)return live;const patch=(id,data)=>live[id]?{...live,[id]:{...live[id],...data}}:live;switch(ev.kind){case'damage':return patch(ev.tid,{hp:ev.hp,shield:ev.shield});case'heal':return patch(ev.tid,{hp:ev.hp});case'shield':return patch(ev.tid,{shield:ev.shield});case'death':case'perma':return patch(ev.tid,{alive:false,hp:0});case'revive':return {...patch(ev.tid,{alive:true,hp:ev.hp,lp:ev.lp}),...(ev.casterUid?{[ev.casterUid]:{...live[ev.casterUid],lp:ev.casterLp}}:{})};case'action':case'mp':return patch(ev.uid,{mp:ev.mp});case'poison_damage':return patch(ev.uid,{hp:ev.hp});case'status_applied':return patch(ev.uid,{activeStatuses:[...(live[ev.uid]?.activeStatuses||[]).filter(status=>status.type!==ev.status.type),ev.status]});case'status_removed':return patch(ev.uid,{activeStatuses:(live[ev.uid]?.activeStatuses||[]).filter(status=>status.type!==ev.statusType)});case'status_update':return patch(ev.uid,{activeStatuses:[...(ev.activeStatuses||[])]});default:return live;}},{eventKind:ev?.kind||'unknown'});}
