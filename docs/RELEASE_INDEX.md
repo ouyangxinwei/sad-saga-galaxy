@@ -1,16 +1,19 @@
 # Release Index
 
-Current application release: **V0.74**  
+Current application release: **V0.75**  
 Release date: **2026-11-07**  
 Version Management module: **2.0.0**  
-Package version: **0.74.0**  
-PWA cache namespace: **v56**  
+Package version: **0.75.0**  
+PWA cache namespace: **v57**  
 Target branch: `standalone-migration`
 
 ## Current release
-- **V0.74 — Abnormal Status System Phase 2** ([release record](releases/V074_ABNORMAL_STATUS_PHASE2.md))
-- Connects status infliction to existing player/enemy skills, adds cleansing behavior, and teaches battle AI to value cleansing actions.
+- **V0.75 — Abnormal Status System Phase 3** ([release record](releases/V075_ABNORMAL_STATUS_PHASE3.md))
+- Adds capped equipment-based ailment resistance, selected boss immunities, and localized battle feedback.
 - No permanent save-schema changes.
+
+## Previous release
+- **V0.74 — Abnormal Status System Phase 2** ([release record](releases/V074_ABNORMAL_STATUS_PHASE2.md))
 
 ## Catalog coverage
 The localized release catalog is maintained in `src/lib/version/releases.js`; this index summarizes the current release.
