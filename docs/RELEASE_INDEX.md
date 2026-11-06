@@ -1,19 +1,19 @@
 # Release Index
 
-Current application release: **V0.75**  
+Current application release: **V0.76**  
 Release date: **2026-11-07**  
 Version Management module: **2.0.0**  
-Package version: **0.75.0**  
-PWA cache namespace: **v57**  
+Package version: **0.76.0**  
+PWA cache namespace: **v58**  
 Target branch: `standalone-migration`
 
 ## Current release
-- **V0.75 — Abnormal Status System Phase 3** ([release record](releases/V075_ABNORMAL_STATUS_PHASE3.md))
-- Adds capped equipment-based ailment resistance, selected boss immunities, and localized battle feedback.
-- No permanent save-schema changes.
+- **V0.76 — Abnormal Status System Phase 4** ([release record](releases/V076_ABNORMAL_STATUS_PHASE4.md))
+- Adds remaining-turn and effect details for active statuses, allied equipment-resistance indicators, and boss-immunity indicators.
+- No status balance or permanent save-schema changes.
 
 ## Previous release
-- **V0.74 — Abnormal Status System Phase 2** ([release record](releases/V074_ABNORMAL_STATUS_PHASE2.md))
+- **V0.75 — Abnormal Status System Phase 3** ([release record](releases/V075_ABNORMAL_STATUS_PHASE3.md))
 
 ## Catalog coverage
 The localized release catalog is maintained in `src/lib/version/releases.js`; this index summarizes the current release.
