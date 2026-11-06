@@ -4,6 +4,15 @@ import { RELEASE_DATE } from './metadata.js';
 
 export const CHANGELOG = [
   {
+    version: 'v0.72', date: '2026-11-06',
+    title: { zh: 'JSON 存档导入进度保护', ja: 'JSON セーブデータのインポート進行度保護', en: 'JSON save import progress protection' },
+    items: {
+      zh: ['新增存档进度优先级比较：先比较转生次数，转生次数相同时再比较玩家等级', '仅当导入存档的进度严格高于当前存档时才允许完整替换；相同或更低进度会被拒绝', '导入前显示当前存档与导入存档的转生次数、玩家等级及判断结果；不符合条件时禁用恢复按钮', '当前存档损坏或无法读取时拒绝覆盖；导入失败不会改变现有存档和游戏内状态', '同步中文、日文、英文提示，并增加进度比较、恢复保护及部署前自动化测试'],
+      ja: ['セーブ進行度の優先順位比較を追加：まず転生回数を比較し、同じ場合のみプレイヤーレベルを比較', 'インポートするセーブが現在のセーブより厳密に高い場合のみ全体置換を許可。同じ、または低い進行度は拒否', 'インポート前に両方の転生回数・プレイヤーレベル・判定結果を表示し、条件を満たさない場合は復元ボタンを無効化', '現在のセーブが破損または読み取り不能の場合は上書きを拒否。インポート失敗時に既存セーブとゲーム内状態を変更しない', '中国語・日本語・英語の案内を同期し、進行度比較・復元保護・デプロイ前自動テストを追加'],
+      en: ['Adds save-progress priority comparison: compare rebirth count first, then player level only when rebirth counts match', 'Allows full replacement only when the imported save is strictly ahead; equal or lower progress is rejected', 'Shows both saves’ rebirth counts, player levels, and the decision before import; disables restore when the imported save is not eligible', 'Rejects overwrites when the current save is corrupt or unreadable; failed imports leave the existing save and in-memory game state unchanged', 'Synchronizes Chinese, Japanese, and English messages and adds automated progress-comparison and restore-protection tests before deployment'],
+    },
+  },
+  {
     version: 'v0.71', date: '2026-11-05',
     title: { zh: 'Android PWA 安装兼容性修复', ja: 'Android PWA インストール互換性の修正', en: 'Android PWA installation compatibility fix' },
     items: {
