@@ -339,6 +339,7 @@ export function inspectSaveData(input) {
   return { success: true, state, metadata: {
     appVersion: parsed.appVersion || 'Legacy JSON',
     saveSchemaVersion: parsed.schemaVersion, exportedAt: parsed.exportedAt,
+    ...getSaveProgress(state),
     ...summarizeSaveState(state),
   } };
 }
