@@ -135,8 +135,9 @@ test('import missing rebirth is rejected before normalization can default it', (
 
 test('local storage write failure leaves original save intact', () => {
   const data = mockStorage({ fail: true });
+  const original = data.get(SAVE_KEY);
   const result = restoreSaveData(JSON.stringify(exportSaveData(sample(), 'v0.51')));
   assert.equal(result.success, false);
   assert.equal(result.reason, 'storage-write-failed');
-  assert.equal(data.get(SAVE_KEY), 'CURRENT_SAVE_MUST_SURVIVE');
+  assert.equal(data.get(SAVE_KEY), original);
 });
