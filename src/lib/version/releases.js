@@ -4,6 +4,15 @@ import { RELEASE_DATE } from './metadata.js';
 
 export const CHANGELOG = [
   {
+    version: 'v0.75', date: '2026-11-07',
+    title: { zh: '异常状态系统 Phase 3：装备抗性与 Boss 免疫', ja: '状態異常システム Phase 3：装備耐性とボス無効化', en: 'Abnormal Status Phase 3: equipment resistance and boss immunity' },
+    items: {
+      zh: ['现有装备可提供五种异常状态抗性；装备抗性累加，每种状态最高 60%', '抗性只降低异常状态附加概率，不影响伤害、持续时间和其他装备属性', '每五关 Boss 的首领单位按敌人类型获得一种指定异常免疫，Boss 不会免疫全部状态', '战斗日志区分装备抗性抵消与 Boss 免疫，并支持中文、日文、英文', '不增加永久存档字段；旧存档的装备 ID、穿戴关系和成长数据保持兼容'],
+      ja: ['既存装備に 5 種類の状態異常耐性を追加。装備間で加算し、状態ごとの上限は 60%', '耐性は状態異常の付与確率のみを低下させ、ダメージ・持続時間・他の装備能力には影響しない', '5 ステージごとのボス先鋒ユニットは敵タイプ別に指定された状態異常 1 種を無効化。全状態への完全耐性ではない', '戦闘ログで装備耐性による防止とボス免疫を区別し、中国語・日本語・英語に対応', '永続セーブ項目を追加せず、既存装備 ID・装備状態・成長データとの互換性を維持'],
+      en: ['Existing equipment grants resistance to all five ailments; resistance stacks per status up to 60%', 'Resistance lowers only ailment application chance; damage and status duration/effects remain unchanged', 'The lead unit on every fifth-stage boss encounter receives one type-specific immunity rather than blanket immunity', 'Battle logs distinguish equipment resistance from boss immunity in Chinese, Japanese, and English', 'No permanent save fields; existing equipment IDs, loadouts, and progression remain compatible'],
+    },
+  },
+  {
     version: 'v0.74', date: '2026-11-07',
     title: { zh: '异常状态系统 Phase 2：技能施加与净化', ja: '状態異常システム Phase 2：スキル付与と浄化', en: 'Abnormal Status Phase 2: skill infliction and cleansing' },
     items: {
