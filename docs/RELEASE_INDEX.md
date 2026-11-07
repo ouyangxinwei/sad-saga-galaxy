@@ -1,14 +1,14 @@
 # Release Index
 
-Current application release: **V0.76.1**  
+Current application release: **V0.77**  
 Release date: **2026-11-07**  
 Version Management module: **2.0.0**  
-Package version: **0.76.1**  
+Package version: **0.77.0**  
 PWA cache namespace: **v59**  
 Target branch: `standalone-migration`
 
 ## Current release
-- **V0.76.1 — Abnormal Status System Phase 4.1 + Phase 5 validation** ([release record](releases/V0761_ABNORMAL_STATUS_PHASE41_PHASE5.md))
+- **V0.76.1 — Abnormal Status System Phase 4.1 + Phase 5 validation** ([release record](releases/V077_ABNORMAL_STATUS_PHASE41_PHASE5.md))
 - Makes status details tap/keyboard accessible and adds production artifact smoke tests before Pages deployment.
 - No status balance or permanent save-schema changes.
 
