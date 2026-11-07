@@ -7,7 +7,7 @@ import { GoldButton, GhostButton, RewardLine } from '@/components/common/Bits';
 import UnitStatus from '@/components/battle/UnitStatus';
 import BattleLog from '@/components/battle/BattleLog';
 import { useGame } from '@/lib/GameContext';
-import { ENEMY_MAP, EVENT_STAGE, MODE_MAP, TOWER_MAX_FLOOR, TOWER_STAGE, TYPE_MAP, enemyStats, getStage, getTowerDifficultyMultiplier } from '@/lib/gameData';
+import { ENEMY_MAP, EVENT_STAGE, MODE_MAP, TOWER_MAX_FLOOR, TOWER_STAGE, TYPE_MAP, enemyStats, getStage } from '@/lib/gameData';
 import { partyUnits } from '@/lib/cards';
 import { applyEvent, initialLive, simulateBattle } from '@/lib/battle';
 import { fmt } from '@/lib/format';
@@ -58,7 +58,6 @@ export default function BattleArena({ mode, n }) {
   const { t, lang, actions, notify, fortuneDef, progress, party, towerRun } = game;
   const navigate = useNavigate();
   const safeTowerFloor = Math.max(1, Math.min(TOWER_MAX_FLOOR, Math.floor(Number(n) || 1)));
-  const towerDifficulty = mode === 'tower' ? getTowerDifficultyMultiplier(safeTowerFloor) : 1;
 
   const stage = useMemo(
     () => (mode === 'tower' ? TOWER_STAGE(safeTowerFloor) : mode === 'event' ? EVENT_STAGE : getStage(mode, n)),
@@ -103,7 +102,7 @@ export default function BattleArena({ mode, n }) {
     () =>
       stage.enemies.map((e, i) => {
         const edef = ENEMY_MAP[e.enemyId];
-        const st = enemyStats(edef, e.scale);
+        const st = enemyStats(edef, e.scale, e.speedScale);
         return {
           uid: `e_${i}`,
           name: edef.name[lang] || edef.name.zh,

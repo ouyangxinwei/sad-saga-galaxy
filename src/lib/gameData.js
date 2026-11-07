@@ -223,14 +223,14 @@ export function heroStats(h) {
   return classStats(h.classId, h.rarity);
 }
 
-export function enemyStats(e, scale = 1) {
+export function enemyStats(e, scale = 1, speedScale = null) {
   const arch = ENEMY_ARCH[e.type] || ENEMY_ARCH.beast;
   const m = (RARITY_MULT[e.rarity] || 1) * 0.92 * scale;
   return {
     hp: Math.round(arch.hp * m),
     atk: Math.round(arch.atk * m),
     def: Math.round(arch.def * m),
-    spd: Math.round(arch.spd * (0.9 + scale * 0.1)),
+    spd: Math.round(arch.spd * (speedScale == null ? (0.9 + scale * 0.1) : speedScale)),
     mp: 100,
     crit: 0.08,
   };
@@ -303,7 +303,8 @@ export const getTowerDifficultyMultiplier = (floor) => {
 export const TOWER_STAGE = (floor) => {
   const safeFloor = Math.max(1, Math.min(TOWER_MAX_FLOOR, Math.floor(Number(floor) || 1)));
   const tier = 120 + safeFloor * 4;
-  const scale = (5.2 + safeFloor * 0.55) * getTowerDifficultyMultiplier(safeFloor);
+  // Keep floor 1 at the existing baseline; every later floor is exactly +1% over the previous floor.
+  const scale = 5.75 * getTowerDifficultyMultiplier(safeFloor);
   const idx = 15 + (safeFloor % 5);
   return {
     mode: 'tower',
@@ -313,9 +314,9 @@ export const TOWER_STAGE = (floor) => {
     chapter: safeFloor,
     scale,
     enemies: [
-      { enemyId: ENEMIES[idx].id, scale },
-      { enemyId: ENEMIES[(idx + 4) % 20].id, scale: scale * 0.85 },
-      { enemyId: ENEMIES[(idx + 2) % 20].id, scale: scale * 0.85 },
+      { enemyId: ENEMIES[idx].id, scale, speedScale: scale },
+      { enemyId: ENEMIES[(idx + 4) % 20].id, scale: scale * 0.85, speedScale: scale * 0.85 },
+      { enemyId: ENEMIES[(idx + 2) % 20].id, scale: scale * 0.85, speedScale: scale * 0.85 },
     ],
     power: Math.round(5200 * scale),
     gold: Math.round(600 + safeFloor * 120),

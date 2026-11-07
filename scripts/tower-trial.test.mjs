@@ -16,10 +16,10 @@ test('tower difficulty compounds by exactly 1% per floor and is capped at 1,000'
 test('tower enemy HP, ATK, DEF and speed all increase with the compound scale', () => {
   const floor1 = TOWER_STAGE(1);
   const floor2 = TOWER_STAGE(2);
-  assert.ok(floor2.scale > floor1.scale);
+  assert.ok(Math.abs(floor2.scale / floor1.scale - 1.01) < 1e-12);
   const enemy = ENEMY_MAP[floor1.enemies[0].enemyId];
-  const first = enemyStats(enemy, floor1.enemies[0].scale);
-  const second = enemyStats(enemy, floor1.enemies[0].scale * 1.01);
+  const first = enemyStats(enemy, floor1.enemies[0].scale, floor1.enemies[0].speedScale);
+  const second = enemyStats(enemy, floor2.enemies[0].scale, floor2.enemies[0].speedScale);
   for (const stat of ['hp', 'atk', 'def', 'spd']) assert.ok(second[stat] > first[stat], stat + ' should scale');
   const endgame = TOWER_STAGE(TOWER_MAX_FLOOR);
   const endgameStats = enemyStats(ENEMY_MAP[endgame.enemies[0].enemyId], endgame.enemies[0].scale);

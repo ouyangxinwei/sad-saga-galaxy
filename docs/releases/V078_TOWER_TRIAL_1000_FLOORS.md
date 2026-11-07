@@ -2,7 +2,7 @@
 
 ## Confirmed implementation rules
 - Maximum floor: 1,000.
-- Compound difficulty: enemy scale is multiplied by `1.01 ** (floor - 1)`; floor 1 is the baseline.
+- Compound difficulty: floor 1 keeps the existing baseline enemy scale of 5.75; every following floor multiplies all enemy attributes by exactly `1.01` (`1.01 ** (floor - 1)` relative to floor 1).
 - The resulting scale affects enemy HP, ATK, DEF and SPD through the existing `enemyStats` calculation. No battle-engine or status-system rewrite.
 - After a win, the result panel offers a **Continue** action to the next floor. Progression is manual; no auto-advance.
 - The current floor, whether a battle is in progress, and claimed milestone floors are stored in the existing V20 local save.
