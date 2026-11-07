@@ -28,6 +28,9 @@ export function getStatusPresentation(status, lang = 'en') {
   const level = status?.type === 'confusion'
     ? Math.min(definition.maxLevel, Math.max(1, Math.floor(Number(status.level) || 1)))
     : null;
+  const levelLabel = level
+    ? language === 'zh' ? `等级 ${level}` : language === 'ja' ? `レベル ${level}` : `Level ${level}`
+    : '';
   const marker = `${short}${level ? ` ${level}` : ''} · ${remaining}`;
   return {
     label,
@@ -37,7 +40,7 @@ export function getStatusPresentation(status, lang = 'en') {
     remainingLabel,
     level,
     marker,
-    ariaLabel: `${label}. ${description}. ${remainingLabel}${level ? `. Level ${level}` : ''}`,
+    ariaLabel: `${label}. ${description}. ${remainingLabel}${levelLabel ? `. ${levelLabel}` : ''}`,
   };
 }
 
