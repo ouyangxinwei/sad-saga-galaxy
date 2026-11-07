@@ -4,6 +4,15 @@ import { RELEASE_DATE } from './metadata.js';
 
 export const CHANGELOG = [
   {
+    version: 'v0.76.1', date: '2026-11-07',
+    title: { zh: '异常状态系统 Phase 4.1：移动端状态说明与发布验证', ja: '状態異常システム Phase 4.1：モバイル状態説明とリリース検証', en: 'Abnormal Status Phase 4.1: mobile status details and release validation' },
+    items: {
+      zh: ['异常状态标记改为可点击/键盘展开说明，手机端无需依赖 hover/title 即可查看效果和剩余回合', '状态说明、持续时间及混乱等级提供中日英无障碍标签', '抗性和 Boss 免疫标记增加屏幕阅读器可读说明', '新增 Phase 4.1 状态展示与本地化专项测试', 'Phase 5 增加生产构建产物检查：入口脚本、PWA manifest、图标和 Service Worker 缓存版本', '不修改异常状态数值、战斗概率、存档结构和角色成长'],
+      ja: ['状態異常マーカーをクリック/キーボードで展開可能にし、スマートフォンでも hover/title に依存せず効果と残りターンを確認可能', '状態説明・残りターン・混乱レベルのアクセシブルラベルを中国語・日本語・英語で提供', '耐性とボス無効マーカーにスクリーンリーダー向け説明を追加', 'Phase 4.1 の状態表示と多言語対応テストを追加', 'Phase 5 に本番ビルド成果物の検証を追加：エントリースクリプト、PWA manifest、アイコン、Service Worker キャッシュバージョン', '状態異常の数値、戦闘確率、セーブ構造、キャラクター成長は変更しない'],
+      en: ['Status markers now expand on click or keyboard activation, so mobile users can read effects and remaining rounds without relying on hover/title', 'Accessible labels for status effects, duration, and Confusion level are localized in Chinese, Japanese, and English', 'Resistance and boss-immunity indicators now expose readable screen-reader labels', 'Adds focused Phase 4.1 presentation and localization tests', 'Phase 5 adds production-artifact checks for the app entry bundle, PWA manifest, icons, and Service Worker cache version', 'Does not change ailment values, battle probabilities, save structure, or character progression'],
+    },
+  },
+  {
     version: 'v0.76', date: '2026-11-07',
     title: { zh: '异常状态系统 Phase 4：状态说明与防御信息', ja: '状態異常システム Phase 4：状態説明と防御情報', en: 'Abnormal Status Phase 4: status details and defenses' },
     items: {
