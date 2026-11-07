@@ -8,7 +8,7 @@ PWA cache namespace: **v59**
 Target branch: `standalone-migration`
 
 ## Current release
-- **V0.76.1 — Abnormal Status System Phase 4.1 + Phase 5 validation** ([release record](releases/V077_ABNORMAL_STATUS_PHASE41_PHASE5.md))
+- **V0.77 — Abnormal Status System Phase 4.1 + Phase 5 validation** ([release record](releases/V077_ABNORMAL_STATUS_PHASE41_PHASE5.md))
 - Makes status details tap/keyboard accessible and adds production artifact smoke tests before Pages deployment.
 - No status balance or permanent save-schema changes.
 
