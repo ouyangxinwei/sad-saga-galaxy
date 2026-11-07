@@ -5,9 +5,9 @@ import { STATUS_DEFINITIONS, getStatusPresentation } from '@/lib/abnormalStatus'
 import { fmt, pct } from '@/lib/format';
 
 const DEFENSE_COPY = {
-  zh: { remaining: '剩余 {n} 回合', resistance: '抗性', immune: '免疫' },
-  ja: { remaining: '残り {n} ターン', resistance: '耐性', immune: '無効' },
-  en: { remaining: '{n} turns left', resistance: 'Resist', immune: 'Immune' },
+  zh: { resistance: '抗性', immune: '免疫' },
+  ja: { resistance: '耐性', immune: '無効' },
+  en: { resistance: 'Resist', immune: 'Immune' },
 };
 const STATUS_TYPES = ['poison', 'blind', 'paralysis', 'sleep', 'confusion'];
 
