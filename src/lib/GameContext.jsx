@@ -478,6 +478,21 @@ export function GameProvider({ children }) {
     [commit],
   );
 
+  // Persist tower run progress through the existing V20 save pipeline.
+  const startTowerRun = useCallback((floor = 1) => {
+    const safeFloor = Math.max(1, Math.min(1000, Math.floor(Number(floor) || 1)));
+    commit((s) => ({
+      ...s,
+      towerRun: {
+        active: true,
+        inBattle: true,
+        currentFloor: safeFloor,
+        claimedMilestones: Array.isArray(s.towerRun?.claimedMilestones) ? s.towerRun.claimedMilestones : [],
+      },
+    }));
+    return safeFloor;
+  }, [commit]);
+
   const spendStamina = useCallback(
     (n) => {
       const s = { ...ref.current };
@@ -506,6 +521,15 @@ export function GameProvider({ children }) {
         progress: { ...ref.current.progress },
       };
       if (!win) {
+        if (mode === 'tower') {
+          s.towerRun = {
+            ...(s.towerRun || {}),
+            active: true,
+            inBattle: false,
+            currentFloor: Math.max(1, Math.min(1000, Math.floor(Number(n) || 1))),
+            claimedMilestones: Array.isArray(s.towerRun?.claimedMilestones) ? s.towerRun.claimedMilestones : [],
+          };
+        }
         const idleGemDrop = Math.random() < 0.15 ? 1 : 0;
         if (idleGemDrop) {
           s.idleGems = Math.max(0, Number(s.idleGems) || 0) + idleGemDrop;
@@ -541,7 +565,24 @@ export function GameProvider({ children }) {
       }
       rewards.clearGemDrop = clearGemDrop;
       if (mode === 'tower') {
-        if (n > s.tower) s.tower = n;
+        const floor = Math.max(1, Math.min(1000, Math.floor(Number(n) || 1)));
+        if (floor > s.tower) s.tower = floor;
+        const claimedMilestones = Array.isArray(s.towerRun?.claimedMilestones) ? [...s.towerRun.claimedMilestones] : [];
+        const milestone = floor % 100 === 0 ? floor : 0;
+        s.towerRun = {
+          active: floor < 1000,
+          inBattle: false,
+          currentFloor: floor < 1000 ? floor + 1 : 1000,
+          claimedMilestones,
+        };
+        if (milestone && !claimedMilestones.includes(milestone)) {
+          claimedMilestones.push(milestone);
+          s.towerRun.claimedMilestones = claimedMilestones;
+          // One-time milestone chest: +100 gems and +1 summon ticket.
+          rewards.gems += 100;
+          rewards.tickets = 1;
+          rewards.towerMilestone = { floor: milestone, gems: 100, tickets: 1 };
+        }
       } else if (mode === 'event') {
         s.eventClears += 1;
         s.medals += stage.medal || 0;
@@ -1149,6 +1190,7 @@ export function GameProvider({ children }) {
         loadPreset: traceAction('loadPreset', loadPreset),
         spendStamina: traceAction('spendStamina', spendStamina),
         finishBattle: traceAction('finishBattle', finishBattle),
+        startTowerRun: traceAction('startTowerRun', startTowerRun),
         idlePreview: traceAction('idlePreview', idlePreview),
         claimIdle: traceAction('claimIdle', claimIdle),
         quickClear: traceAction('quickClear', quickClear),
@@ -1196,6 +1238,7 @@ export function GameProvider({ children }) {
     loadPreset,
     spendStamina,
     finishBattle,
+    startTowerRun,
     idlePreview,
     claimIdle,
     toggleIdle,

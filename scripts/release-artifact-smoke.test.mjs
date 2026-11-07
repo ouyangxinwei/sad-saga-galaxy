@@ -34,5 +34,5 @@ test('manifest and all declared app icons are present in the production artifact
 
 test('service worker uses the current release cache namespace', () => {
   assert.ok(existsSync(join(dist, 'sw.js')), 'service worker is missing from dist');
-  assert.match(read('sw.js'), /CACHE_PREFIX = 'oooo-app-shell-'[\s\S]*CACHE_NAME = `\$\{CACHE_PREFIX\}v59`/);
+  assert.match(read('sw.js'), /CACHE_PREFIX = 'oooo-app-shell-'[\s\S]*CACHE_NAME = `\$\{CACHE_PREFIX\}v60`/);
 });

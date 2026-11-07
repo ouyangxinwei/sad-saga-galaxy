@@ -415,6 +415,9 @@ export const S = {
   'trials.enter': { zh: '进入', ja: '入る', en: 'Enter' },
 
   'tower.title': { zh: '爬塔试炼 · {n} 层', ja: '塔の試練 · {n} 層', en: 'Tower · Floor {n}' },
+  'tower.continue': { zh: '继续挑战第 {n} 层', ja: '第 {n} 層へ進む', en: 'Continue to Floor {n}' },
+  'tower.completed': { zh: '恭喜完成 1000 层挑战', ja: '1000 階制覇おめでとう', en: '1,000 Floors Cleared' },
+  'tower.milestoneReward': { zh: '第 {floor} 层阶段奖励：+{gems} 钻石、+{tickets} 抽卡券', ja: '第 {floor} 層の節目報酬：ダイヤ +{gems}、召喚券 +{tickets}', en: 'Floor {floor} milestone: +{gems} gems, +{tickets} summon ticket(s)' },
   'notif.reward': { zh: '获得 {x}', ja: '{x} を獲得', en: 'Obtained {x}' },
   'notif.levelup': { zh: '等级提升至 Lv.{n}', ja: 'Lv.{n} に上昇', en: 'Level up → Lv.{n}' },
   'notif.stageClear': { zh: '通关 {n}', ja: '{n} クリア', en: 'Cleared {n}' },

@@ -5,8 +5,11 @@ import { GhostButton } from '@/components/common/Bits';
 import { useGame } from '@/lib/GameContext';
 
 export default function TrialsDialog({ open, onClose }) {
-  const { t, tower, idle, actions } = useGame();
+  const { t, tower, towerRun, idle } = useGame();
   const navigate = useNavigate();
+  const towerFloor = towerRun?.active
+    ? Math.max(1, Math.min(1000, Number(towerRun.currentFloor) || 1))
+    : Math.min(1000, (Number(tower) || 0) + 1);
 
   const cards = [
     {
@@ -33,12 +36,12 @@ export default function TrialsDialog({ open, onClose }) {
       icon: 'Castle',
       color: '#F0748F',
       title: t('trials.tower'),
-      desc: t('trials.towerDesc', { n: tower + 1 }),
+      desc: t('trials.towerDesc', { n: towerFloor }),
       action: (
         <GhostButton
           onClick={() => {
             onClose();
-            navigate(`/battle?mode=tower&stage=${tower + 1}`);
+            navigate(`/battle?mode=tower&stage=${towerFloor}`);
           }}
           className="px-3 py-1 text-[10px]"
         >

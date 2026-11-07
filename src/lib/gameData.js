@@ -292,16 +292,25 @@ export function stageLabel(mode, n) {
   return `${mode === 'normal' ? '' : mode === 'hard' ? 'H ' : 'N '}${n}`;
 }
 
+export const TOWER_MAX_FLOOR = 1000;
+
+// Each cleared floor compounds enemy attributes by 1%. Floor 1 is the baseline.
+export const getTowerDifficultyMultiplier = (floor) => {
+  const safeFloor = Math.max(1, Math.min(TOWER_MAX_FLOOR, Math.floor(Number(floor) || 1)));
+  return Math.pow(1.01, safeFloor - 1);
+};
+
 export const TOWER_STAGE = (floor) => {
-  const tier = 120 + floor * 4;
-  const scale = 5.2 + floor * 0.55;
-  const idx = 15 + (floor % 5);
+  const safeFloor = Math.max(1, Math.min(TOWER_MAX_FLOOR, Math.floor(Number(floor) || 1)));
+  const tier = 120 + safeFloor * 4;
+  const scale = (5.2 + safeFloor * 0.55) * getTowerDifficultyMultiplier(safeFloor);
+  const idx = 15 + (safeFloor % 5);
   return {
     mode: 'tower',
-    n: floor,
+    n: safeFloor,
     tier,
     boss: true,
-    chapter: floor,
+    chapter: safeFloor,
     scale,
     enemies: [
       { enemyId: ENEMIES[idx].id, scale },
@@ -309,9 +318,9 @@ export const TOWER_STAGE = (floor) => {
       { enemyId: ENEMIES[(idx + 2) % 20].id, scale: scale * 0.85 },
     ],
     power: Math.round(5200 * scale),
-    gold: Math.round(600 + floor * 120),
-    exp: Math.round(500 + floor * 90),
-    gems: 40 + floor * 6,
+    gold: Math.round(600 + safeFloor * 120),
+    exp: Math.round(500 + safeFloor * 90),
+    gems: 40 + safeFloor * 6,
     shards: 2,
   };
 };

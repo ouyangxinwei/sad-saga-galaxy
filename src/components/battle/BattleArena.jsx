@@ -7,7 +7,7 @@ import { GoldButton, GhostButton, RewardLine } from '@/components/common/Bits';
 import UnitStatus from '@/components/battle/UnitStatus';
 import BattleLog from '@/components/battle/BattleLog';
 import { useGame } from '@/lib/GameContext';
-import { ENEMY_MAP, EVENT_STAGE, MODE_MAP, TOWER_STAGE, TYPE_MAP, enemyStats, getStage } from '@/lib/gameData';
+import { ENEMY_MAP, EVENT_STAGE, MODE_MAP, TOWER_MAX_FLOOR, TOWER_STAGE, TYPE_MAP, enemyStats, getStage, getTowerDifficultyMultiplier } from '@/lib/gameData';
 import { partyUnits } from '@/lib/cards';
 import { applyEvent, initialLive, simulateBattle } from '@/lib/battle';
 import { fmt } from '@/lib/format';
@@ -55,12 +55,14 @@ function loadBattleSpeed() {
 
 export default function BattleArena({ mode, n }) {
   const game = useGame();
-  const { t, lang, actions, notify, fortuneDef, progress, party } = game;
+  const { t, lang, actions, notify, fortuneDef, progress, party, towerRun } = game;
   const navigate = useNavigate();
+  const safeTowerFloor = Math.max(1, Math.min(TOWER_MAX_FLOOR, Math.floor(Number(n) || 1)));
+  const towerDifficulty = mode === 'tower' ? getTowerDifficultyMultiplier(safeTowerFloor) : 1;
 
   const stage = useMemo(
-    () => (mode === 'tower' ? TOWER_STAGE(n) : mode === 'event' ? EVENT_STAGE : getStage(mode, n)),
-    [mode, n],
+    () => (mode === 'tower' ? TOWER_STAGE(safeTowerFloor) : mode === 'event' ? EVENT_STAGE : getStage(mode, n)),
+    [mode, n, safeTowerFloor],
   );
 
   const locked =
@@ -77,7 +79,14 @@ export default function BattleArena({ mode, n }) {
       setPaid(true);
       return;
     }
-    setPaid(mode === 'event' ? true : actions.spendStamina(STAMINA_COST));
+    if (mode === 'tower' && towerRun?.active && towerRun.inBattle && Number(towerRun.currentFloor) === safeTowerFloor) {
+      // A refresh or route exit during an unfinished tower battle resumes without charging stamina twice.
+      setPaid(true);
+      return;
+    }
+    const canStart = mode === 'event' ? true : actions.spendStamina(STAMINA_COST);
+    if (canStart && mode === 'tower') actions.startTowerRun(safeTowerFloor);
+    setPaid(canStart);
   }, []);
 
   useEffect(() => {
@@ -338,20 +347,26 @@ export default function BattleArena({ mode, n }) {
                 <RewardLine reward={rewards} t={t} lang={lang} />
                 {rewards.idleGemDrop ? <p className="mt-2 flex items-center gap-1 text-left text-[10px] text-primary"><GameIcon name="Gem" className="h-3 w-3" />{t('idle.battleDrop', { n: rewards.idleGemDrop })}</p> : null}
                 {rewards.clearGemDrop ? <p className="mt-2 flex items-center gap-1 text-left text-[10px] text-primary"><GameIcon name="Gem" className="h-3 w-3" />{t('clearGem.battleDrop', { n: rewards.clearGemDrop })}</p> : null}
+                {rewards.towerMilestone ? <p className="mt-2 border-t border-white/[0.08] pt-2 text-left text-[10px] text-amber-300">{t('tower.milestoneReward', rewards.towerMilestone)}</p> : null}
                 {rewards.characterExp > 0 ? <p className="mt-2 border-t border-white/[0.08] pt-2 text-left text-[10px] leading-relaxed text-emerald-300">{lang === 'ja' ? `編成キャラクターそれぞれに +${fmt(rewards.characterExp)} EXP` : lang === 'en' ? `Each deployed character receives +${fmt(rewards.characterExp)} character EXP` : `上阵角色各获得 +${fmt(rewards.characterExp)} 角色经验`}</p> : null}
               </div>
             ) : null}
 
             <div className="mt-4 grid grid-cols-2 gap-2">
               <GhostButton
-                onClick={() =>
-                  navigate(`/battle?mode=${mode}&stage=${n}&r=${Date.now()}`)
-                }
+                onClick={() => navigate(`/battle?mode=${mode}&stage=${mode === 'tower' ? safeTowerFloor : n}&r=${Date.now()}`)}
                 className="py-2.5"
               >
                 {t('battle.again')}
               </GhostButton>
-              {result === 'win' && mode !== 'tower' && mode !== 'event' && n < 100 ? (
+              {result === 'win' && mode === 'tower' && safeTowerFloor < TOWER_MAX_FLOOR ? (
+                <GoldButton
+                  onClick={() => navigate(`/battle?mode=tower&stage=${safeTowerFloor + 1}&r=${Date.now()}`)}
+                  className="py-2.5"
+                >
+                  {t('tower.continue', { n: safeTowerFloor + 1 })}
+                </GoldButton>
+              ) : result === 'win' && mode !== 'tower' && mode !== 'event' && n < 100 ? (
                 <GoldButton
                   onClick={() => navigate(`/battle?mode=${mode}&stage=${nextStageNumber}&r=${Date.now()}`)}
                   className="py-2.5"
@@ -360,7 +375,7 @@ export default function BattleArena({ mode, n }) {
                 </GoldButton>
               ) : (
                 <GoldButton onClick={() => navigate(backTo)} className="py-2.5">
-                  {t('battle.back')}
+                  {mode === 'tower' && result === 'win' && safeTowerFloor === TOWER_MAX_FLOOR ? t('tower.completed') : t('battle.back')}
                 </GoldButton>
               )}
             </div>

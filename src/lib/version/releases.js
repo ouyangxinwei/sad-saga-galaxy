@@ -4,6 +4,15 @@ import { RELEASE_DATE } from './metadata.js';
 
 export const CHANGELOG = [
   {
+    version: 'v0.78', date: '2026-11-07',
+    title: { zh: '爬塔试炼：1000 层连续挑战', ja: '塔の試練：1000 階連続チャレンジ', en: 'Tower Trial: 1,000-floor continuous challenge' },
+    items: {
+      zh: ['爬塔扩展为最多 1000 层，敌方 HP、攻击力、防御力与速度按每层复利 +1% 成长', '胜利后由玩家点击继续进入下一层，无需返回试炼入口；仍保留手动推进', '当前楼层和战斗中状态写入 V20 本地存档，刷新或离开战斗页面后可恢复，恢复未结束战斗不会重复扣除体力', '每 100 层发放一次阶段奖励：额外 100 钻石和 1 张抽卡券；领取记录随存档保存，避免重复领取', '旧存档自动补齐爬塔状态字段；新增楼层上限、复利难度、敌人属性和旧存档兼容测试'],
+      ja: ['塔の試練を最大 1000 階に拡張し、敵の HP・攻撃力・防御力・速度が各階ごとに複利で +1% 成長', '勝利後はプレイヤーが「続ける」を押して次の階へ進み、試練入口へ戻る必要はありません（手動進行）', '現在の階層と戦闘中状態を V20 ローカルセーブに保存。更新・画面移動後も再開でき、中断した戦闘の再開時にスタミナを二重消費しません', '100 階ごとに追加報酬としてダイヤ 100 個と召喚券 1 枚を付与。受取履歴を保存して二重受取を防止', '旧セーブには塔の状態項目を自動補完。階層上限、複利難易度、敵能力、旧セーブ互換テストを追加'],
+      en: ['Extends Tower Trial to 1,000 floors; enemy HP, ATK, DEF, and speed compound by 1% per floor', 'After victory, the player explicitly clicks Continue to advance without returning to the Trials entry', 'Persists the current floor and in-battle state in the V20 local save; refreshes and route exits can resume without charging stamina twice for an interrupted battle', 'Every 100 cleared floors grants a one-time bonus of 100 gems and 1 summon ticket; claimed milestones are saved to prevent duplicates', 'Legacy saves receive tower state defaults; adds tests for floor limits, compound scaling, enemy attributes, and old-save compatibility'],
+    },
+  },
+  {
     version: 'v0.77', date: '2026-11-07',
     title: { zh: '异常状态系统 Phase 4.1：移动端状态说明与 Phase 5 发布验证', ja: '状態異常システム Phase 4.1：モバイル状態説明と Phase 5 リリース検証', en: 'Abnormal Status Phase 4.1: mobile status details and Phase 5 release validation' },
     items: {
