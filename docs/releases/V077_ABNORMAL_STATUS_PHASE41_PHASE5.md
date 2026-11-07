@@ -24,13 +24,13 @@
 - Post-deployment browser smoke check: confirm the deployed page and manifest are served successfully.
 
 ## Validation results
-- Automated tests: pending
-- Production build: pending
-- Artifact smoke tests: pending
-- GitHub Pages deployment: pending
-- Post-deployment browser check: pending
+- Automated tests: 92 passed, 0 failed (formation 11; save progress 8; save backup/restore 12; combat/abnormal status 58; production artifact smoke 3)
+- Production build: successful (Vite production build)
+- Artifact smoke tests: 3 passed, 0 failed (app entry bundle, manifest and icons, Service Worker cache v59)
+- GitHub Pages deployment: successful
+- Post-deployment headless Chromium check: successful; HTTP entry, JS bundle, manifest, icons, Service Worker v59, and hydrated React root verified
 
 ## Commit and deployment
-- Implementation commit: pending
-- Actions run: pending
-- Deployment status: pending
+- Validated release commit: `b856a37256d29a57f033b221a49b5bf235907ca5`
+- Actions run: [#42320558645](https://github.com/ouyangxinwei/sad-saga-galaxy/actions/runs/42320558645)
+- Deployment status: successful; build, Pages deployment, and Chromium verification jobs all passed.
