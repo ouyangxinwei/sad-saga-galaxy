@@ -1,7 +1,7 @@
 import SigilArt from '@/components/common/SigilArt';
 import GameIcon from '@/components/common/GameIcon';
 import { RARITY_COLOR } from '@/lib/gameData';
-import { STATUS_DEFINITIONS } from '@/lib/abnormalStatus';
+import { STATUS_DEFINITIONS, getStatusPresentation } from '@/lib/abnormalStatus';
 import { fmt, pct } from '@/lib/format';
 
 const DEFENSE_COPY = {
@@ -75,13 +75,23 @@ export default function UnitStatus({ unit, state, compact = false, lang = 'zh' }
       {activeStatuses.length > 0 ? (
         <div className="mt-1 flex max-w-full flex-wrap justify-center gap-0.5">
           {activeStatuses.map((status) => {
-            const definition = STATUS_DEFINITIONS[status.type];
-            if (!definition) return null;
-            const label = definition.label[lang] || definition.label.zh;
-            const description = definition.description?.[lang] || definition.description?.en || '';
-            const remaining = Math.max(0, Number(status.remainingDuration) || 0);
-            const durationText = copy.remaining.replace('{n}', String(remaining));
-            return <span key={status.type} title={`${label} — ${description} · ${durationText}`} className="rounded border border-rose-300/25 bg-rose-400/10 px-1 py-0.5 text-[7px] leading-none text-rose-200">{definition.short[lang] || definition.short.zh}{status.type === 'confusion' ? ` ${status.level}` : ''} · {remaining}</span>;
+            const presentation = getStatusPresentation(status, lang);
+            if (!presentation) return null;
+            return (
+              <details key={status.type} className="relative">
+                <summary
+                  aria-label={presentation.ariaLabel}
+                  title={presentation.ariaLabel}
+                  className="cursor-pointer list-none rounded border border-rose-300/25 bg-rose-400/10 px-1 py-0.5 text-[7px] leading-none text-rose-200 [&::-webkit-details-marker]:hidden"
+                >
+                  {presentation.marker}
+                </summary>
+                <div role="note" className="absolute bottom-full left-1/2 z-50 mb-1 w-40 -translate-x-1/2 rounded-md border border-rose-200/30 bg-[#171b2b] p-2 text-left text-[10px] leading-snug text-rose-50 shadow-xl">
+                  <div className="font-semibold">{presentation.label} · {presentation.remainingLabel}</div>
+                  <p className="mt-1 text-rose-100/80">{presentation.description}</p>
+                </div>
+              </details>
+            );
           })}
         </div>
       ) : null}
@@ -90,12 +100,12 @@ export default function UnitStatus({ unit, state, compact = false, lang = 'zh' }
           {resistances.map((type) => {
             const definition = STATUS_DEFINITIONS[type];
             const value = Math.round(Number(unit.statusResistance[type]) * 100);
-            return <span key={`resist-${type}`} title={`${copy.resistance}: ${definition.label[lang] || definition.label.zh} ${value}%`} className="rounded border border-sky-300/25 bg-sky-400/10 px-1 py-0.5 text-[7px] leading-none text-sky-200">{definition.short[lang] || definition.short.zh} {value}%</span>;
+            return <span key={`resist-${type}`} role="img" aria-label={`${copy.resistance}: ${definition.label[lang] || definition.label.zh} ${value}%`} title={`${copy.resistance}: ${definition.label[lang] || definition.label.zh} ${value}%`} className="rounded border border-sky-300/25 bg-sky-400/10 px-1 py-0.5 text-[7px] leading-none text-sky-200">{definition.short[lang] || definition.short.zh} {value}%</span>;
           })}
           {immunities.map((type) => {
             const definition = STATUS_DEFINITIONS[type];
             if (!definition) return null;
-            return <span key={`immune-${type}`} title={`${copy.immune}: ${definition.label[lang] || definition.label.zh}`} className="rounded border border-amber-300/25 bg-amber-400/10 px-1 py-0.5 text-[7px] leading-none text-amber-200">{copy.immune} {definition.short[lang] || definition.short.zh}</span>;
+            return <span key={`immune-${type}`} role="img" aria-label={`${copy.immune}: ${definition.label[lang] || definition.label.zh}`} title={`${copy.immune}: ${definition.label[lang] || definition.label.zh}`} className="rounded border border-amber-300/25 bg-amber-400/10 px-1 py-0.5 text-[7px] leading-none text-amber-200">{copy.immune} {definition.short[lang] || definition.short.zh}</span>;
           })}
         </div>
       )}
