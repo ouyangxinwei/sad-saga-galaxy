@@ -25,7 +25,7 @@ for (const icon of manifest.icons || []) await fetchOk(new URL(icon.src, new URL
 
 const swResponse = await fetchOk(new URL('sw.js', base), 'Service Worker');
 const sw = await swResponse.text();
-assert.match(sw, /CACHE_NAME = `\$\{CACHE_PREFIX\}v59`/, 'Service Worker cache version is not v59');
+assert.match(sw, /CACHE_NAME = `\$\{CACHE_PREFIX\}v60`/, 'Service Worker cache version is not v60');
 
 const chrome = process.env.CHROME_BIN || 'google-chrome';
 const dom = execFileSync(chrome, [
@@ -40,4 +40,4 @@ const dom = execFileSync(chrome, [
 ], { encoding: 'utf8', timeout: 90000, maxBuffer: 20 * 1024 * 1024 });
 const rootMatch = dom.match(/<div id="root">([\s\S]*?)<\/div>/);
 assert.ok(rootMatch && rootMatch[1].trim().length > 0, 'Chromium loaded the page but React did not render into #root');
-console.log(`Browser smoke passed: ${base}; manifest, ${scriptUrls.length} JS entry, icons, Service Worker v59, and hydrated React root verified.`);
+console.log(`Browser smoke passed: ${base}; manifest, ${scriptUrls.length} JS entry, icons, Service Worker v60, and hydrated React root verified.`);
