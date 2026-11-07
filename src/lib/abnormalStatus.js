@@ -11,6 +11,36 @@ export const STATUS_DEFINITIONS = Object.freeze({
 });
 export const STATUS_TYPES = Object.freeze(Object.keys(STATUS_DEFINITIONS));
 
+/** Build localized, accessible text for a status marker without changing battle rules. */
+export function getStatusPresentation(status, lang = 'en') {
+  const definition = STATUS_DEFINITIONS[status?.type];
+  if (!definition) return null;
+  const language = ['zh', 'ja', 'en'].includes(lang) ? lang : 'en';
+  const label = definition.label[language] || definition.label.en;
+  const description = definition.description?.[language] || definition.description?.en || label;
+  const short = definition.short[language] || definition.short.en;
+  const remaining = Math.max(0, Math.floor(Number(status?.remainingDuration) || 0));
+  const remainingLabel = language === 'zh'
+    ? `剩余 ${remaining} 回合`
+    : language === 'ja'
+      ? `残り ${remaining} ターン`
+      : `${remaining} turns left`;
+  const level = status?.type === 'confusion'
+    ? Math.min(definition.maxLevel, Math.max(1, Math.floor(Number(status.level) || 1)))
+    : null;
+  const marker = `${short}${level ? ` ${level}` : ''} · ${remaining}`;
+  return {
+    label,
+    description,
+    short,
+    remaining,
+    remainingLabel,
+    level,
+    marker,
+    ariaLabel: `${label}. ${description}. ${remainingLabel}${level ? `. Level ${level}` : ''}`,
+  };
+}
+
 export function normalizeActiveStatuses(statuses) {
   if (!Array.isArray(statuses)) return [];
   return statuses.flatMap((entry) => {
