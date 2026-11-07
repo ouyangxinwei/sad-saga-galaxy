@@ -1,7 +1,7 @@
 {
   "name": "oooo-app",
   "private": true,
-  "version": "0.76.0",
+  "version": "0.76.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -14,7 +14,8 @@
     "test:equipment": "node --test scripts/equipment*.test.mjs scripts/warning-diagnosis.test.mjs scripts/reset.test.mjs scripts/character-progression.test.mjs scripts/save-backup.test.mjs scripts/idle-system.test.mjs scripts/clear-gem-system.test.mjs scripts/desperate-combat.test.mjs scripts/resource-exchange.test.mjs && npm run test:version-management",
     "test:version-management": "node --test scripts/version-management.test.mjs",
     "test:formation": "node --test scripts/formation-system.test.mjs",
-    "test:combat": "node --test scripts/desperate-combat.test.mjs scripts/character-detail-chances.test.mjs scripts/stage-progression.test.mjs scripts/abnormal-status.test.mjs scripts/abnormal-status-phase2.test.mjs scripts/abnormal-status-phase3.test.mjs scripts/abnormal-status-phase4.test.mjs",
+    "test:combat": "node --test scripts/desperate-combat.test.mjs scripts/character-detail-chances.test.mjs scripts/stage-progression.test.mjs scripts/abnormal-status.test.mjs scripts/abnormal-status-phase2.test.mjs scripts/abnormal-status-phase3.test.mjs scripts/abnormal-status-phase4.test.mjs scripts/abnormal-status-phase4-1.test.mjs",
+    "test:release-smoke": "node --test scripts/release-artifact-smoke.test.mjs",
     "test:save-progress": "node --test scripts/save-progress.test.mjs",
     "test:save-backup": "node --test scripts/save-backup.test.mjs"
   },
